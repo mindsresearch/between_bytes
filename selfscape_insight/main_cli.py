@@ -20,7 +20,7 @@ Note:
     This is the main module.
 
 Version:
-    1.1.8
+    0.2
 
 Author:
     Noah Duggan Erickson
@@ -37,9 +37,13 @@ from selfscape_insight.features import topics as tps
 from selfscape_insight.features import feelings as fgs
 
 # CHANGELOG:
-#   1.1: (15 March 2024)
+#   0.3: (04 April 2024)
+#     - Added flit building and packaging; subsequent
+#       structural modifications
+# [REVERSIONING]
+#   0.2: (15 March 2024)
 #     - Added option to ingest CSVs for development purposes
-#   1.0:
+#   0.1:
 #     - Initial Release
 
 def main():

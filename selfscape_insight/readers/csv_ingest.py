@@ -1,6 +1,8 @@
 """ Used for development only.
 """
 
+__version__ = '1.0'
+
 import os
 import argparse
 
