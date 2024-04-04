@@ -27,7 +27,7 @@ Note:
     This sub-module is part of the 'selfscape_insight' package in the 'features' module.
 
 Version:
-    1.0.0
+    1.0
 
 Author:
     Carter Jacobs
