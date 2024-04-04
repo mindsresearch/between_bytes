@@ -1,0 +1,55 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "SelfScape Insight"
+version = "1.1.8"
+description = "Assorted visualizations and other representations of the data that Facebook collects"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Noah Duggan Erickson", email = "duggann@wwu.edu" },
+    { name = "Liam Gore",            email = "gorel@wwu.edu" },
+    { name = "Peter Hafner",         email = "hafnerp2@wwu.edu" },
+    { name = "Carter Jacobs",        email = "jacobs81@wwu.edu" },
+    { name = "Trevor Le",            email = "let38@wwu.edu" }
+]
+maintainers = [
+    { name = "Dustin O'Hara", email = "oharad@wwu.edu"}
+]
+dependencies = [
+    "pyarrow",
+    "pandas",
+    "geopandas",
+    "requests",
+    "flatsplode",
+    "maxminddb",
+    "beautifulsoup4",
+    "matplotlib",
+    "spacy",
+    "spacytextblob",
+    "wordcloud",
+    "plotly",
+    "nbformat",
+    "folium",
+    "seaborn",
+    "pillow",
+    "tqdm",
+    "timeout-decorator"
+]
+classifiers = [
+    "Private :: Do Not Upload",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent"
+]
+
+[project.urls]
+WWU-CS = "https://cs.wwu.edu"
+Source = "https://example.com/persona_sight/repo"
+
+[project.scripts]
+scape-cli = "selfscape_insight.main_cli:main"
