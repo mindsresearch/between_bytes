@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+title: Selfscape Insight
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Noah
+    family-names: Duggan Erickson
+    email: duggann@wwu.edu
+    affiliation: Western Washington University
+    orcid: 'https://orcid.org/0009-0004-1135-2025'
+  - given-names: Liam
+    family-names: Gore
+    email: gorel2@wwu.edu
+    affiliation: Western Washington University
+  - given-names: Peter
+    family-names: Hafner
+    email: hafnerp2@wwu.edu
+    affiliation: Western Washington University
+  - given-names: Carter
+    family-names: Jacobs
+    email: jacobs81@wwu.edu
+    affiliation: Western Washington University
+  - given-names: Trevor
+    family-names: Le
+    email: let38@wwu.edu
+    affiliation: Western Washington University
+repository-code: 'https://github.com/mindsresearch/selfscape-insight'
+license: AGPL-3.0
