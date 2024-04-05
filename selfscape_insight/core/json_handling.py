@@ -36,7 +36,7 @@ import pandas as pd
 import timeout_decorator as time_dec
 from flatsplode import flatsplode
 
-def enum_files(rootpath:str, ext:str='json', blacklist:list=None) -> list:
+def enum_files(rootpath:str, ext:str='json', blacklist:list=None, logger:logging.Logger=logging.getLogger(__name__)) -> list:
     """
     Lists files of a given extension within a root directory, optionally blacklisting subdirectories.
 
@@ -59,7 +59,7 @@ def enum_files(rootpath:str, ext:str='json', blacklist:list=None) -> list:
         for file in files:
             if file.endswith(f'.{ext}'):
                 if (blacklist is not None) and (any(bad in root for bad in blacklist)):
-                    print(f'denied by BL:\n {root}')
+                    logger.debug(f'denied by BL: {"/".join(root.split("/")[-5:])}')
                 else:
                     fl.append((root, file))
     return fl

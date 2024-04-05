@@ -25,19 +25,19 @@ Dependencies:
     tqdm for pretty progress bars
 
 Todo:
-    * Create group message json special case(?)
-    * Other efficiency improvements as needed
+    * Create group message json special case(?) (wontfix)
+    * Other efficiency improvements as needed (wontfix)
     * argparse cleaning
     * Logging QoL improvements
 
 Version:
-    2.2
+    2.3
 
 Author:
     Noah Duggan Erickson
 """
 
-__version__ = '2.2'
+__version__ = '2.3'
 
 import argparse
 import logging
@@ -45,13 +45,19 @@ import time
 import tracemalloc
 import os
 import tempfile
+import shutil
+import pathlib
 
 import pandas as pd
 from tqdm import tqdm
 
-from persona_sight.core import json_handling as jh
+from core import json_handling as jh
 
 # CHANGELOG:
+#   2.3: (5 April 2024)
+#     - Cleaned up some of the CLI args structure
+#     - Cleaned up tempfile handling
+#     - Added CSV creation/deletion/access audit logging
 #   2.2: (15 March 2024)
 #     - Added option to ignore messages folder (default true)
 #     - Added docstrings, general cleaning
@@ -92,11 +98,11 @@ class JsonReader:
 
     Attributes:
         csvs (dict): A dictionary mapping CSV filenames to their paths.
-        temp (bool): Indicates whether the CSV files are being written to a temporary directory.
+        path (str): The path to the directory where the CSV files are written.
     """
 
     def __init__(self, jsonroot:str, csvroot:str='temp', read_messages:bool=False,
-                 loglevel:int=logging.ERROR, ch:logging.StreamHandler=None):
+                 logger:logging.Logger=logging.getLogger(__name__), auditor:logging.Logger=logging.getLogger('jsonAuditor')):
         """
         Initializes the JsonReader with paths and logging settings.
 
@@ -109,20 +115,17 @@ class JsonReader:
 
         Prints the start message with configuration details.
         """
-        print(f"--------\nSTARTING JSON -> CSV INGEST\n  json path: {jsonroot}\n  dest path: {csvroot} \n    (exists? {os.path.exists(csvroot)})\n  skip msgs: {not read_messages}\n  lgng levl: {loglevel}\n--------") # pylint: disable=line-too-long
-        self.csvs = {}
-        logger = logging.getLogger("json")
-        logger.setLevel(loglevel)
-        if ch is None:
-            ch = logging.StreamHandler()
-            ch.setLevel(loglevel)
-        logger.addHandler(ch)
 
-        paths = self.enum_json(jsonroot, not read_messages, logger)
+        self.csvs = {}
+        self._logger = logger
+        self._auditor = auditor
+        self._logger.info(f"\n--------\nSTARTING JSON -> CSV INGEST {__version__}\n  json path: {jsonroot}\n  dest path: {csvroot} \n    (exists? {os.path.exists(csvroot)})\n  skip msgs: {not read_messages}\n  lgng levl: {self._logger.level}\n--------") # pylint: disable=line-too-long
+
+        paths = self.enum_json(jsonroot, not read_messages)
 
         dfs = {}
-        for path in tqdm(paths, desc='reading json'):
-            dft = self.read_json(path, logger)
+        for p in tqdm(paths, desc='reading json'):
+            dft = self.read_json(p)
             if dft[0] in dfs:
                 dfs[dft[0]].append(dft[1])
             else:
@@ -130,31 +133,33 @@ class JsonReader:
 
         dfs = {key: pd.concat(dfs[key]) for key in tqdm(dfs.keys(), desc='building dfs')}
 
-        self.temp = (csvroot == 'temp')
-        if ((not self.temp) and (not os.path.exists(csvroot))):
-            os.mkdir(csvroot)
+        self._temp = (csvroot == 'temp')
+        self.path = pathlib.Path(tempfile.mkdtemp() if self._temp else csvroot)
+
+        if self._temp:
+            self._auditor.info(f"Temp directory created at {self.path}")
+        elif not self.path.exists():
+            self.path.mkdir()
+            self._auditor.info(f"Created directory {self.path}")
+        
         for df in tqdm(dfs.items(), desc='writing csvs'):
-            if self.temp:
-                with tempfile.NamedTemporaryFile(delete=False) as f:
-                    df[1].to_csv(f.name)
-                    self.csvs[df[0]] = f.name
-            else:
-                path = os.path.join(csvroot, f"{df[0]}.csv")
-                df[1].to_csv(path)
-                self.csvs[df[0]] = path
+            p = os.path.join(self.path, f"{df[0]}.csv")
+            df[1].to_csv(p)
+            self._auditor.debug(f" Created {p}")
+            self.csvs[df[0]] = p
     
-    def enum_json(self, rootpath:str, ignore_messages:bool, logger:logging.Logger) -> list:
+    def enum_json(self, rootpath:str, ignore_messages:bool) -> list:
         """
         Enumerates JSON files in the specified directory, optionally ignoring the messages folder.
 
         This method uses the `json_handling.enum_files` function to enumerate all
-        JSON files in the given directory. It can optionally ignore the 'messages'
+        JSON files in the given directory. It can optionally ignore the 'inbox'
         folder to speed up the process. This method also measures the time and
         memory usage during the enumeration process.
 
         Args:
             rootpath (str): The root directory from which JSON files will be enumerated.
-            ignore_messages (bool): Whether to ignore the 'messages' directory.
+            ignore_messages (bool): Whether to ignore the 'inbox' directory.
             logger (logging.Logger): Logger instance for logging information during enumeration.
 
         Returns:
@@ -162,14 +167,14 @@ class JsonReader:
         """
         tracemalloc.start()
         start = time.time()
-        paths = jh.enum_files(rootpath, blacklist=(['messages'] if ignore_messages else []))
+        paths = jh.enum_files(rootpath, blacklist=(['inbox'] if ignore_messages else []), logger=self._logger)
         end = time.time()
         c, p = tracemalloc.get_traced_memory()
-        logger.info(f"Enumerated {len(paths)} files in {round((end-start) * 10**3, 3)} ms and used a peak of {round(p * 10**-6, 3)}MB RAM (Current: {round(c * 10**-6, 3)}MB)") # pylint: disable=line-too-long
+        self._logger.info(f"Enumerated {len(paths)} files in {round((end-start) * 10**3, 3)} ms and used a peak of {round(p * 10**-6, 3)}MB RAM (Current: {round(c * 10**-6, 3)}MB)") # pylint: disable=line-too-long
         tracemalloc.stop()
         return paths
     
-    def read_json(self, path:tuple, logger=logging.Logger) -> tuple:
+    def read_json(self, path:tuple) -> tuple:
         """
         Reads and processes a JSON file from the given path, converting it into a DataFrame.
 
@@ -192,15 +197,15 @@ class JsonReader:
         start = time.time()
         tracemalloc.start()
         try:
-            out = jh.proc_file(path, logger)
+            out = jh.proc_file(path, self._logger)
         except TimeoutError:
-            logger.error(f"Processing file {path[1]} took too long. Skipping...")
+            self._logger.error(f"Processing file {path[1]} took too long. Skipping...")
         end = time.time()
         c, p = tracemalloc.get_traced_memory()
         fp = os.path.join(path[0], path[1])
-        logger.info(f"Processed {out[0]} ({round(os.path.getsize(fp) * 10**-6, 3)}MB) in {round((end-start) * 10**3, 3)} ms using {round(c * 10**-6, 3)}MB RAM (peak: {round(p * 10**-6, 3)}MB)") # pylint: disable=line-too-long
+        self._logger.debug(f"Processed {out[0]} ({round(os.path.getsize(fp) * 10**-6, 3)}MB) in {round((end-start) * 10**3, 3)} ms using {round(c * 10**-6, 3)}MB RAM (peak: {round(p * 10**-6, 3)}MB)") # pylint: disable=line-too-long
         if p >= RAMWARN:
-            logger.warning(f"HIGH RAM USAGE! Peaked at {round(p * 10**-9, 3)}GB")
+            self._logger.warning(f"HIGH RAM USAGE! Peaked at {round(p * 10**-9, 3)}GB")
         tracemalloc.stop()
         return out
 
@@ -217,8 +222,10 @@ class JsonReader:
         Raises:
             KeyError: If no CSV file with the given name exists.
         """
-        if name in self.csvs and self.csvs[name] is None:
+        if name not in self.csvs.keys():
+            self._logger.error(f"csv '{name}' does not exist!")
             raise KeyError(f"csv '{name}' does not exist!")
+        self._auditor.info(f"Retrieved {name}")
         return self.csvs[name]
     
     def get_names(self) -> list:
@@ -252,14 +259,16 @@ class JsonReader:
             KeyError: If the specified key does not correspond to any existing CSV file.
         """
         if key not in self.csvs.keys():
+            self._logger.error(f"{key} does not exist")
             raise KeyError(f"{key} does not exist")
         
+        self._auditor.info(f"Retrieved info for {key}")
         df = pd.read_csv(self.csvs[key])
         sh = df.shape
         sp = df.memory_usage(deep=True).sum()
         return f"\n{key}:\n  shape: {sh} RAM: {round(sp * 10**-6, 3)}MB"
     
-    def close(self):
+    def close(self, force:bool=False):
         """
         Cleans up by deleting temporary CSV files, if applicable.
 
@@ -268,10 +277,12 @@ class JsonReader:
         JsonReader instance is no longer needed, to ensure that no unnecessary
         files are left on the filesystem.
         """
-        if self.temp:
-            for k in self.csvs.keys():
-                os.unlink(self.csvs[k])
-                self.csvs[k] = None
+        if self._temp or force:
+            shutil.rmtree(self.path)
+            self._auditor.info(f"Deleted directory {self.path}")
+            self.csvs = {}
+            self.path = None
+
     
     def __str__(self) -> str:
         """
@@ -291,41 +302,47 @@ class JsonReader:
             sp = df.memory_usage(deep=True).sum()
             out += f"\n{k}:\n  shape: {sh} RAM: {round(sp * 10**-6, 3)}MB"
         out += "\n--------"
+        self._auditor.info("Retrieved info for all keys")
         return out
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='python3 jsonIngest.py')
+    parser = argparse.ArgumentParser(prog='json_ingest',
+                                     description='Converts JSON data to CSVs',
+                                     epilog='(C) 2024 Noah Duggan Erickson, License: GNU AGPL-3.0'
+                                     )
     parser.add_argument('-i',  '--in_path',
                         required=True, dest='json_root', type=str,
                         metavar='/PATH/TO/JSON_ROOT/',
                         help='path to root of JSON data')
     parser.add_argument('-o', '--out_path',
-                        required=True, dest='csv_root', type=str,
-                        metavar='/WHERE/TO/WRITE/CSVS/',
+                        required=False, dest='csv_root', type=str,
+                        metavar='/WHERE/TO/WRITE/CSVS/', default='temp',
                         help='directory of where to put outputted csvs')
     parser.add_argument('-m', '--read_messages',
                         action='store_true', dest='m',
                         help="If present, don't skip the messages folder - may take significantly longer to run")
-    parser.add_argument('-l', '--log',
-                        action='store_true', dest='l',
-                        help='If present, prints logging information to stdout')
-    parser.add_argument('-v', '--log_v',
-                        action='store_true', dest='v',
-                        help='If present, prints debug-level logging information to stdout')
+    parser.add_argument('-v', '--verbose',
+                        action='count', dest='v', default=0,
+                        help='Set stdout verbosity level (-v, -vv)')
+    parser.add_argument('-d', '--delete', action='store_true', dest='force_delete',
+                        help='Delete the output directory after completion (if not temp)')
     args = parser.parse_args()
 
-    v = args.v
-    l = v or args.l
-
-    if l:
-        level = logging.DEBUG if v else logging.INFO
-    else:
-        level = logging.ERROR
+    match args.v:
+        case 0:
+            level = logging.ERROR
+        case 1:
+            level = logging.INFO
+        case 2:
+            level = logging.DEBUG
+        case _:
+            level = logging.DEBUG
 
     ch = logging.StreamHandler()
-    ch.setLevel(level)
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=level, handlers=[ch])
     print("JSON -> CSV INGESTER")
     print(f"       V. {__version__}       \n")
     reader = JsonReader(jsonroot=args.json_root, csvroot=args.csv_root,
-                        read_messages=args.m, loglevel=level, ch=ch)
+                        read_messages=args.m, logger=logging.getLogger())
     print(reader)
+    reader.close(args.force_delete)
