@@ -95,6 +95,6 @@ if __name__ == "__main__":
                         required=True, dest='csv_root', type=str,
                         metavar='/PATH/TO/CSV_ROOT/',
                         help='path to root of CSV data')
-    args = parser.parse_args('-i /home/duggann/nde-fb-csvs'.split())
+    args = parser.parse_args()
     reader = CsvReader(args.csv_root)
     print(reader)
