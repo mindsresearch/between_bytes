@@ -20,7 +20,7 @@ Note:
     This is the main module.
 
 Version:
-    0.4
+    0.5
 
 Author:
     Noah Duggan Erickson
@@ -37,8 +37,12 @@ from features import ip_loc as ipl
 from features import off_fb_act as ofa
 from features import topics as tps
 from features import feelings as fgs
+from features import filesize_sankey as fsk
 
 # CHANGELOG:
+#   0.5: (05 April 2024)
+#     - Added filesize_sankey feature
+#     - Added output path arg to CLI
 #   0.4: (05 April 2024)
 #     - Propogated readers/json_ingest.py logging abilities
 #   0.3: (04 April 2024)
@@ -57,6 +61,7 @@ def main():
                                      )
     fio = parser.add_argument_group('File I/O')
     fio.add_argument('-i', '--in_path', metavar='PATH/TO/DATA', help='path to root of data', required=True)
+    fio.add_argument('-o', '--out_path', metavar='PATH/TO/OUTPUTS', help='path to directory of where to put feature outputs', required=True)
     fio.add_argument('-c', '--csv', help='If present, data is a directory of CSVs (used for development)', action='store_true')
     mod_group = parser.add_argument_group('Modules', 'Select which modules to include/exclude.')
     mod_group.add_argument('--smp', help='sample module', action=argparse.BooleanOptionalAction)
@@ -64,10 +69,11 @@ def main():
     mod_group.add_argument('--ofa', help='off_fb_act module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--tps', help='topics module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--fgs', help='feelings module', action=argparse.BooleanOptionalAction)
+    mod_group.add_argument('--fsk', help='filesize_sankey module', action=argparse.BooleanOptionalAction)
     parser.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
     parser.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
     args = parser.parse_args()
-    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fgs': args.fgs}
+    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fgs': args.fgs, 'fsk': args.fsk}
     if any(mods.values()):
         for key in mods:
             if mods[key] is None:
@@ -156,6 +162,16 @@ def main():
             logger.error("One of the files for the feelings module does not exist! Skipping...")
     else:
         logger.info("Feelings module not run.")
+    
+    # filesize_sankey module
+    #
+    if mods['fsk']:
+        try:
+            featOuts.append(fsk.run(args.in_path, args.out_path))
+        except ValueError:
+            logger.error("One of the files for the filesize_sankey module does not exist! Skipping...")
+    else:
+        logger.info("Filesize_sankey module not run.")
     
     fileHandler.close()
     for i in range(len(featOuts)):
