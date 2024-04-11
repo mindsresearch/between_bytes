@@ -10,7 +10,7 @@ Author:
     Noah Duggan Erickson
 '''
 
-from tkinter import *
+from tkinter import BOTH, W, E, END, N, S, DISABLED, Tk
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
