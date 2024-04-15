@@ -33,7 +33,7 @@ import logging
 import json
 
 import pandas as pd
-import timeout_decorator as time_dec
+# import timeout_decorator as time_dec
 from flatsplode import flatsplode
 
 def enum_files(rootpath:str, ext:str='json', blacklist:list=None, logger:logging.Logger=logging.getLogger(__name__)) -> list:
@@ -91,7 +91,7 @@ def json_df(data) -> pd.DataFrame:
     df.columns = cols
     return df
 
-@time_dec.timeout(60)
+# @time_dec.timeout(60)
 def proc_file(path:tuple, logger:logging.Logger=None) -> tuple:
     """
     Processes a JSON file, converting it to a pd.DataFrame with an appropriate name.
