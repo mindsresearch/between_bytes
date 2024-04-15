@@ -33,10 +33,9 @@ import logging
 import json
 
 import pandas as pd
-# import timeout_decorator as time_dec
 from flatsplode import flatsplode
 
-def enum_files(rootpath:str, ext:str='json', blacklist:list=None, logger:logging.Logger=logging.getLogger(__name__)) -> list:
+def enum_files(rootpath:str, ext:str='json', blacklist:list=[], logger:logging.Logger=logging.getLogger(__name__)) -> list:
     """
     Lists files of a given extension within a root directory, optionally blacklisting subdirectories.
 
@@ -91,14 +90,12 @@ def json_df(data) -> pd.DataFrame:
     df.columns = cols
     return df
 
-# @time_dec.timeout(60)
 def proc_file(path:tuple, logger:logging.Logger=None) -> tuple:
     """
     Processes a JSON file, converting it to a pd.DataFrame with an appropriate name.
 
     This function reads a JSON file from the specified path, handling different data structures within.
-    For example, it has a special case for handling 'browser_cookies.json' files. The function applies
-    a timeout decorator to limit processing time to 60 seconds, logging the processing attempt and outcome.
+    For example, it has a special case for handling 'browser_cookies.json' files.
 
     Args:
         path (tuple): A 2-tuple containing the directory and file name of the JSON file to be processed.
@@ -107,9 +104,6 @@ def proc_file(path:tuple, logger:logging.Logger=None) -> tuple:
 
     Returns:
         tuple: A 2-tuple containing a string with the canonical name for the data and the pandas DataFrame with the processed data.
-
-    Raises:
-        TimeoutError: If processing the JSON file takes longer than 60 seconds.
     """
     fp = os.path.join(path[0], path[1])
     l = logger is None
