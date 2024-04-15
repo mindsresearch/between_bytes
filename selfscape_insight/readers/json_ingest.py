@@ -31,13 +31,13 @@ Todo:
     * Logging QoL improvements
 
 Version:
-    2.3
+    2.3.1
 
 Author:
     Noah Duggan Erickson
 """
 
-__version__ = '2.3'
+__version__ = '2.3.1'
 
 import argparse
 import logging
@@ -51,9 +51,21 @@ import pathlib
 import pandas as pd
 from tqdm import tqdm
 
+# If running from the commandline, add the parent directory to the path
+#
+if __name__ == "__main__":
+    import sys
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    sys.path.append(parent_dir)
+
 from core import json_handling as jh
 
 # CHANGELOG:
+#   2.3.1: (15 April 2024)
+#     - Hotfix for issues with internal imports
+#     - Removal of timeout decorator due to OS issues
+#         (in json_handling)
 #   2.3: (5 April 2024)
 #     - Cleaned up some of the CLI args structure
 #     - Cleaned up tempfile handling
@@ -69,7 +81,8 @@ from core import json_handling as jh
 #     - removed development-residual code, general cleaning
 #   2.0: (29 February 2024)
 #     - module-ified for PROD transition via JsonReader class
-#     - Transitioned to tempfile in JsonReader (TL running left untouched for ease of data access)
+#     - Transitioned to tempfile in JsonReader (TL running
+#         left untouched for ease of data access)
 #   1.4: (23 February 2024)
 #     - Removed SQL mode
 #     - Transitioned (mostly) to argparse
@@ -167,7 +180,7 @@ class JsonReader:
         """
         tracemalloc.start()
         start = time.time()
-        paths = jh.enum_files(rootpath, blacklist=(['inbox'] if ignore_messages else []), logger=self._logger)
+        paths = jh.enum_files(rootpath, blacklist=(['messages'] if ignore_messages else []), logger=self._logger)
         end = time.time()
         c, p = tracemalloc.get_traced_memory()
         self._logger.info(f"Enumerated {len(paths)} files in {round((end-start) * 10**3, 3)} ms and used a peak of {round(p * 10**-6, 3)}MB RAM (Current: {round(c * 10**-6, 3)}MB)") # pylint: disable=line-too-long
@@ -224,6 +237,7 @@ class JsonReader:
         """
         if name not in self.csvs.keys():
             self._logger.error(f"csv '{name}' does not exist!")
+            self._logger.error("Please report this error if you believe this file should exist!")
             raise KeyError(f"csv '{name}' does not exist!")
         self._auditor.info(f"Retrieved {name}")
         return self.csvs[name]

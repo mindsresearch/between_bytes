@@ -36,8 +36,7 @@ dependencies = [
     "folium",
     "seaborn",
     "pillow",
-    "tqdm",
-    "timeout-decorator"
+    "tqdm"
 ]
 classifiers = [
     "Private :: Do Not Upload",
@@ -53,7 +52,7 @@ classifiers = [
 
 [project.urls]
 WWU-CS = "https://cs.wwu.edu"
-Source = "https://example.com/persona_sight/repo"
+Source = "https://github.com/mindsresearch/selfscape_insight"
 
 [project.scripts]
 scape-cli = "selfscape_insight.main_cli:main"
