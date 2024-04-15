@@ -47,18 +47,18 @@ def enum_files(rootpath:str, ext:str='json', blacklist:list=[], logger:logging.L
         rootpath (str): The path to the root directory to search within.
         ext (str, optional): The file extension to search for. Defaults to 'json'.
         blacklist (list, optional): A list of directory names to exclude from the search.
-            Defaults to None.
+            Defaults to empty list (deny nothing).
 
     Returns:
         list: A list of 2-tuples, each containing the directory path and the file name of found files.
     """
-    print(f"BLACKLIST: (len: {len(blacklist)})\n  {blacklist}")
+    logger.debug(f"BLACKLIST: (len: {len(blacklist)})\n  {blacklist}")
     fl = []
     for root, dirs, files in os.walk(rootpath): # pylint: disable=unused-variable
         for file in files:
             if file.endswith(f'.{ext}'):
                 if (blacklist is not None) and (any(bad in root for bad in blacklist)):
-                    logger.debug(f'denied by BL: {"/".join(root.split("/")[-5:])}')
+                    logger.debug(f'denied by BL: {(os.sep).join(root.split(os.sep)[-5:])}')
                 else:
                     fl.append((root, file))
     return fl
