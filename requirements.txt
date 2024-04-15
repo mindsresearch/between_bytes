@@ -15,4 +15,3 @@ folium
 seaborn
 pillow
 tqdm
-timeout-decorator
