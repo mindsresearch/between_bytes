@@ -20,7 +20,7 @@ Note:
     This is the main module.
 
 Version:
-    0.4
+    0.4.1
 
 Author:
     Noah Duggan Erickson
@@ -39,6 +39,8 @@ from features import topics as tps
 from features import feelings as fgs
 
 # CHANGELOG:
+#   0.4.1: (15 April 2024)
+#     - Assorted fixes to error handling and logging
 #   0.4: (05 April 2024)
 #     - Propogated readers/json_ingest.py logging abilities
 #   0.3: (04 April 2024)
@@ -111,7 +113,7 @@ def main():
     if mods['smp']:
         try:
             featOuts.append(sf.run(fileHandler.get_csv("bcts")))
-        except ValueError:
+        except KeyError:
             logger.error("One of the files for the sample module does not exist! Skipping...")
     else:
         logger.info("Sample module not run.")
@@ -121,7 +123,7 @@ def main():
     if mods['ipl']:
         try:
             featOuts.append(ipl.run(fileHandler.get_csv("account_activity_v2")))
-        except ValueError:
+        except KeyError:
             logger.error("One of the files for the ip_loc module does not exist! Skipping...")
     else:
         logger.info("IP Location module not run.")
@@ -131,7 +133,7 @@ def main():
     if mods['ofa']:
         try:
             featOuts.append(ofa.run(fileHandler.get_csv("off_facebook_activity_v2")))
-        except ValueError:
+        except KeyError:
             logger.error("One of the files for the off_fb_act module does not exist! Skipping...")
     else:
         logger.info("Off-Facebook Activity module not run.")
@@ -142,7 +144,7 @@ def main():
         try:
             featOuts.append(tps.run(fileHandler.get_csv("topics_v2"),
                                 fileHandler.get_csv("inferred_topics_v2")))
-        except ValueError:
+        except KeyError:
             logger.error("One of the files for the topics module does not exist! Skipping...")
     else:
         logger.info("Topics module not run.")
@@ -152,7 +154,7 @@ def main():
     if mods['fgs']:
         try:
             featOuts.append(fgs.run(None))
-        except ValueError:
+        except KeyError:
             logger.error("One of the files for the feelings module does not exist! Skipping...")
     else:
         logger.info("Feelings module not run.")
