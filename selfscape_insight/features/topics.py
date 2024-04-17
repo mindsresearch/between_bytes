@@ -133,6 +133,8 @@ def run(topics_v2, inferred_topics_v2):
     with tempfile.TemporaryDirectory() as temp_dir_inferred:
         print(f"Created temporary directory: {temp_dir_inferred}")
         
+        # pointless change
+
         # Download images to the temporary directory
         for index, row in tqdm(inferred_topics.iterrows(), desc="Inferred Topics: ", total=len(inferred_topics)):
             lead = row["Topics"]
