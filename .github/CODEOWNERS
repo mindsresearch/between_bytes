@@ -1,1 +1,9 @@
-*   @duggann4
+/docs/ @duggann4
+
+### FEATURE OWNERSHIPS ###
+
+/selfscape_insight/features/feelings.py @Peter-Hafner
+/selfscape_insight/features/topics.py @jacobs81
+/selfscape_insight/features/ip_loc.py @TREVORLE123
+
+/selfscape_insight/readers/ @duggann4
