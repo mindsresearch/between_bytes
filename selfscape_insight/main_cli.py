@@ -20,7 +20,7 @@ Note:
     This is the main module.
 
 Version:
-    0.4
+    0.5
 
 Author:
     Noah Duggan Erickson
@@ -49,25 +49,7 @@ from features import feelings as fgs
 #   0.1:
 #     - Initial Release
 
-def main():
-    parser = argparse.ArgumentParser(prog='selfscape_insight',
-                                     usage='scape_cli -i PATH/TO/DATA [options]',
-                                     description='Runs an assortment of analyses on a Facebook profile data download',
-                                     epilog='(C) 2024 The Authors, License: GNU AGPL-3.0'
-                                     )
-    fio = parser.add_argument_group('File I/O')
-    fio.add_argument('-i', '--in_path', metavar='PATH/TO/DATA', help='path to root of data', required=True)
-    fio.add_argument('-c', '--csv', help='If present, data is a directory of CSVs (used for development)', action='store_true')
-    mod_group = parser.add_argument_group('Modules', 'Select which modules to include/exclude.')
-    mod_group.add_argument('--smp', help='sample module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--ipl', help='ip_loc module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--ofa', help='off_fb_act module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--tps', help='topics module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--fgs', help='feelings module', action=argparse.BooleanOptionalAction)
-    parser.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
-    parser.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
-    args = parser.parse_args()
-    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fgs': args.fgs}
+def main(in_path:str, mods:dict, verbose:int=0, log:str=sys.stdout, **kwargs):
     if any(mods.values()):
         for key in mods:
             if mods[key] is None:
@@ -76,10 +58,10 @@ def main():
         for key in mods:
             if mods[key] is None:
                 mods[key] = True
-    print(f"Modules: {mods}\nVerbose: {args.v}")
-    match args.v:
+    print(f"Modules: {mods}\nVerbose: {verbose}")
+    match verbose:
         case 0:
-            level = logging.ERROR
+            level = logging.WARNING
         case 1:
             level = logging.INFO
         case 2:
@@ -87,7 +69,7 @@ def main():
         case _:
             level = logging.DEBUG
 
-    ch = logging.StreamHandler(args.log)
+    ch = logging.StreamHandler(log)
     LOGFMT = "%(asctime)s : [%(name)s - %(levelname)s] : %(message)s"
     # logging.basicConfig(format=LOGFMT, level=level, handlers=[ch])
     logger = logging.getLogger('main')
@@ -98,19 +80,14 @@ def main():
     auditor.addHandler(ch)
     ch.setFormatter(logging.Formatter(LOGFMT))
     logger.info("Logger initialized.")
-    
-
-    if not args.csv:
-        fileHandler = JsonReader(args.in_path, logger=logger.getChild("json"), auditor=auditor.getChild("json"))
-    else:
-        fileHandler = CsvReader(args.in_path)
+    fileHandler = JsonReader(in_path, logger=logger.getChild("json"), auditor=auditor.getChild("json"), **kwargs)
     featOuts = []
     
     # sample module
     #
     if mods['smp']:
         try:
-            featOuts.append(sf.run(fileHandler.get_csv("bcts")))
+            featOuts.append(sf.run(fileHandler.get_csv("bcts"), logger=logger.getChild("sample"), auditor=auditor.getChild("sample")))
         except ValueError:
             logger.error("One of the files for the sample module does not exist! Skipping...")
     else:
@@ -163,4 +140,22 @@ def main():
         print(featOuts[i],"\n")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(prog='selfscape_insight',
+                                     usage='scape_cli -i PATH/TO/DATA [options]',
+                                     description='Runs an assortment of analyses on a Facebook profile data download',
+                                     epilog='(C) 2024 The Authors, License: GNU AGPL-3.0'
+                                     )
+    fio = parser.add_argument_group('File I/O')
+    fio.add_argument('-i', '--in_path', metavar='PATH/TO/DATA', help='path to root of data', required=True)
+    fio.add_argument('-c', '--csv', help='If present, data is a directory of CSVs (used for development)', action='store_true')
+    mod_group = parser.add_argument_group('Modules', 'Select which modules to include/exclude.')
+    mod_group.add_argument('--smp', help='sample module', action=argparse.BooleanOptionalAction)
+    mod_group.add_argument('--ipl', help='ip_loc module', action=argparse.BooleanOptionalAction)
+    mod_group.add_argument('--ofa', help='off_fb_act module', action=argparse.BooleanOptionalAction)
+    mod_group.add_argument('--tps', help='topics module', action=argparse.BooleanOptionalAction)
+    mod_group.add_argument('--fgs', help='feelings module', action=argparse.BooleanOptionalAction)
+    parser.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
+    parser.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
+    args = parser.parse_args()
+    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fgs': args.fgs}
+    main(in_path=args.in_path, mods=mods, verbose=args.v, log=args.log)
