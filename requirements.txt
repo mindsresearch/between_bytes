@@ -2,7 +2,6 @@ pyarrow
 pandas
 geopandas
 requests
-flatsplode
 maxminddb
 beautifulsoup4
 matplotlib
