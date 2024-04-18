@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" JSON Reader
+''' JSON Reader
 WWU Facebook Data Science Project
 Winter/Spring 2024
 
@@ -14,7 +14,7 @@ Examples:
     Accessing via another script/module::
 
         >>> from json_ingest import JsonReader
-        >>> reader = JsonReader("/path/to/json_root")
+        >>> reader = JsonReader('/path/to/json_root')
 
 Dependencies:
     tqdm for pretty progress bars
@@ -30,7 +30,7 @@ Version:
 
 Author:
     Noah Duggan Erickson
-"""
+'''
 
 __version__ = '3.0.0rc1'
 
@@ -60,12 +60,12 @@ from tqdm import tqdm
 
 # If running from the commandline, add the parent directory to the path
 #
-if __name__ == "__main__":
+if __name__ == '__main__':
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
     sys.path.append(parent_dir)
 
-from core import json_handling as jh
+from core import json_handling as jh # pylint: disable=wrong-import-position
 
 # CHANGELOG:
 #   3.0.0rc1: (18 April 2024)
@@ -85,7 +85,7 @@ from core import json_handling as jh
 #     - Added docstrings, general cleaning
 #   2.1: (7 March 2024)
 #     - Refactored helpers into core package
-#     - Major refactoring to align with OOP "general idea"
+#     - Major refactoring to align with OOP 'general idea'
 #     - argparse improvements
 #     - logging QoL improvements
 #     - removed development-residual code, general cleaning
@@ -114,16 +114,19 @@ Default is 4GB. Use x*10**9 for xGB, x*10**6 for xMB.
 '''
 
 class JsonReader:
-    """
-    A class used to read JSON files from a specified directory, and convert them into PKL files.
+    '''
+    A class used to read JSON files from a specified directory,
+    and convert them into PKL files.
 
     Attributes:
         No public attributes.
-    """
+    '''
 
-    def __init__(self, jsonroot:str, pklroot:str='temp', read_messages:bool=False, dev:bool=False,
-                 logger:logging.Logger=logging.getLogger(__name__), auditor:logging.Logger=logging.getLogger('jsonAuditor')):
-        """
+    def __init__(self, jsonroot:str, pklroot:str='temp',
+                 read_messages:bool=False, dev:bool=False,
+                 logger:logging.Logger=logging.getLogger(__name__),
+                 auditor:logging.Logger=logging.getLogger('jsonAuditor')):
+        '''
         Initializes the JsonReader with paths and logging settings.
 
         Args:
@@ -134,13 +137,13 @@ class JsonReader:
             ch (logging.StreamHandler, optional): The logging stream handler. If None, a new one is created.
 
         Prints the start message with configuration details.
-        """
+        '''
 
         self._pkls = {}
         self._logger = logger
         self._auditor = auditor
         self._dev = dev
-        self._logger.info(f"\n--------\nSTARTING JSON -> JSB INGEST {__version__}\n  json path: {jsonroot}\n  dest path: {pklroot} \n    (exists? {os.path.exists(pklroot)})\n  skip msgs: {not read_messages}\n  lgng levl: {self._logger.level}\n--------") # pylint: disable=line-too-long
+        self._logger.info(f'\n--------\nSTARTING JSON -> JSB INGEST {__version__}\n  json path: {jsonroot}\n  dest path: {pklroot} \n    (exists? {os.path.exists(pklroot)})\n  skip msgs: {not read_messages}\n  lgng levl: {self._logger.level}\n--------') # pylint: disable=line-too-long
 
         paths = self._enum_json(jsonroot, not read_messages)
 
@@ -154,35 +157,35 @@ class JsonReader:
             else:
                 objs[data[0]] = data[1]
 
-        self._temp = (pklroot == 'temp')
+        self._temp = pklroot == 'temp'
         self._path = pathlib.Path(tempfile.mkdtemp() if self._temp else pklroot)
 
         if self._temp:
-            self._auditor.info(f"Temp directory created at {self._path}")
+            self._auditor.info(f'Temp directory created at {self._path}')
         elif not self._path.exists():
             self._path.mkdir()
-            self._auditor.info(f"Created directory {self._path}")
-        
+            self._auditor.info(f'Created directory {self._path}')
+
         # This is where json -> pkl conversion happens.
         # Everything above this point is json objects.
         #
         if dev:
             for obj in tqdm(objs.items(), desc='writing jsons'):
-                p = os.path.join(self._path, f"{obj[0]}.json")
+                p = os.path.join(self._path, f'{obj[0]}.json')
                 with open(p, 'w', encoding='utf-8') as file:
                     json.dump(obj[1], file)
-                self._auditor.debug(f" Created {p}")
+                self._auditor.debug(f' Created {p}')
                 self._pkls[obj[0]] = p
         else:
             for obj in tqdm(objs.items(), desc='writing pkls'):
-                p = os.path.join(self._path, f"{obj[0]}.pkl")
+                p = os.path.join(self._path, f'{obj[0]}.pkl')
                 with open(p, 'wb') as file:
                     pickle.dump(obj[1], file)
-                self._auditor.debug(f" Created {p}")
+                self._auditor.debug(f' Created {p}')
                 self._pkls[obj[0]] = p
-    
+
     def _enum_json(self, rootpath:str, ignore_messages:bool) -> list:
-        """
+        '''
         Enumerates JSON files in the specified directory, optionally ignoring the messages folder(s).
 
         This method uses the `json_handling.enum_files` function to enumerate all
@@ -197,18 +200,18 @@ class JsonReader:
 
         Returns:
             list: A list of paths to the enumerated JSON files.
-        """
+        '''
         tracemalloc.start()
         start = time.time()
         paths = jh.enum_files(rootpath, blacklist=(['messages'] if ignore_messages else []), logger=self._logger)
         end = time.time()
         c, p = tracemalloc.get_traced_memory()
-        self._logger.info(f"Enumerated {len(paths)} files in {round((end-start) * 10**3, 3)} ms and used a peak of {round(p * 10**-6, 3)}MB RAM (Current: {round(c * 10**-6, 3)}MB)") # pylint: disable=line-too-long
+        self._logger.info(f'Enumerated {len(paths)} files in {round((end-start) * 10**3, 3)} ms and used a peak of {round(p * 10**-6, 3)}MB RAM (Current: {round(c * 10**-6, 3)}MB)') # pylint: disable=line-too-long
         tracemalloc.stop()
         return paths
-    
+
     def _read_json(self, path:tuple) -> tuple:
-        """
+        '''
         Reads and processes a JSON file from the given path, converting it into a dict/list.
 
         This method attempts to process a JSON file into a pandas DataFrame by using the
@@ -222,7 +225,7 @@ class JsonReader:
 
         Returns:
             tuple: A tuple containing the name of the obj (as a string) and the obj itself.
-        """
+        '''
         out = None
         start = time.time()
         tracemalloc.start()
@@ -230,14 +233,14 @@ class JsonReader:
         end = time.time()
         c, p = tracemalloc.get_traced_memory()
         fp = os.path.join(path[0], path[1])
-        self._logger.debug(f"Processed {out[0]} ({round(os.path.getsize(fp) * 10**-6, 3)}MB) in {round((end-start) * 10**3, 3)} ms using {round(c * 10**-6, 3)}MB RAM (peak: {round(p * 10**-6, 3)}MB)") # pylint: disable=line-too-long
+        self._logger.debug(f'Processed {out[0]} ({round(os.path.getsize(fp) * 10**-6, 3)}MB) in {round((end-start) * 10**3, 3)} ms using {round(c * 10**-6, 3)}MB RAM (peak: {round(p * 10**-6, 3)}MB)') # pylint: disable=line-too-long
         if p >= RAMWARN:
-            self._logger.warning(f"HIGH RAM USAGE! Peaked at {round(p * 10**-9, 3)}GB")
+            self._logger.warning(f'HIGH RAM USAGE! Peaked at {round(p * 10**-9, 3)}GB')
         tracemalloc.stop()
         return out
 
     def get_pkl(self, name:str):
-        """
+        '''
         Returns human JSON object from PKL of specified name.
 
         Args:
@@ -248,12 +251,12 @@ class JsonReader:
 
         Raises:
             KeyError: If no JSB file with the given name exists.
-        """
+        '''
         if name not in self._pkls.keys():
-            self._logger.error(f"pkl '{name}' does not exist!")
-            self._logger.error("Please report this error if you believe this file should exist!")
-            raise KeyError(f"pkl '{name}' does not exist!")
-        self._auditor.info(f"Retrieved {name}")
+            self._logger.error(f'pkl "{name}" does not exist!')
+            self._logger.error('Please report this error if you believe this file should exist!')
+            raise KeyError(f'pkl "{name}" does not exist!')
+        self._auditor.info(f'Retrieved {name}')
         path = self._pkls[name]
         if self._dev:
             with open(path, 'r', encoding='utf-8') as file:
@@ -262,7 +265,7 @@ class JsonReader:
             return pickle.load(file)
 
     def get_names(self) -> list:
-        """
+        '''
         Returns a list of the names of all JSB files generated by the JsonReader.
 
         This method allows for easy access to the names of all JSB files that have
@@ -271,11 +274,11 @@ class JsonReader:
 
         Returns:
             list: A list of strings, each representing the name of a generated JSON file.
-        """
+        '''
         return list(self._pkls.keys())
-    
+
     def key_info(self, key:str, indent=2) -> str:
-        """
+        '''
         Provides detailed information about a specific JSB file identified by its key.
 
         This method reads the JSB file corresponding to the provided key, calculates
@@ -290,34 +293,33 @@ class JsonReader:
 
         Raises:
             KeyError: If the specified key does not correspond to any existing JSB file.
-        """
+        '''
         if key not in self._pkls.keys():
-            self._logger.error(f"{key} does not exist")
-            raise KeyError(f"{key} does not exist")
-        
-        data = self.get_pkl(key)
-        self._auditor.info(f"Retrieved info for {key}")
+            self._logger.error(f'{key} does not exist')
+            raise KeyError(f'{key} does not exist')
 
-        return f"{key}:\n{' ' * indent}RAM: {sys.getsizeof(data) * 10**-3}KB\n{' ' * indent}structure:{jh.desc_json(data, indent=indent+2)}"
-    
+        data = self.get_pkl(key)
+        self._auditor.info(f'Retrieved info for {key}')
+
+        return f'{key}:\n{' ' * indent}RAM: {sys.getsizeof(data) * 10**-3}KB\n{' ' * indent}structure:{jh.desc_json(data, indent=indent+2)}'
+
     def close(self, force:bool=False):
-        """
+        '''
         Cleans up by deleting temporary PKL files, if applicable.
 
         This method is responsible for deleting any temporary JSB files created
         during the JsonReader's operation. It is typically called when the
         JsonReader instance is no longer needed, to ensure that no unnecessary
         files are left on the filesystem.
-        """
+        '''
         if self._temp or force:
             shutil.rmtree(self._path)
-            self._auditor.info(f"Deleted directory {self._path}")
+            self._auditor.info(f'Deleted directory {self._path}')
             self._pkls = {}
             self._path = None
 
-    
     def __str__(self) -> str:
-        """
+        '''
         Returns a string representation of the JsonReader instance, listing all JSBs managed by it.
 
         This method provides an overview of the JSB files that have been generated by this instance,
@@ -326,15 +328,15 @@ class JsonReader:
 
         Returns:
             str: A formatted string containing an overview of the JSON files managed by the JsonReader.
-        """
-        out = "--------\nJSONS:"
+        '''
+        out = '--------\nJSONS:'
         for k in self._pkls.keys():
-            out += f"\n  {self.key_info(k, 4)}"
-        out += "\n--------"
-        self._auditor.info("Retrieved info for all keys")
+            out += f'\n  {self.key_info(k, 4)}'
+        out += '\n--------'
+        self._auditor.info('Retrieved info for all keys')
         return out
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='json_ingest',
                                      description='Loads and consolidates JSON files',
                                      epilog='(C) 2024 Noah Duggan Erickson, License: GNU AGPL-3.0'
@@ -349,7 +351,7 @@ if __name__ == "__main__":
                         help='path to root of JSB output data (default: temp)')
     parser.add_argument('-m', '--read_messages',
                         action='store_true', dest='m',
-                        help="If present, don't skip the messages folder - may take significantly longer to run")
+                        help='If present, don\'t skip the messages folder - may take significantly longer to run')
     parser.add_argument('-v', '--verbose',
                         action='count', dest='v', default=0,
                         help='Set stdout verbosity level (-v, -vv)')
@@ -369,10 +371,10 @@ if __name__ == "__main__":
             level = logging.DEBUG
 
     ch = logging.StreamHandler()
-    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=level, handlers=[ch])
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=level, handlers=[ch])
     w = max((len(__version__)+3), 20)
-    print("JSON -> PKL INGESTER".center(w))
-    print(f"V. {__version__}".center(w), "\n")
+    print('JSON -> PKL INGESTER'.center(w))
+    print(f'V. {__version__}'.center(w), '\n')
     reader = JsonReader(jsonroot=args.json_root, pklroot=args.jsb_root,
                         read_messages=args.m, dev=args.x,
                         logger=logging.getLogger())
