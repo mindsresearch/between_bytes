@@ -103,7 +103,7 @@ def main():
     
 
     if not args.csv:
-        fileHandler = JsonReader(args.in_path, logger=logger.getChild("json"), auditor=auditor.getChild("json"))
+        fileHandler = JsonReader(args.in_path, logger=logger.getChild("pkl"), auditor=auditor.getChild("pkl"))
     else:
         fileHandler = CsvReader(args.in_path)
     featOuts = []
@@ -112,7 +112,7 @@ def main():
     #
     if mods['smp']:
         try:
-            featOuts.append(sf.run(fileHandler.get_csv("bcts")))
+            featOuts.append(sf.run(fileHandler.get_pkl("bcts")))
         except KeyError:
             logger.error("One of the files for the sample module does not exist! Skipping...")
     else:
@@ -122,7 +122,7 @@ def main():
     #
     if mods['ipl']:
         try:
-            featOuts.append(ipl.run(fileHandler.get_csv("account_activity_v2")))
+            featOuts.append(ipl.run(fileHandler.get_pkl("account_activity_v2")))
         except KeyError:
             logger.error("One of the files for the ip_loc module does not exist! Skipping...")
     else:
@@ -132,7 +132,7 @@ def main():
     #
     if mods['ofa']:
         try:
-            featOuts.append(ofa.run(fileHandler.get_csv("off_facebook_activity_v2")))
+            featOuts.append(ofa.run(fileHandler.get_pkl("off_facebook_activity_v2")))
         except KeyError:
             logger.error("One of the files for the off_fb_act module does not exist! Skipping...")
     else:
@@ -142,8 +142,8 @@ def main():
     #
     if mods['tps']:
         try:
-            featOuts.append(tps.run(fileHandler.get_csv("topics_v2"),
-                                fileHandler.get_csv("inferred_topics_v2")))
+            featOuts.append(tps.run(fileHandler.get_pkl("topics_v2"),
+                                fileHandler.get_pkl("inferred_topics_v2")))
         except KeyError:
             logger.error("One of the files for the topics module does not exist! Skipping...")
     else:
