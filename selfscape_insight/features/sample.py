@@ -32,8 +32,9 @@ Author:
 
 import pandas as pd
 import argparse
+import logging
 
-def run(bcts):
+def run(bcts, logger:logging.Logger=None, **kwargs):
     """Runs the feature.
 
     Tells how many ad-topics are on the user profile.
@@ -50,6 +51,7 @@ def run(bcts):
         be the only interaction that main.py has with the module.
     """
     df = pd.read_csv(bcts)
+    logger.info(f"Read {len(df)} rows from {bcts}")
     return f"There are {len(df)} advertising-related topics in the profile!\nGo do more interesting things..."
 
 # Below is more-or-less boilerplate code that can be copy/pasted
