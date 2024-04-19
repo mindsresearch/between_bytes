@@ -4,7 +4,11 @@ This repository contains the (soon to be) public/PROD version of the SelfScape I
 
 This is the Python project from the WWU Data Sci Senior Project Facebook group.
 
-*A more detailed README with execution instructions is coming "soon" once I figure out github releases.*
+## Downloading the program
+
+Download the latest version as a `whl` via the Releases section on the right sidebar!
+
+*.exe download coming "soon" once I figure it out...*
 
 ## Compiling from source (this directory)
 
@@ -40,4 +44,22 @@ scape-cli $(ArgsFor_main_cli.py)
 
 ### Compiling the Reference Docs
 
-*Docs instructions coming "soon". For now, please just ask Noah or ChatGPT*
+> [!NOTE]
+> The instructions in this section are untested.
+
+Follow the above steps up to (and including) `flit build`.
+
+To install `selfscape_insight` with the necessary dependencies for building the docs, run the following command:
+
+```bash
+pip install dist/$(whl_name).whl[doc]
+```
+
+Once that has completed, navigate to the `docs/` directory, and build the docs.
+
+```bash
+cd docs
+make html
+```
+
+Your local copy of the docs are now located at `docs/_build/html`!
