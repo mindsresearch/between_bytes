@@ -10,15 +10,15 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-project = 'Persona Sight'
-copyright = '2024, Noah Duggan Erickson, Liam Gore, Peter Hafner, Carter Jacobs, Trevor Le'
+project = 'SelfScape Insight'
+copyright = '(C) 2024, The Authors. License: GNU AGPL-3.0'
 author = 'Noah Duggan Erickson, Liam Gore, Peter Hafner, Carter Jacobs, Trevor Le'
-release = '0.1'
+release = '0.3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon', 'sphinx_design']
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
