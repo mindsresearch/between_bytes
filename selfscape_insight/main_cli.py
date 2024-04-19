@@ -170,7 +170,7 @@ def main():
     if mods['fsk']:
         try:
             featOuts.append(fsk.run(args.in_path, args.out_path))
-        except ValueError:
+        except KeyError:
             logger.error("One of the files for the filesize_sankey module does not exist! Skipping...")
     else:
         logger.info("Filesize_sankey module not run.")
