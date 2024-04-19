@@ -31,7 +31,6 @@ import logging
 import sys
 
 from readers.json_ingest import JsonReader
-from readers.csv_ingest  import CsvReader
 from features import sample as sf
 from features import ip_loc as ipl
 from features import off_fb_act as ofa
@@ -72,96 +71,116 @@ def main(in_path:str, mods:dict, verbose:int=0, log:str=sys.stdout, **kwargs):
             level = logging.DEBUG
 
     ch = logging.StreamHandler(log)
-    LOGFMT = "%(asctime)s : [%(name)s - %(levelname)s] : %(message)s"
+    logfmt = "%(asctime)s : [%(name)s - %(levelname)s] : %(message)s"
     # logging.basicConfig(format=LOGFMT, level=level, handlers=[ch])
-    logger = logging.getLogger('main')
+    logger = logging.getLogger("main")
     logger.setLevel(level)
     logger.addHandler(ch)
-    auditor = logging.getLogger('auditor')
+    auditor = logging.getLogger("auditor")
     auditor.setLevel(logging.INFO)
     auditor.addHandler(ch)
-    ch.setFormatter(logging.Formatter(LOGFMT))
+    ch.setFormatter(logging.Formatter(logfmt))
     logger.info("Logger initialized.")
-    
-    file_handler = JsonReader(in_path, logger=logger.getChild("pkl"), auditor=auditor.getChild("pkl"))
-    featOuts = []
-    
+
+    file_handler = JsonReader(in_path, logger=logger.getChild("pkl"),
+                              auditor=auditor.getChild("pkl"), **kwargs)
+    feat_outs = []
+
     # sample module
     #
-    if mods['smp']:
+    if mods["smp"]:
         try:
-            featOuts.append(sf.run(file_handler.get_pkl("bcts"),
-                                   logger=logger.getChild("sample"),
-                                   auditor=auditor.getChild("sample")
+            feat_outs.append(sf.run(
+                file_handler.get_pkl("bcts"),
+                logger=logger.getChild("sample"),
+                auditor=auditor.getChild("sample")
                                    ))
         except KeyError:
-            logger.error("One of the files for the sample module does not exist! Skipping...")
+            logger.error("One of the files for the sample module does not exist! Skipping...") # pylint disable=line-too-long
     else:
         logger.info("Sample module not run.")
-    
+
     # ip_loc module
     #
-    if mods['ipl']:
+    if mods["ipl"]:
         try:
-            featOuts.append(ipl.run(file_handler.get_pkl("account_activity_v2")))
+            feat_outs.append(ipl.run(
+                file_handler.get_pkl("account_activity_v2")))
         except KeyError:
-            logger.error("One of the files for the ip_loc module does not exist! Skipping...")
+            logger.error("One of the files for the ip_loc module does not exist! Skipping...") # pylint disable=line-too-long
     else:
         logger.info("IP Location module not run.")
-    
+
     # off_fb_act module
     #
-    if mods['ofa']:
+    if mods["ofa"]:
         try:
-            featOuts.append(ofa.run(file_handler.get_pkl("off_facebook_activity_v2")))
+            feat_outs.append(ofa.run(
+                file_handler.get_pkl("off_facebook_activity_v2")))
         except KeyError:
-            logger.error("One of the files for the off_fb_act module does not exist! Skipping...")
+            logger.error("One of the files for the off_fb_act module does not exist! Skipping...") # pylint disable=line-too-long
     else:
         logger.info("Off-Facebook Activity module not run.")
-    
+
     # topics module
     #
-    if mods['tps']:
+    if mods["tps"]:
         try:
-            featOuts.append(tps.run(file_handler.get_pkl("topics_v2"),
+            feat_outs.append(tps.run(
+                file_handler.get_pkl("topics_v2"),
                                 file_handler.get_pkl("inferred_topics_v2")))
         except KeyError:
-            logger.error("One of the files for the topics module does not exist! Skipping...")
+            logger.error("One of the files for the topics module does not exist! Skipping...") # pylint disable=line-too-long
     else:
         logger.info("Topics module not run.")
-    
+
     # feelings module
     #
-    if mods['fgs']:
+    if mods["fgs"]:
         try:
-            featOuts.append(fgs.run(None))
+            feat_outs.append(fgs.run(
+                None))
         except KeyError:
-            logger.error("One of the files for the feelings module does not exist! Skipping...")
+            logger.error("One of the files for the feelings module does not exist! Skipping...") # pylint disable=line-too-long
     else:
         logger.info("Feelings module not run.")
-    
+
     file_handler.close()
-    for i in range(len(featOuts)):
+    for i in range(len(feat_outs)):
         print(f"F[{i}]:")
-        print(featOuts[i],"\n")
+        print(feat_outs[i],"\n")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='selfscape_insight',
-                                     usage='scape_cli -i PATH/TO/DATA [options]',
-                                     description='Runs an assortment of analyses on a Facebook profile data download',
-                                     epilog='(C) 2024 The Authors, License: GNU AGPL-3.0'
+    parser = argparse.ArgumentParser(prog="selfscape_insight",
+                                     usage="scape_cli -i PATH/TO/DATA [options]",
+                                     description="Runs an assortment of analyses on a Facebook profile data download",
+                                     epilog="(C) 2024 The Authors, License: GNU AGPL-3.0"
                                      )
-    fio = parser.add_argument_group('File I/O')
-    fio.add_argument('-i', '--in_path', metavar='PATH/TO/DATA', help='path to root of data', required=True)
-    fio.add_argument('-c', '--csv', help='If present, data is a directory of CSVs (used for development)', action='store_true')
-    mod_group = parser.add_argument_group('Modules', 'Select which modules to include/exclude.')
-    mod_group.add_argument('--smp', help='sample module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--ipl', help='ip_loc module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--ofa', help='off_fb_act module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--tps', help='topics module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--fgs', help='feelings module', action=argparse.BooleanOptionalAction)
-    parser.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
-    parser.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
+    fio = parser.add_argument_group("File I/O")
+    fio.add_argument("-i", "--in_path", metavar="PATH/TO/DATA", help="path to root of data", required=True)
+    fio.add_argument("-c", "--csv", action="store_true",
+                     help="If present, data is a directory of CSVs (used for development)")
+    mod_group = parser.add_argument_group("Modules", "Select which modules to include/exclude.")
+    mod_group.add_argument("--smp", help="sample module",
+                           action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--ipl", help="ip_loc module",
+                           action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--ofa", help="off_fb_act module",
+                           action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--tps", help="topics module",
+                           action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--fgs", help="feelings module",
+                           action=argparse.BooleanOptionalAction)
+    parser.add_argument("-l", "--log", help="Log file path, else stdout",
+                        metavar="PATH/TO/LOG", default=sys.stdout)
+    parser.add_argument("-v", "--verbose", action="count", dest="v",
+                        default=0, help="Logs verbosity (-v, -vv)")
     args = parser.parse_args()
-    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fgs': args.fgs}
-    main(in_path=args.in_path, mods=mods, verbose=args.v, log=args.log)
+
+    run_mods = {"smp": args.smp,
+                "ipl": args.ipl,
+                "ofa": args.ofa,
+                "tps": args.tps,
+                "fgs": args.fgs}
+    
+    main(in_path=args.in_path, mods=run_mods, verbose=args.v, log=args.log)

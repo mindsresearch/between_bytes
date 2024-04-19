@@ -1,14 +1,14 @@
-''' Template/starter code for a wizard-style GUI for the SelfScape Insight program.
+""" Wizard-style launcher for the SelfScape Insight program.
 
 WARNING:
     This code is not functional and is only a template for the final product.
 
 Version:
-    0.2
+    0.3
 
 Author:
     Noah Duggan Erickson
-'''
+"""
 
 from tkinter import BOTH, W, E, END, DISABLED, Tk
 from tkinter import ttk
@@ -22,6 +22,11 @@ import logging
 from main_cli import main
 
 class SelfScapeInsightLauncher(Tk):
+    """ Main window for the SelfScape Insight launcher.
+
+    Note:
+        This class is not intended to be accessed outside the program.
+    """
     def __init__(self):
         super().__init__()
 
@@ -38,7 +43,7 @@ class SelfScapeInsightLauncher(Tk):
         self.advanced = AdvConfig()
         notebook.add(self.advanced, text="Advanced Config")
 
-        self.run_button = ttk.Button(self, text="Launch program", command=self.run)
+        self.run_button = ttk.Button(self, text="Launch", command=self.run)
         self.run_button.pack()
 
     def run(self):
@@ -46,21 +51,34 @@ class SelfScapeInsightLauncher(Tk):
         in_dir = self.basic.get_in_directory()
         if in_dir == "":
             logging.critical("No input directory selected")
+            raise ValueError("No input directory selected")
         print(f"Input dir:\n  {in_dir}")
         out_dir = self.basic.get_out_directory()
         if out_dir == "":
-            logging.error("No output directory selected")
+            logging.warning("No output directory selected")
         print(f"Output dir:\n  {out_dir}")
         print(f"Modules:\n  {self.modules.get_mods()}")
-        if self.advanced.get_log_file() == "":
-            print(f"Log file created at {out_dir}/log.txt")
         print(f"Log file:\n  {self.advanced.get_log_file()}")
         print(f"Dev mode:\n  {self.advanced.get_is_dev()}")
-        print(f"Do CSV out:\n  {self.advanced.get_out_csv()}")
-        main(in_dir, self.modules.get_mods(), verbose=(1 if self.advanced.get_is_dev() else 0))
+        print(f"Do PKL out:\n  {self.advanced.get_out_pkl()}")
+        if self.advanced.get_out_pkl():
+            out_pkl = os.path.join(out_dir, "data")
+        else:
+            out_pkl = "temp"
+        main(in_dir, self.modules.get_mods(),
+             verbose=(2 if self.advanced.get_is_dev() else 0),
+             pklroot=out_pkl, log=self.advanced.get_log_file()
+             )
         self.destroy()
 
 class BasicConfig(ttk.Frame):
+    """ Launcher basic configuration frame.
+
+    Basic config frame to be added to launcher main notebook
+
+    Note:
+        This class is not intended to be accessed outside this module.
+    """
     def __init__(self):
         super().__init__()
 
@@ -73,7 +91,8 @@ class BasicConfig(ttk.Frame):
         self.in_directory_entry = ttk.Entry(self, width=50)
         self.in_directory_entry.grid(row=1, column=1, sticky=(W, E))
 
-        in_directory_button = ttk.Button(self, text="Browse", command=self.select_in_directory)
+        in_directory_button = ttk.Button(self, text="Browse",
+                                         command=self.select_in_directory)
         in_directory_button.grid(row=1, column=2)
 
         out_directory_label = ttk.Label(self, text="Output Directory:")
@@ -82,7 +101,8 @@ class BasicConfig(ttk.Frame):
         self.out_directory_entry = ttk.Entry(self, width=50)
         self.out_directory_entry.grid(row=2, column=1, sticky=(W, E))
 
-        out_directory_button = ttk.Button(self, text="Browse", command=self.select_out_directory)
+        out_directory_button = ttk.Button(self, text="Browse",
+                                          command=self.select_out_directory)
         out_directory_button.grid(row=2, column=2)
 
     def select_in_directory(self):
@@ -94,24 +114,33 @@ class BasicConfig(ttk.Frame):
         temp = self.get_out_directory()
         folder_selected = filedialog.askdirectory()
         if len(os.listdir(folder_selected)) > 0:
-            resp = messagebox.askyesnocancel(title="Warning", message="Output directory is not empty. Files may be overwritten.\nCreate new subdirectory?", icon='warning')
+            resp = messagebox.askyesnocancel(title="Warning",
+                                             message="Output directory is not empty. Files may be overwritten.\nCreate new subdirectory?", # pylint: disable=line-too-long
+                                             icon="warning")
             if resp is None:
                 folder_selected = temp
             elif resp:
                 print("Creating /output directory")
                 # os.makedirs(folder_selected + "/output")
                 folder_selected += "/ssi_output"
-        
+
         self.out_directory_entry.delete(0, END)
         self.out_directory_entry.insert(0, folder_selected)
-    
+
     def get_in_directory(self):
         return self.in_directory_entry.get()
-    
+
     def get_out_directory(self):
         return self.out_directory_entry.get()
-    
+
 class ModuleSelection(ttk.Frame):
+    """ Launcher feature module selection frame.
+
+    Feature module selection frame to be added to launcher main notebook
+
+    Note:
+        This class is not intended to be accessed outside this module.
+    """
     def __init__(self):
         super().__init__()
 
@@ -136,14 +165,21 @@ class ModuleSelection(ttk.Frame):
 
     def get_mods(self):
         return {
-            "smp": self.mod_1.instate(['selected']),
-            "ipl": self.mod_2.instate(['selected']),
-            "ofa": self.mod_3.instate(['selected']),
-            "tps": self.mod_4.instate(['selected']),
-            "fgs": self.mod_5.instate(['selected'])
+            "smp": self.mod_1.instate(["selected"]),
+            "ipl": self.mod_2.instate(["selected"]),
+            "ofa": self.mod_3.instate(["selected"]),
+            "tps": self.mod_4.instate(["selected"]),
+            "fgs": self.mod_5.instate(["selected"])
         }
 
 class AdvConfig(ttk.Frame):
+    """ Launcher advanced configuration frame.
+
+    Advanced config frame to be added to launcher main notebook
+
+    Note:
+        This class is not intended to be accessed outside this module.
+    """
     def __init__(self):
         super().__init__()
 
@@ -156,26 +192,27 @@ class AdvConfig(ttk.Frame):
         self.log_file_entry = ttk.Entry(self, width=50)
         self.log_file_entry.grid(row=1, column=1, sticky=(W, E))
 
-        log_file_button = ttk.Button(self, text="Browse", command=self.select_new_log_filename)
+        log_file_button = ttk.Button(self, text="Browse",
+                                     command=self.select_new_log_filename)
         log_file_button.grid(row=1, column=2)
 
         self.dev_button = ttk.Checkbutton(self, text="Dev mode")
         self.dev_button.grid(row=2, column=0, sticky=W)
 
-        self.bp_button = ttk.Checkbutton(self, text="Byproduct ingest to output")
+        self.bp_button = ttk.Checkbutton(self, text="Send data to output dir")
         self.bp_button.grid(row=2, column=1, sticky=W)
 
     def select_new_log_filename(self):
         log_file = filedialog.asksaveasfilename()
         self.log_file_entry.delete(0, END)
         self.log_file_entry.insert(0, log_file)
-    
+
     def get_log_file(self):
         return self.log_file_entry.get() or sys.stdout
     def get_is_dev(self):
-        return self.dev_button.instate(['selected'])
-    def get_out_csv(self):
-        return self.bp_button.instate(['selected'])
+        return self.dev_button.instate(["selected"])
+    def get_out_pkl(self):
+        return self.bp_button.instate(["selected"])
 
 if __name__ == "__main__":
     launcher = SelfScapeInsightLauncher()
