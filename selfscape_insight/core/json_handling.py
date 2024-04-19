@@ -63,36 +63,9 @@ def enum_files(rootpath:str, ext:str='json', blacklist:list=[], logger:logging.L
                     fl.append((root, file))
     return fl
 
-def json_df(data) -> pd.DataFrame:
+def proc_json(path:tuple, logger:logging.Logger=None) -> tuple:
     """
-    Converts JSON data into a pandas DataFrame, expanding any nested structures.
-
-    This function transforms nested JSON data into a flat pandas DataFrame using
-    the 'flatsplode' function. It handles both dictionaries and lists as input.
-    Certain prefixes in column names are removed to avoid potential
-    issues with database column name length restrictions.
-
-    Args:
-        data (dict or list): The JSON data to convert, either as a dictionary or a list.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the flattened JSON data.
-    """
-    if not isinstance(data, dict):
-        data = {'0': data}
-    data = flatsplode(data, '_')
-    df = pd.DataFrame(data)
-    #df.dropna(axis=1, how='all', inplace=True)
-    cols = df.columns
-    if (len(cols) > 1) and (all([c.startswith('0_') for c in cols])):
-        cols = [c[2:] for c in cols]
-    cols = [c.replace("media_", "").replace("metadata_", "").replace("exif_", "") for c in cols]
-    df.columns = cols
-    return df
-
-def proc_file(path:tuple, logger:logging.Logger=None) -> tuple:
-    """
-    Processes a JSON file, converting it to a pd.DataFrame with an appropriate name.
+    Processes a JSON file, converting it to a dict/list with an appropriate name.
 
     This function reads a JSON file from the specified path, handling different data structures within.
     For example, it has a special case for handling 'browser_cookies.json' files.
@@ -103,7 +76,7 @@ def proc_file(path:tuple, logger:logging.Logger=None) -> tuple:
                                           If None, logging is skipped.
 
     Returns:
-        tuple: A 2-tuple containing a string with the canonical name for the data and the pandas DataFrame with the processed data.
+        tuple: A 2-tuple containing a string with the canonical name for the data and the obj with the processed data.
     """
     fp = os.path.join(path[0], path[1])
     l = logger is None
@@ -112,15 +85,35 @@ def proc_file(path:tuple, logger:logging.Logger=None) -> tuple:
             logger.debug(f"Processing {round(os.path.getsize(fp) * 10**-6, 3)}MB file: {fp}")
         data = json.load(file)
 
-    if path[1] == 'browser_cookies.json':
-        keys = list(data.keys())
-        data = data[keys[0]]
-        df = pd.DataFrame([[key, value] for key, values in data.items() for value in values],
-                          columns=['cookie', 'timestamp'])
-        return (keys[0], df)
-    if isinstance(data, list):
-        return (path[1][:-5], json_df(data))
-    keys = list(data.keys())
-    if len(keys) == 1:
-        return (keys[0], json_df(data[keys[0]]))
-    return (path[1][:-5], json_df(data))
+    n = get_name(data)
+    if n is not None:
+        return (n, data[n])
+    return (path[1][:-5], data)
+
+def get_name(obj) -> str:
+    """
+    Returns the canonical name of the object, if it has one (if not, returns None).
+    """
+    if isinstance(obj, dict) and (len(obj.keys()) == 1):
+        return list(obj.keys())[0]
+    return None
+
+def desc_json(data, indent:int=0, sub_indent:int=0) -> str:
+    """
+    Returns a prettyprint string description of the JSON data.
+    """
+    if isinstance(data, dict):
+        if len(data) == 0:
+            return ''
+        d = data.copy()
+        k = list(d.keys())[0]
+        v = d.pop(k)
+        return f"\n{' ' * indent}{'-' * sub_indent}{k}:" + desc_json(v, indent, sub_indent+2) + desc_json(d, indent, sub_indent)
+    elif isinstance(data, list):
+        return f" list - " + (f"idx 0/{len(data)-1}:" + desc_json(data[0], indent, sub_indent) if len(data) > 0 else '[]')
+    else:
+        return f" {str(type(data))[8:-2]}"
+
+if __name__ == '__main__':
+    x = {'tlk': [{'k1': 1, 'k2': {'k2a': 'val', 'k2b': True}, 'k3': [4, 5, 6]}]}
+    print(desc_json(x))
