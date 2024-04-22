@@ -9,11 +9,10 @@ Functions:
 
 Example usage:
     >>> from features import topics as tps
-    >>> tps.run(JsonReader.get_csv("topics_v2"), JsonReader.get_csv("inferred_topics_v2"))
+    >>> tps.run(args.file_path + "path to desire file")
     filepath to HTML page containing results of analysis
 
-    $ python3 topics.py -topics_v2 /path/to/topics_v2.csv
-                        -inferred_topics_v2 /path/to/inferred_topics_v2.csv
+    $ python3 topics.py -file_path "file path"
     filepath to HTML page containing results of analysis
 
 Dependencies:
@@ -27,7 +26,7 @@ Note:
     This sub-module is part of the 'selfscape_insight' package in the 'features' module.
 
 Version:
-    1.0
+    1.1
 
 Author:
     Carter Jacobs
