@@ -20,7 +20,7 @@ Note:
     This is the main module.
 
 Version:
-    0.4.1
+    0.5
 
 Author:
     Noah Duggan Erickson
@@ -31,7 +31,6 @@ import logging
 import sys
 
 from readers.json_ingest import JsonReader
-from readers.csv_ingest  import CsvReader
 from features import sample as sf
 from features import ip_loc as ipl
 from features import off_fb_act as ofa
@@ -39,6 +38,10 @@ from features import topics as tps
 from features import feelings as fgs
 
 # CHANGELOG:
+#   0.5: (22 April 2024)
+#     - Updated names of a few variables
+#     - Removed CSV compatibility (see: json_ingest 3.0.0rc2)
+#     - Added module output path argument
 #   0.4.1: (15 April 2024)
 #     - Assorted fixes to error handling and logging
 #   0.4: (05 April 2024)
@@ -59,16 +62,18 @@ def main():
                                      )
     fio = parser.add_argument_group('File I/O')
     fio.add_argument('-i', '--in_path', metavar='PATH/TO/DATA', help='path to root of data', required=True)
-    fio.add_argument('-c', '--csv', help='If present, data is a directory of CSVs (used for development)', action='store_true')
+    fio.add_argument('-o', '--out_path', metavar='PATH/TO/OUTPUT', help='path to output directory', required=True)
     mod_group = parser.add_argument_group('Modules', 'Select which modules to include/exclude.')
     mod_group.add_argument('--smp', help='sample module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--ipl', help='ip_loc module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--ofa', help='off_fb_act module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--tps', help='topics module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--fgs', help='feelings module', action=argparse.BooleanOptionalAction)
-    parser.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
-    parser.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
+    adv = parser.add_argument_group('Advanced Options')
+    adv.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
+    adv.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
     args = parser.parse_args()
+
     mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fgs': args.fgs}
     if any(mods.values()):
         for key in mods:
@@ -100,12 +105,8 @@ def main():
     auditor.addHandler(ch)
     ch.setFormatter(logging.Formatter(LOGFMT))
     logger.info("Logger initialized.")
-    
 
-    if not args.csv:
-        fileHandler = JsonReader(args.in_path, logger=logger.getChild("pkl"), auditor=auditor.getChild("pkl"))
-    else:
-        fileHandler = CsvReader(args.in_path)
+    fileHandler = JsonReader(args.in_path, logger=logger.getChild("pkl"), auditor=auditor.getChild("pkl"))
     featOuts = []
     
     # sample module
