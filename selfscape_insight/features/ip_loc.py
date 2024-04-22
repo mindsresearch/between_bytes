@@ -47,8 +47,6 @@ import folium
 from folium.plugins import HeatMap, TimestampedGeoJson
 import random
 
-
-map_of_graphs = {}
 global df
 # Add your other third-party/external imports here
 # Please update requirements.txt as needed!
@@ -91,36 +89,88 @@ def density_report(time1, time2):
         return 1;
     else:
         return (days/365)
-    
-    
-def generate_graph(ip_df):
-    ip_df['timestamp'] = pd.to_datetime(ip_df['timestamp'], unit='s')
-    ip_df['year'] = ip_df['timestamp'].dt.year
-    ip_df['month'] = ip_df['timestamp'].dt.month
 
-    year_month_counts = ip_df.groupby(['year', 'month']).size().unstack(fill_value=0)
 
-    # Plotting
-    year_month_counts.plot(kind='bar', figsize=(12, 6), colormap='viridis')
+mydict = []
 
-    plt.title('Total Occurrences of Year and Month')
-    plt.xlabel('Year-Month')
-    plt.ylabel('Total Occurrences')
-    plt.xticks(rotation=45)
-    plt.legend(title='Month', bbox_to_anchor=(1, 1))
-    plt.tight_layout()
+start = 0
+end = 0
+df_len = len(df)
 
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+for index in range(df_len - 1):
+    if df['ip_address'][index] == df['ip_address'][index + 1]:
+        end = index + 1
+    else:
+        location = convert_to_gps(df['ip_address'][index])
+        temp_dict = {
+            'Start_Time': df['timestamp'][start],
+            'End_Time': df['timestamp'][end],  
+            'City': df['city'][start],
+            'State': df['region'][start],
+            'latitude': location['location']['latitude'],
+            'longitude': location['location']['longitude'],
+            'ip_address' : df['ip_address'][start],
+            'days spent/365 days(one year)': density_report(df['timestamp'][start], df['timestamp'][end])
+        }
+        mydict.append(temp_dict)
+        start = end + 1  # Adjusted indexing
+        end = end + 1
 
-    # Create HTML content for popup with the image
-    html = f'<img src="data:image/png;base64,{image_base64}">'
+# Process the last group
+location = convert_to_gps(df['ip_address'][df_len - 1])
+temp_dict = {
+    'Start_Time': df['timestamp'][start],
+    'End_Time': df['timestamp'][df_len - 1],  
+    'City': df['city'][start-1],
+    'State': df['region'][start-1],
+    'latitude': location['location']['latitude'],
+    'longitude': location['location']['longitude'],
+    'ip_address' : df['ip_address'][start-1],
+    'days spent/365 days(one year)': density_report(df['timestamp'][start], df['timestamp'][df_len - 1])  
+}
+mydict.append(temp_dict)
 
-    return html
-    
-    
+finalDF = pd.DataFrame(mydict)
+
+def generate_graph(df):
+    ip_maps = {}
+    unique_ip = df['ip_address'].unique()
+    ip_list = list(unique_ip)
+    for ip in ip_list:
+        filtered_df = df[df['ip_address'] == ip] 
+        
+        filtered_df['timestamp'] = pd.to_datetime(filtered_df['timestamp'])  # Ensure 'timestamp' is datetime
+        filtered_df['year'] =  filtered_df['timestamp'].dt.year
+        filtered_df['month'] =  filtered_df['timestamp'].dt.month
+
+        year_month_counts =  filtered_df.groupby(['year', 'month']).size().unstack(fill_value=0)
+
+        # Plotting
+        year_month_counts.plot(kind='bar', figsize=(12, 6), colormap='viridis')
+
+        plt.title('Total Occurrences of Year and Month for ' + ip)
+        plt.xlabel('Year-Month')
+        plt.ylabel('Total Occurrences')
+        plt.xticks(rotation=45)
+        plt.legend(title='Month', bbox_to_anchor=(1, 1))
+        plt.tight_layout()
+
+        # Save the plot to a BytesIO buffer
+        buffer = BytesIO()
+        plt.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+        # Create HTML content for popup with the image
+        html = f'<img src="data:image/png;base64,{image_base64}">'
+        
+        # Update the ip_maps dictionary with IP address and its corresponding graph HTML
+        ip_maps[ip] = html
+        
+        # Clear the current plot to prepare for the next iteration
+        plt.clf()
+        
+    return ip_maps
 
 
 x = df.loc[df['days spent/365 days(one year)'].idxmax()]
@@ -163,33 +213,42 @@ def generate_graph(df):
 
         map_of_graphs.append(temp_dict)
 
+min_lon, max_lon = -45, -35
+min_lat, max_lat = -25, -15
+mymap = folium.Map(location=[0, 0],
+                zoom_start=2,
+                min_lat=min_lat,
+                max_lat=max_lat,
+                min_lon=min_lon,
+                max_lon=max_lon
+                )
+
 # Function to handle click events on markers
-def on_marker_click(event):
+def on_map_click(event):
     lat, lon = event.latlng
-    html = generate_graph(df)
-    popup_text = f'<div>{html}</div>'
-    folium.Marker(location=[lat, lon], popup=popup_text).add_to(mymap)
+    
+# Iterate through waypoints and add markers
+unique_ip = df['ip_address'].unique()
+ip_time = generate_graph(finalDF)
+for index, row in unique_ip.iterrows():
+    location = [row['latitude'], row['longitude']]
+    popup_text = row['ip_address']  # Access 'ip_address' from the current row
+    folium.Marker(location=location, popup=ip_time[popup_text]).add_to(mymap)
 
-    for index, row in df.iterrows():
-        location = [row['latitude'], row['longitude']]
-        popup_text = row['ip_address']
-        folium.Marker(location=location).add_to(mymap)
-
-# Add click event listener to the map
-    mymap.get_root().html.add_child(folium.Element("""
-    <script>
-    var map = document.getElementsByClassName('folium-map')[0];
-    map.onclick = function(event){
+mymap.add_child(folium.ClickForMarker(popup=None))
+mymap.get_root().html.add_child(folium.Element("""
+<script>
+    document.getElementsByClassName('folium-map')[0].onclick = function(event){
         var lat = event.latlng.lat;
         var lon = event.latlng.lng;
         var kernel = IPython.notebook.kernel;
-        kernel.execute('generate_graph(df)');
+        kernel.execute('generate_graph([' + lat + ', ' + lon + '], df)');
     }
-    </script>
-    """))
+</script>
+"""))
 
-    # Display the map
-    mymap
+ # Display the map
+mymap
 
 
 #account_activity_v2
