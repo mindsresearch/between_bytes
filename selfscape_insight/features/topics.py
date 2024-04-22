@@ -1,11 +1,11 @@
-"""A short description of what your code does.
+"""topics.py takes a json file and creates a collage of the file
 
 A longer description of what your code does,
-including what csvs it takes in, and what it
+including what json it takes in, and what it
 contributes to the final output
 
 Functions:
-    run(topics_v2, inferred_topics_v2): Runs the feature.
+    run(file_path): Runs the feature.
 
 Example usage:
     >>> from features import topics as tps
