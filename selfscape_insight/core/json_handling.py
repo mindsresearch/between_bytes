@@ -32,9 +32,6 @@ import os
 import logging
 import json
 
-import pandas as pd
-from flatsplode import flatsplode
-
 def enum_files(rootpath:str, ext:str='json', blacklist:list=[], logger:logging.Logger=logging.getLogger(__name__)) -> list:
     """
     Lists files of a given extension within a root directory, optionally blacklisting subdirectories.
@@ -110,9 +107,9 @@ def desc_json(data, indent:int=0, sub_indent:int=0) -> str:
         v = d.pop(k)
         return f"\n{' ' * indent}{'-' * sub_indent}{k}:" + desc_json(v, indent, sub_indent+2) + desc_json(d, indent, sub_indent)
     elif isinstance(data, list):
-        return f" list - " + (f"idx 0/{len(data)-1}:" + desc_json(data[0], indent, sub_indent) if len(data) > 0 else '[]')
+        return " list - " + (f"idx 0/{len(data)-1}:" + desc_json(data[0], indent, sub_indent) if len(data) > 0 else '[]')
     else:
-        return f" {str(type(data))[8:-2]}"
+        return " " + str(type(data))[8:-2]
 
 if __name__ == '__main__':
     x = {'tlk': [{'k1': 1, 'k2': {'k2a': 'val', 'k2b': True}, 'k3': [4, 5, 6]}]}
