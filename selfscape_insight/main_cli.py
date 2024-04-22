@@ -35,7 +35,7 @@ from features import sample as sf
 from features import ip_loc as ipl
 from features import off_fb_act as ofa
 from features import topics as tps
-from features import feelings as fgs
+from features import facebook_act as fba
 
 # CHANGELOG:
 #   0.5: (22 April 2024)
@@ -68,13 +68,13 @@ def main():
     mod_group.add_argument('--ipl', help='ip_loc module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--ofa', help='off_fb_act module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--tps', help='topics module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--fgs', help='feelings module', action=argparse.BooleanOptionalAction)
+    mod_group.add_argument('--fba', help='facebook_act module', action=argparse.BooleanOptionalAction)
     adv = parser.add_argument_group('Advanced Options')
     adv.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
     adv.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
     args = parser.parse_args()
 
-    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fgs': args.fgs}
+    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fba': args.fba}
     if any(mods.values()):
         for key in mods:
             if mods[key] is None:
@@ -150,11 +150,11 @@ def main():
     else:
         logger.info("Topics module not run.")
     
-    # feelings module
+    # facebook_act module
     #
-    if mods['fgs']:
+    if mods['fba']:
         try:
-            featOuts.append(fgs.run(None))
+            featOuts.append(fba.run(args.in_path))
         except KeyError:
             logger.error("One of the files for the feelings module does not exist! Skipping...")
     else:
