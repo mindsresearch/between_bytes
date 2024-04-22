@@ -93,15 +93,14 @@ def create_collage(image_folder, output_path, collage_size=(4096, 2160)):
     collage.save(output_path)
 
 
-def run(topics_v2, inferred_topics_v2):
-    print("Running the topics feature module")
+def run(file_path):
+    print("Running the collage feature module")
 
-    topics = pd.read_csv(topics_v2)
-    topics = topics.drop(["Unnamed: 0"], axis=1)
+    topics = pd.read_json(file_path)
     topics.columns = ["Ads_interests"]
     topics["Ads_interests"] = specialCharacter(topics["Ads_interests"])
 
-    output_path_topics = "topics_collage.jpg"
+    output_path = os.path.basename(file_path).split(".")[0] + ".jpg"
 
     with tempfile.TemporaryDirectory() as temp_dir_topics:
         print(f"Created temporary directory: {temp_dir_topics}")
@@ -121,43 +120,13 @@ def run(topics_v2, inferred_topics_v2):
                 f.write(data)
 
         # Create collage using images in the temporary directory
-        create_collage(temp_dir_topics, output_path_topics)
-
-
-    inferred_topics = pd.read_csv(inferred_topics_v2)
-    inferred_topics = inferred_topics.drop(["Unnamed: 0"], axis=1)
-    inferred_topics.columns = ["Topics"]
-    inferred_topics["Topics"] = specialCharacter(inferred_topics["Topics"])
-
-    output_path_inferred = "inferred_topics_collage.jpg"
-    with tempfile.TemporaryDirectory() as temp_dir_inferred:
-        print(f"Created temporary directory: {temp_dir_inferred}")
-
-        # Download images to the temporary directory
-        for index, row in tqdm(inferred_topics.iterrows(), desc="Inferred Topics: ", total=len(inferred_topics)):
-            lead = row["Topics"]
-            params = {
-                "q": lead,
-                "tbm": "isch",
-            }
-            html = requests.get("https://www.google.com/search", params=params, timeout=30)
-            soup = BeautifulSoup(html.content, features="lxml")
-            image = soup.find_all("img")[1]["src"]
-            data = requests.get(image).content
-            with open(os.path.join(temp_dir_inferred, f"{lead}.jpg"), "wb") as f:
-                f.write(data)
-
-        # Create collage using images in the temporary directory
-        create_collage(temp_dir_inferred, output_path_inferred)
-
-    return "Your collages have been created: " + str(output_path_topics) + " and " + str(output_path_inferred)
+        create_collage(temp_dir_topics, output_path)
+    return "Your collage has been created: " + str(output_path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='topics',
                                      description='A short description of what your code does')
-    parser.add_argument('-topics_v2', metavar='TOPICS_V2_CSV',
-                        help='path to topics_v2 csv file', required=True)
-    parser.add_argument('-inferred_topics_v2', metavar='INFERRED_TOPICS_V2_CSV',
-                        help='path to inferred_topics_v2 csv file', required=True)
+    parser.add_argument('-file_path', metavar='PATH_2_COLLAGE',
+                        help='path to file to make into a collages', required=True)
     args = parser.parse_args()
-    print(run(args.topics_v2, args.inferred_topics_v2))
+    print(run(args.file_path))

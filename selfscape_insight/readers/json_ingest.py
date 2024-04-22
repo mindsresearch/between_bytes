@@ -301,7 +301,7 @@ class JsonReader:
         data = self.get_pkl(key)
         self._auditor.info(f'Retrieved info for {key}')
 
-        return f'{key}:\n{' ' * indent}RAM: {sys.getsizeof(data) * 10**-3}KB\n{' ' * indent}structure:{jh.desc_json(data, indent=indent+2)}'
+        return f"{key}:\n{' ' * indent}RAM: {sys.getsizeof(data) * 10**-3}KB\n{' ' * indent}structure:{jh.desc_json(data, indent=indent+2)}"
 
     def close(self, force:bool=False):
         '''

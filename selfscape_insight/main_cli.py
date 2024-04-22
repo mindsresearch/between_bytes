@@ -142,8 +142,11 @@ def main():
     #
     if mods['tps']:
         try:
-            featOuts.append(tps.run(fileHandler.get_pkl("topics_v2"),
-                                fileHandler.get_pkl("inferred_topics_v2")))
+            featOuts.append(tps.run(args.in_path + "\\logged_information\\your_topics\\your_topics.json"))
+        except KeyError:
+            logger.error("One of the files for the topics module does not exist! Skipping...")
+        try:
+            featOuts.append(tps.run(args.in_path + "\\logged_information\\other_logged_information\\ads_interests.json"))
         except KeyError:
             logger.error("One of the files for the topics module does not exist! Skipping...")
     else:
