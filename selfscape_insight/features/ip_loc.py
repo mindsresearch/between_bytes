@@ -46,13 +46,13 @@ import maxminddb
 import folium
 from folium.plugins import HeatMap, TimestampedGeoJson
 import random
+from io import BytesIO
+import base64
 
-global df
-# Add your other third-party/external imports here
 # Please update requirements.txt as needed!
 
 def convert_to_gps(ip_address):
-     with maxminddb.open_database('GeoLite2-City.mmdb') as reader:
+     with maxminddb.open_database('selfscape_insight/features/GeoLite2-City.mmdb') as reader:
         response = reader.get(ip_address)
      
      return response
@@ -90,54 +90,54 @@ def density_report(time1, time2):
     else:
         return (days/365)
 
+def create_df(df):
+    mydict = []
 
-mydict = []
+    start = 0
+    end = 0
+    df_len = len(df)
 
-start = 0
-end = 0
-df_len = len(df)
+    for index in range(df_len - 1):
+        if df['ip_address'][index] == df['ip_address'][index + 1]:
+            end = index + 1
+        else:
+            location = convert_to_gps(df['ip_address'][index])
+            temp_dict = {
+                'Start_Time': df['timestamp'][start],
+                'End_Time': df['timestamp'][end],  
+                'City': df['city'][start],
+                'State': df['region'][start],
+                'timestamp': df['timestamp'][start],
+                'latitude': location['location']['latitude'],
+                'longitude': location['location']['longitude'],
+                'ip_address' : df['ip_address'][start],
+                'dense': density_report(df['timestamp'][start], df['timestamp'][end])
+            }
+            mydict.append(temp_dict)
+            start = end + 1  # Adjusted indexing
+            end = end + 1
 
-for index in range(df_len - 1):
-    if df['ip_address'][index] == df['ip_address'][index + 1]:
-        end = index + 1
-    else:
-        location = convert_to_gps(df['ip_address'][index])
-        temp_dict = {
-            'Start_Time': df['timestamp'][start],
-            'End_Time': df['timestamp'][end],  
-            'City': df['city'][start],
-            'State': df['region'][start],
-            'latitude': location['location']['latitude'],
-            'longitude': location['location']['longitude'],
-            'ip_address' : df['ip_address'][start],
-            'days spent/365 days(one year)': density_report(df['timestamp'][start], df['timestamp'][end])
-        }
-        mydict.append(temp_dict)
-        start = end + 1  # Adjusted indexing
-        end = end + 1
-
-# Process the last group
-location = convert_to_gps(df['ip_address'][df_len - 1])
-temp_dict = {
-    'Start_Time': df['timestamp'][start],
-    'End_Time': df['timestamp'][df_len - 1],  
-    'City': df['city'][start-1],
-    'State': df['region'][start-1],
-    'latitude': location['location']['latitude'],
-    'longitude': location['location']['longitude'],
-    'ip_address' : df['ip_address'][start-1],
-    'days spent/365 days(one year)': density_report(df['timestamp'][start], df['timestamp'][df_len - 1])  
-}
-mydict.append(temp_dict)
-
-finalDF = pd.DataFrame(mydict)
+    # Process the last group
+    location = convert_to_gps(df['ip_address'][df_len - 1])
+    temp_dict = {
+        'Start_Time': df['timestamp'][start],
+        'End_Time': df['timestamp'][df_len - 1],  
+        'City': df['city'][start-1],
+        'State': df['region'][start-1],
+        'latitude': location['location']['latitude'],
+        'longitude': location['location']['longitude'],
+        'ip_address' : df['ip_address'][start-1],
+        'dense': density_report(df['timestamp'][start], df['timestamp'][df_len - 1])  
+    }
+    mydict.append(temp_dict)
+    return pd.DataFrame(mydict)
 
 def generate_graph(df):
     ip_maps = {}
-    unique_ip = df['ip_address'].unique()
-    ip_list = list(unique_ip)
-    for ip in ip_list:
-        filtered_df = df[df['ip_address'] == ip] 
+    unique_ip = df.drop_duplicates('ip_address')  # Get DataFrame with unique IP addresses
+    for index, row in unique_ip.iterrows():
+        ip = row['ip_address']
+        filtered_df = df[df['ip_address'] == ip].copy()
         
         filtered_df['timestamp'] = pd.to_datetime(filtered_df['timestamp'])  # Ensure 'timestamp' is datetime
         filtered_df['year'] =  filtered_df['timestamp'].dt.year
@@ -172,92 +172,55 @@ def generate_graph(df):
         
     return ip_maps
 
-
-x = df.loc[df['days spent/365 days(one year)'].idxmax()]
-start_loc  = [x['latitude'], x['longitude']]
-
-mymap = folium.Map(location=[start_loc[0], start_loc[1]], zoom_start=10, no_touch=True)
-occuranceGraph()
-
-def generate_graph(df):
-    distinct_ips = df['ip_address'].unique().tolist()
-
-    for ip in distinct_ips:
-        filtered_df = df[df['ip_address'] == ip]
-        filtered_df['timestamp'] = pd.to_datetime(filtered_df['timestamp'], unit='s')
-        filtered_df['year'] = filtered_df['timestamp'].dt.year
-        filtered_df['month'] = filtered_df['timestamp'].dt.month
-
-        year_month_counts = filtered_df.groupby(['year', 'month']).size().unstack(fill_value=0)
-
-        # Plotting
-        year_month_counts.plot(kind='bar', figsize=(12, 6), colormap='viridis')
-
-        plt.title('Total Occurrences of Year and Monthf for ' + ip)
-        plt.xlabel('Year-Month')
-        plt.ylabel('Total Occurrences')
-        plt.xticks(rotation=45)
-        plt.legend(title='Month', bbox_to_anchor=(1, 1))
-        plt.tight_layout()
-
-        buffer = BytesIO()
-        plt.savefig(buffer, format='png')
-
-        buffer.seek(0)
-        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-
-        # Create HTML content for popup with the image
-        html = f'<img src="data:image/png;base64,{image_base64}">'
-        
-        temp_dict = {ip : html}
-
-        map_of_graphs.append(temp_dict)
-
-min_lon, max_lon = -45, -35
-min_lat, max_lat = -25, -15
-mymap = folium.Map(location=[0, 0],
-                zoom_start=2,
-                min_lat=min_lat,
-                max_lat=max_lat,
-                min_lon=min_lon,
-                max_lon=max_lon
-                )
-
 # Function to handle click events on markers
 def on_map_click(event):
     lat, lon = event.latlng
     
 # Iterate through waypoints and add markers
-unique_ip = df['ip_address'].unique()
-ip_time = generate_graph(finalDF)
-for index, row in unique_ip.iterrows():
-    location = [row['latitude'], row['longitude']]
-    popup_text = row['ip_address']  # Access 'ip_address' from the current row
-    folium.Marker(location=location, popup=ip_time[popup_text]).add_to(mymap)
+def create_html(df):
+    min_lon, max_lon = -45, -35
+    min_lat, max_lat = -25, -15
+    mymap = folium.Map(location=[0, 0],
+                zoom_start=2,
+                min_lat=min_lat,
+                max_lat=max_lat,
+                min_lon=min_lon,
+                max_lon=max_lon,
+                no_touch=True
+                )
+    
+    
+    
+    unique_ip = df['ip_address'].unique()
+    ip_time = generate_graph(df)
+    
+    for index, row in df.groupby('ip_address')[['latitude', 'longitude']].first().iterrows():
+        popup_text = index  # Access IP address directly
+        folium.Marker(location=[row['latitude'], row['longitude']], popup=ip_time[index]).add_to(mymap)
 
-mymap.add_child(folium.ClickForMarker(popup=None))
-mymap.get_root().html.add_child(folium.Element("""
-<script>
-    document.getElementsByClassName('folium-map')[0].onclick = function(event){
-        var lat = event.latlng.lat;
-        var lon = event.latlng.lng;
-        var kernel = IPython.notebook.kernel;
-        kernel.execute('generate_graph([' + lat + ', ' + lon + '], df)');
-    }
-</script>
-"""))
+    mymap.add_child(folium.ClickForMarker(popup=None))
+    mymap.get_root().html.add_child(folium.Element("""
+    <script>
+        document.getElementsByClassName('folium-map')[0].onclick = function(event){
+            var lat = event.latlng.lat;
+            var lon = event.latlng.lng;
+            var kernel = IPython.notebook.kernel;
+            kernel.execute('generate_graph([' + lat + ', ' + lon + '], df)');
+        }
+    </script>
+    """))
 
- # Display the map
-mymap
+    # Display the map
+    return mymap
 
 
 #account_activity_v2
-def run():
+def run(df):
     print("Running the ip_loc feature module")
-    
-    global df 
-    df = pd.read_csv('/Users/trevorle/School/Senior_Project/csv/account_activity_v2.csv')
-    return "The ip_loc module did stuff!"
+          
+    edited_df = create_df(df)
+    folium_html = create_html(edited_df)
+    folium_html.save("folium_occurance.html")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='ip_loc',
@@ -265,7 +228,4 @@ if __name__ == "__main__":
     parser.add_argument('-account_activity_v2', metavar='ACCOUNT_ACTIVITY_V2_CSV',
                         help='path to account_activity_v2 csv file', required=True)
     args = parser.parse_args()
-    print(run(args.account_activity_v2))
-
-
-run()
+    run(args.account_activity_v2)
