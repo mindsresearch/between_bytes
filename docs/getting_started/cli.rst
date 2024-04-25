@@ -3,11 +3,11 @@ Command-Line Interface
 
 There is currently only one command available upon installing the package:
 
-    persona-cli
+    scape-cli
 
-`persona-cli` is a command-line interface for the Persona Sight package. It has the following command-line arguments:
+`scape-cli` is a command-line interface for the SelfScape Insight package. It has the following command-line arguments:
 
-    usage: persona-cli [-h] [-v] [-c CONFIG] [-d] [-l LOG] [-s] [-t] [-u] [-w]
+    usage: scape-cli [-h] [-v] [-c CONFIG] [-d] [-l LOG] [-s] [-t] [-u] [-w]
 
     required arguments:
       -i PATH/TO/DATA, --in_path PATH/TO/DATA

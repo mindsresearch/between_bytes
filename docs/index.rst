@@ -1,10 +1,10 @@
-.. Persona Sight documentation master file, created by
+.. SelfScape Insight documentation master file, created by
    sphinx-quickstart on Wed Apr  3 04:03:15 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Persona Sight's documentation!
-=========================================
+Welcome to SelfScape Insight's documentation!
+=============================================
 
 .. warning::
 
@@ -13,10 +13,12 @@ Welcome to Persona Sight's documentation!
 
 .. toctree::
    :maxdepth: 2
+   :caption: Contents:
 
-   installing
-   cli
-   api
+   getting_started/getting_started
+   about/about
+   devs/devs
+   api/api
 
 
 
