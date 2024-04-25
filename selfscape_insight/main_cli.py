@@ -29,13 +29,15 @@ Author:
 import argparse
 import logging
 import sys
+from pathlib import Path
 
-from readers.json_ingest import JsonReader
-from features import sample as sf
+from features import sample as smp
 from features import ip_loc as ipl
 from features import off_fb_act as ofa
 from features import topics as tps
-from features import feelings as fgs
+from features import feelings as fba
+
+from core.various_helpers import pointless_function
 
 # CHANGELOG:
 #   0.5: (22 April 2024)
@@ -106,64 +108,71 @@ def main():
     ch.setFormatter(logging.Formatter(LOGFMT))
     logger.info("Logger initialized.")
 
-    fileHandler = JsonReader(args.in_path, logger=logger.getChild("pkl"), auditor=auditor.getChild("pkl"))
+    feat_outs = []
     featOuts = []
     
     # sample module
     #
     if mods['smp']:
-        try:
-            featOuts.append(sf.run(fileHandler.get_pkl("bcts")))
-        except KeyError:
-            logger.error("One of the files for the sample module does not exist! Skipping...")
+        path = Path(args.in_path) / 'ads_information' / 'other_categories_used_to_reach_you.json'
+        if path.exists():
+            feat_outs.append(smp.run(path, out_path, logger.getChild('smp'), auditor.getChild('smp')))
+        else:
+            logger.error("The file for the sample module (%s) does not exist! Skipping..." % path.name)
+            logger.debug("Expected path: %s" % path)
     else:
         logger.info("Sample module not run.")
     
     # ip_loc module
     #
     if mods['ipl']:
-        try:
-            featOuts.append(ipl.run(fileHandler.get_pkl("account_activity_v2")))
-        except KeyError:
-            logger.error("One of the files for the ip_loc module does not exist! Skipping...")
+        path = Path(args.in_path) / 'security_and_login_information' / 'account_activity.json'
+        if path.exists():
+            feat_outs.append(ipl.run(path, out_path, logger.getChild('ipl'), auditor.getChild('ipl')))
+        else:
+            logger.error("The file for the IP Location module (%s) does not exist! Skipping..." % path.name)
+            logger.debug("Expected path: %s" % path)
     else:
         logger.info("IP Location module not run.")
     
     # off_fb_act module
     #
     if mods['ofa']:
-        try:
-            featOuts.append(ofa.run(fileHandler.get_pkl("off_facebook_activity_v2")))
-        except KeyError:
-            logger.error("One of the files for the off_fb_act module does not exist! Skipping...")
+        path = Path(args.in_path) / 'apps_and_websites_off_of_facebook' / 'your_activity_off_meta_technologies.json'
+        if path.exists():
+            feat_outs.append(ofa.run(path, out_path, logger.getChild('ofa'), auditor.getChild('ofa')))
+        else:
+            logger.error("The file for the Off-Facebook Activity module (%s) does not exist! Skipping..." % path.name)
+            logger.debug("Expected path: %s" % path)
     else:
         logger.info("Off-Facebook Activity module not run.")
     
     # topics module
     #
     if mods['tps']:
-        try:
-            featOuts.append(tps.run(fileHandler.get_pkl("topics_v2"),
-                                fileHandler.get_pkl("inferred_topics_v2")))
-        except KeyError:
-            logger.error("One of the files for the topics module does not exist! Skipping...")
+        path = [Path(args.in_path) / 'logged_information' / 'your_topics' / 'your_topics.json',
+                Path(args.in_path) / 'logged_information' / 'other_logged_information' / 'ads_interests.json']
+        for p in path: # make tps.run() only take one path at a time
+            if p.exists():
+                feat_outs.append(tps.run(p, out_path, logger.getChild('tps'), auditor.getChild('tps')))
+            else:
+                logger.error("A file for the Topics module (%s) does not exist! Skipping..." % p.name)
+                logger.debug("Expected path: %s" % p)
     else:
         logger.info("Topics module not run.")
     
     # feelings module
     #
-    if mods['fgs']:
-        try:
-            featOuts.append(fgs.run(None))
-        except KeyError:
-            logger.error("One of the files for the feelings module does not exist! Skipping...")
+    if mods['fba']:
+        path = Path(args.in_path)
+        feat_outs.append(fba.run(path, out_path, logger.getChild('fba'), auditor.getChild('fba')))
     else:
         logger.info("Feelings module not run.")
     
-    fileHandler.close()
-    for i in range(len(featOuts)):
+    for i in range(len(feat_outs)):
         print(f"F[{i}]:")
-        print(featOuts[i],"\n")
+        print(feat_outs[i],"\n")
 
 if __name__ == "__main__":
+    print(pointless_function()) # for sake of demo only. Remove in production.
     main()
