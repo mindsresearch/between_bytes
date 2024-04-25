@@ -62,7 +62,7 @@ from selfscape_insight.core.various_helpers import pointless_function
 #   0.1:
 #     - Initial Release
 
-def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout):
+def main(in_path:Path, out_path:Path, mods:dict, verbose:int=0, log:str=sys.stdout):
     print(pointless_function()) # remove in production
     if any(mods.values()):
         for key in mods:
@@ -96,12 +96,11 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout
     logger.info("Logger initialized.")
 
     feat_outs = []
-    out_path = Path(out_path)
     
     # sample module
     #
     if mods['smp']:
-        path = Path(in_path) / 'ads_information' / 'other_categories_used_to_reach_you.json'
+        path = in_path / 'ads_information' / 'other_categories_used_to_reach_you.json'
         if path.exists():
             feat_outs.append(smp.run(path, out_path, logger.getChild('smp'), auditor.getChild('smp')))
         else:
@@ -113,7 +112,7 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout
     # ip_loc module
     #
     if mods['ipl']:
-        path = Path(in_path) / 'security_and_login_information' / 'account_activity.json'
+        path = in_path / 'security_and_login_information' / 'account_activity.json'
         if path.exists():
             feat_outs.append(ipl.run(path, out_path, logger.getChild('ipl'), auditor.getChild('ipl')))
         else:
@@ -125,7 +124,7 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout
     # off_fb_act module
     #
     if mods['ofa']:
-        path = Path(in_path) / 'apps_and_websites_off_of_facebook' / 'your_activity_off_meta_technologies.json'
+        path = in_path / 'apps_and_websites_off_of_facebook' / 'your_activity_off_meta_technologies.json'
         if path.exists():
             feat_outs.append(ofa.run(path, out_path, logger.getChild('ofa'), auditor.getChild('ofa')))
         else:
@@ -137,8 +136,8 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout
     # topics module
     #
     if mods['tps']:
-        path = [Path(in_path) / 'logged_information' / 'your_topics' / 'your_topics.json',
-                Path(in_path) / 'logged_information' / 'other_logged_information' / 'ads_interests.json']
+        path = [in_path / 'logged_information' / 'your_topics' / 'your_topics.json',
+                in_path / 'logged_information' / 'other_logged_information' / 'ads_interests.json']
         for p in path: # make tps.run() only take one path at a time
             if p.exists():
                 feat_outs.append(tps.run(p, out_path, logger.getChild('tps'), auditor.getChild('tps')))
@@ -151,7 +150,7 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout
     # feelings module
     #
     if mods['fba']:
-        path = Path(in_path)
+        path = in_path
         feat_outs.append(fba.run(path, out_path, logger.getChild('fba'), auditor.getChild('fba')))
     else:
         logger.info("Feelings module not run.")
@@ -159,7 +158,7 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout
     # filesize_sankey module
     #
     if mods['fsk']:
-        path = Path(in_path)
+        path = in_path
         feat_outs.append(fsk.run(path, out_path, logger.getChild('fsk'), auditor.getChild('fsk')))
     else:
         logger.info("Filesize_sankey module not run.")

@@ -75,7 +75,10 @@ def exec():
                 "fba": args.fba,
                 "fsk": args.fsk}
     
-    main(in_path=args.in_path, out_path=args.out_path, mods=run_mods, verbose=args.v, log=args.log)
+    in_path = Path(args.in_path)
+    out_path = Path(args.out_path)
+    out_path.mkdir(parents=True, exist_ok=True)
+    main(in_path=in_path, out_path=out_path, mods=run_mods, verbose=args.v, log=args.log)
 
 if __name__ == "__main__":
     exec()

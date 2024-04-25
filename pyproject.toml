@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "selfscape_insight"
-version = "0.3"
+version = "0.3.1"
 description = "Assorted visualizations and other representations of the data that Facebook collects"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -61,4 +61,4 @@ WWU-CS = "https://cs.wwu.edu"
 Source = "https://github.com/mindsresearch/selfscape_insight"
 
 [project.scripts]
-scape-cli = "selfscape_insight.main_cli:main"
+scape-cli = "selfscape_insight.exec_cli:exec"
