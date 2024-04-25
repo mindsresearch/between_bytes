@@ -6,29 +6,23 @@ profile. (will need to make this SIGNIFICANTLY longer...)
 Functions:
     main(): Runs the program.
 
-Example usage:
-    $ python3 main_cli.py -i /path/to/jsons/
-    (does stuff...)
-
-    $ python3 main_cli.py -h
-    (commandline arg help)
-
 Dependencies:
     No external dependencies
 
 Note:
-    This is the main module.
+    To run this file from the command line, please use exec_cli.py
+
+TODO:
+    - "refactor" versioning following exec_cli.py split
 
 Version:
-    0.6
+    0.2
 
 Author:
     Noah Duggan Erickson
 """
-__version__ = '0.6'
+__version__ = '0.2'
 
-
-import argparse
 import logging
 import sys
 from pathlib import Path
@@ -68,7 +62,8 @@ from selfscape_insight.core.various_helpers import pointless_function
 #   0.1:
 #     - Initial Release
 
-def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout, **kwargs):
+def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout):
+    print(pointless_function()) # remove in production
     if any(mods.values()):
         for key in mods:
             if mods[key] is None:
@@ -172,47 +167,3 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout
     for i in range(len(feat_outs)):
         print(f"F[{i}]:")
         print(feat_outs[i],"\n")
-
-if __name__ == "__main__":
-    print(pointless_function()) # for sake of demo only. Remove in production.
-    parser = argparse.ArgumentParser(prog="selfscape_insight",
-                                     usage="scape_cli -i PATH/TO/DATA [options]",
-                                     description="Runs an assortment of analyses on a Facebook profile data download",
-                                     epilog="(C) 2024 The Authors, License: GNU AGPL-3.0"
-                                     )
-    fio = parser.add_argument_group("File I/O")
-    fio.add_argument("-i", "--in_path", metavar="PATH/TO/DATA",
-                     help="path to root of data", required=True)
-    fio.add_argument('-o', '--out_path', metavar='PATH/TO/OUTPUT',
-                     help='path to output directory', required=False,
-                     default=Path.cwd())
-    mod_group = parser.add_argument_group("Modules", "Select which modules to include/exclude.")
-    mod_group.add_argument("--smp", help="sample module",
-                           action=argparse.BooleanOptionalAction)
-    mod_group.add_argument("--ipl", help="ip_loc module",
-                           action=argparse.BooleanOptionalAction)
-    mod_group.add_argument("--ofa", help="off_fb_act module",
-                           action=argparse.BooleanOptionalAction)
-    mod_group.add_argument("--tps", help="topics module",
-                           action=argparse.BooleanOptionalAction)
-    mod_group.add_argument("--fba", help="feelings module",
-                           action=argparse.BooleanOptionalAction)
-    mod_group.add_argument("--fsk", help="filesize_sankey module",
-                            action=argparse.BooleanOptionalAction)
-    adv = parser.add_argument_group("Advanced", "Advanced options.")
-    adv.add_argument("-l", "--log", help="Log file path, else stdout",
-                        metavar="PATH/TO/LOG", default=sys.stdout)
-    adv.add_argument("-v", "--verbose", action="count", dest="v",
-                        default=0, help="Logs verbosity (-v, -vv)")
-    adv.add_argument("--version", action="version",
-                     version=f"%(prog)s {__version__}")
-    args = parser.parse_args()
-
-    run_mods = {"smp": args.smp,
-                "ipl": args.ipl,
-                "ofa": args.ofa,
-                "tps": args.tps,
-                "fba": args.fba,
-                "fsk": args.fsk}
-    
-    main(in_path=args.in_path, out_path=args.out_path, mods=run_mods, verbose=args.v, log=args.log)

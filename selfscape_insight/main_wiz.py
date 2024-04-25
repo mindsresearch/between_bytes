@@ -19,7 +19,7 @@ import os
 import sys
 import logging
 
-from main_cli import main
+from selfscape_insight.run import main
 
 class SelfScapeInsightLauncher(Tk):
     """ Main window for the SelfScape Insight launcher.
@@ -65,10 +65,7 @@ class SelfScapeInsightLauncher(Tk):
             out_pkl = os.path.join(out_dir, "data")
         else:
             out_pkl = "temp"
-        main(in_dir, self.modules.get_mods(),
-             verbose=(2 if self.advanced.get_is_dev() else 0),
-             pklroot=out_pkl, log=self.advanced.get_log_file()
-             )
+        main(in_path=in_dir, out_path=out_dir, mods=self.modules.get_mods(), verbose=(2 if self.advanced.get_is_dev() else 0))
         self.destroy()
 
 class BasicConfig(ttk.Frame):
