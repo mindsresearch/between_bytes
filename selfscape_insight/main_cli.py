@@ -7,24 +7,26 @@ Functions:
     main(): Runs the program.
 
 Example usage:
-    $ python3 main_cli.py -in_path /path/to/jsons/
+    $ python3 main_cli.py -i /path/to/jsons/
     (does stuff...)
 
     $ python3 main_cli.py -h
     (commandline arg help)
 
 Dependencies:
-    No external dependencies... yet...
+    No external dependencies
 
 Note:
     This is the main module.
 
 Version:
-    0.5
+    0.5.1
 
 Author:
     Noah Duggan Erickson
 """
+__version__ = '0.5.1'
+
 
 import argparse
 import logging
@@ -40,6 +42,12 @@ from features import feelings as fba
 from core.various_helpers import pointless_function
 
 # CHANGELOG:
+#   0.5.1: (25 April 2024)
+#     - Abandon & destroy json_ingest
+#     - Use pathlib for path handling
+#     - Propogate logging to feature modules
+#     - Add core helpers import (temporary as demo)
+#     - Propogate common output path to features
 #   0.5: (22 April 2024)
 #     - Updated names of a few variables
 #     - Removed CSV compatibility (see: json_ingest 3.0.0rc2)
@@ -64,19 +72,20 @@ def main():
                                      )
     fio = parser.add_argument_group('File I/O')
     fio.add_argument('-i', '--in_path', metavar='PATH/TO/DATA', help='path to root of data', required=True)
-    fio.add_argument('-o', '--out_path', metavar='PATH/TO/OUTPUT', help='path to output directory', required=True)
+    fio.add_argument('-o', '--out_path', metavar='PATH/TO/OUTPUT', help='path to output directory', required=False, default=Path.cwd())
     mod_group = parser.add_argument_group('Modules', 'Select which modules to include/exclude.')
     mod_group.add_argument('--smp', help='sample module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--ipl', help='ip_loc module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--ofa', help='off_fb_act module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--tps', help='topics module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--fgs', help='feelings module', action=argparse.BooleanOptionalAction)
+    mod_group.add_argument('--fba', help='on_fb_act module', action=argparse.BooleanOptionalAction)
     adv = parser.add_argument_group('Advanced Options')
     adv.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
     adv.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
+    adv.add_argument('--version', action='version', version='%(prog)s %(__version__)s')
     args = parser.parse_args()
 
-    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fgs': args.fgs}
+    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fba': args.fba}
     if any(mods.values()):
         for key in mods:
             if mods[key] is None:
@@ -97,19 +106,19 @@ def main():
             level = logging.DEBUG
 
     ch = logging.StreamHandler(args.log)
-    LOGFMT = "%(asctime)s : [%(name)s - %(levelname)s] : %(message)s"
+    logfmt = "%(asctime)s : [%(name)s - %(levelname)s] : %(message)s"
     # logging.basicConfig(format=LOGFMT, level=level, handlers=[ch])
     logger = logging.getLogger('main')
     logger.setLevel(level)
     logger.addHandler(ch)
     auditor = logging.getLogger('auditor')
-    auditor.setLevel(logging.INFO)
+    auditor.setLevel(min(level, logging.INFO))
     auditor.addHandler(ch)
-    ch.setFormatter(logging.Formatter(LOGFMT))
+    ch.setFormatter(logging.Formatter(logfmt))
     logger.info("Logger initialized.")
 
     feat_outs = []
-    featOuts = []
+    out_path = Path(args.out_path)
     
     # sample module
     #
