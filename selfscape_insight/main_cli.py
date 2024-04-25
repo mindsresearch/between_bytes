@@ -33,14 +33,14 @@ import logging
 import sys
 from pathlib import Path
 
-from features import sample as smp
-from features import ip_loc as ipl
-from features import off_fb_act as ofa
-from features import topics as tps
-from features import feelings as fba
-from features import filesize_sankey as fsk
+from selfscape_insight.features import sample as smp
+from selfscape_insight.features import ip_loc as ipl
+from selfscape_insight.features import off_fb_act as ofa
+from selfscape_insight.features import topics as tps
+from selfscape_insight.features import feelings as fba
+from selfscape_insight.features import filesize_sankey as fsk
 
-from core.various_helpers import pointless_function
+from selfscape_insight.core.various_helpers import pointless_function
 
 # CHANGELOG:
 #   0.6: (25 April 2024)

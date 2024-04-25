@@ -53,7 +53,7 @@ from wordcloud import WordCloud, STOPWORDS, get_single_color_func
 if __name__ == "__main__":
     sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from core.various_helpers import pointless_function # pylint disable=wrong-import-position
+from selfscape_insight.core.various_helpers import pointless_function # pylint disable=wrong-import-position
 
 def run(in_path:Path, out_path:Path, logger:logging.Logger, auditor:logging.Logger) -> str:
     # TODO: Please refer to sample.py for run() docstring format!
