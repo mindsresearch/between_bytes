@@ -70,7 +70,7 @@ def run(in_path:Path, out_path:Path, logger:logging.Logger, auditor:logging.Logg
     #   - Demonstration of logging
     #   - Demonstration of basic auditor ethos
     #
-    auditor.info("sample accessed %s" % in_path)
+    auditor.info("Accessed %s" % in_path.name)
     auditor.debug('full path: %s' % in_path.absolute())
     df = pd.read_json(in_path, orient='records', typ='frame')
     logger.debug("Read json file into %i x %i dataframe" % df.shape)

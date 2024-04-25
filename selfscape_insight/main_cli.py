@@ -45,6 +45,7 @@ from core.various_helpers import pointless_function
 # CHANGELOG:
 #   0.6: (25 April 2024)
 #     - Added filesize_sankey feature
+#     - Refactor for wizard launcher
 #   0.5.1: (25 April 2024)
 #     - Abandon & destroy json_ingest
 #     - Use pathlib for path handling
@@ -67,29 +68,7 @@ from core.various_helpers import pointless_function
 #   0.1:
 #     - Initial Release
 
-def main():
-    parser = argparse.ArgumentParser(prog='selfscape_insight',
-                                     usage='scape_cli -i PATH/TO/DATA [options]',
-                                     description='Runs an assortment of analyses on a Facebook profile data download',
-                                     epilog='(C) 2024 The Authors, License: GNU AGPL-3.0'
-                                     )
-    fio = parser.add_argument_group('File I/O')
-    fio.add_argument('-i', '--in_path', metavar='PATH/TO/DATA', help='path to root of data', required=True)
-    fio.add_argument('-o', '--out_path', metavar='PATH/TO/OUTPUT', help='path to output directory', required=False, default=Path.cwd())
-    mod_group = parser.add_argument_group('Modules', 'Select which modules to include/exclude.')
-    mod_group.add_argument('--smp', help='sample module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--ipl', help='ip_loc module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--ofa', help='off_fb_act module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--tps', help='topics module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--fba', help='on_fb_act module', action=argparse.BooleanOptionalAction)
-    mod_group.add_argument('--fsk', help='filesize_sankey module', action=argparse.BooleanOptionalAction)
-    adv = parser.add_argument_group('Advanced Options')
-    adv.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
-    adv.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
-    adv.add_argument('--version', action='version', version='%(prog)s %(__version__)s')
-    args = parser.parse_args()
-
-    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fba': args.fba, 'fsk': args.fsk}
+def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=sys.stdout, **kwargs):
     if any(mods.values()):
         for key in mods:
             if mods[key] is None:
@@ -98,10 +77,10 @@ def main():
         for key in mods:
             if mods[key] is None:
                 mods[key] = True
-    print(f"Modules: {mods}\nVerbose: {args.v}")
-    match args.v:
+    print(f"Modules: {mods}\nVerbose: {verbose}")
+    match verbose:
         case 0:
-            level = logging.ERROR
+            level = logging.WARNING
         case 1:
             level = logging.INFO
         case 2:
@@ -109,10 +88,10 @@ def main():
         case _:
             level = logging.DEBUG
 
-    ch = logging.StreamHandler(args.log)
+    ch = logging.StreamHandler(log)
     logfmt = "%(asctime)s : [%(name)s - %(levelname)s] : %(message)s"
     # logging.basicConfig(format=LOGFMT, level=level, handlers=[ch])
-    logger = logging.getLogger('main')
+    logger = logging.getLogger("main")
     logger.setLevel(level)
     logger.addHandler(ch)
     auditor = logging.getLogger('auditor')
@@ -122,12 +101,12 @@ def main():
     logger.info("Logger initialized.")
 
     feat_outs = []
-    out_path = Path(args.out_path)
+    out_path = Path(out_path)
     
     # sample module
     #
     if mods['smp']:
-        path = Path(args.in_path) / 'ads_information' / 'other_categories_used_to_reach_you.json'
+        path = Path(in_path) / 'ads_information' / 'other_categories_used_to_reach_you.json'
         if path.exists():
             feat_outs.append(smp.run(path, out_path, logger.getChild('smp'), auditor.getChild('smp')))
         else:
@@ -135,11 +114,11 @@ def main():
             logger.debug("Expected path: %s" % path)
     else:
         logger.info("Sample module not run.")
-    
+
     # ip_loc module
     #
     if mods['ipl']:
-        path = Path(args.in_path) / 'security_and_login_information' / 'account_activity.json'
+        path = Path(in_path) / 'security_and_login_information' / 'account_activity.json'
         if path.exists():
             feat_outs.append(ipl.run(path, out_path, logger.getChild('ipl'), auditor.getChild('ipl')))
         else:
@@ -147,11 +126,11 @@ def main():
             logger.debug("Expected path: %s" % path)
     else:
         logger.info("IP Location module not run.")
-    
+
     # off_fb_act module
     #
     if mods['ofa']:
-        path = Path(args.in_path) / 'apps_and_websites_off_of_facebook' / 'your_activity_off_meta_technologies.json'
+        path = Path(in_path) / 'apps_and_websites_off_of_facebook' / 'your_activity_off_meta_technologies.json'
         if path.exists():
             feat_outs.append(ofa.run(path, out_path, logger.getChild('ofa'), auditor.getChild('ofa')))
         else:
@@ -159,12 +138,12 @@ def main():
             logger.debug("Expected path: %s" % path)
     else:
         logger.info("Off-Facebook Activity module not run.")
-    
+
     # topics module
     #
     if mods['tps']:
-        path = [Path(args.in_path) / 'logged_information' / 'your_topics' / 'your_topics.json',
-                Path(args.in_path) / 'logged_information' / 'other_logged_information' / 'ads_interests.json']
+        path = [Path(in_path) / 'logged_information' / 'your_topics' / 'your_topics.json',
+                Path(in_path) / 'logged_information' / 'other_logged_information' / 'ads_interests.json']
         for p in path: # make tps.run() only take one path at a time
             if p.exists():
                 feat_outs.append(tps.run(p, out_path, logger.getChild('tps'), auditor.getChild('tps')))
@@ -173,11 +152,11 @@ def main():
                 logger.debug("Expected path: %s" % p)
     else:
         logger.info("Topics module not run.")
-    
+
     # feelings module
     #
     if mods['fba']:
-        path = Path(args.in_path)
+        path = Path(in_path)
         feat_outs.append(fba.run(path, out_path, logger.getChild('fba'), auditor.getChild('fba')))
     else:
         logger.info("Feelings module not run.")
@@ -185,7 +164,7 @@ def main():
     # filesize_sankey module
     #
     if mods['fsk']:
-        path = Path(args.in_path)
+        path = Path(in_path)
         feat_outs.append(fsk.run(path, out_path, logger.getChild('fsk'), auditor.getChild('fsk')))
     else:
         logger.info("Filesize_sankey module not run.")
@@ -196,4 +175,44 @@ def main():
 
 if __name__ == "__main__":
     print(pointless_function()) # for sake of demo only. Remove in production.
-    main()
+    parser = argparse.ArgumentParser(prog="selfscape_insight",
+                                     usage="scape_cli -i PATH/TO/DATA [options]",
+                                     description="Runs an assortment of analyses on a Facebook profile data download",
+                                     epilog="(C) 2024 The Authors, License: GNU AGPL-3.0"
+                                     )
+    fio = parser.add_argument_group("File I/O")
+    fio.add_argument("-i", "--in_path", metavar="PATH/TO/DATA",
+                     help="path to root of data", required=True)
+    fio.add_argument('-o', '--out_path', metavar='PATH/TO/OUTPUT',
+                     help='path to output directory', required=False,
+                     default=Path.cwd())
+    mod_group = parser.add_argument_group("Modules", "Select which modules to include/exclude.")
+    mod_group.add_argument("--smp", help="sample module",
+                           action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--ipl", help="ip_loc module",
+                           action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--ofa", help="off_fb_act module",
+                           action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--tps", help="topics module",
+                           action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--fba", help="feelings module",
+                           action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--fsk", help="filesize_sankey module",
+                            action=argparse.BooleanOptionalAction)
+    adv = parser.add_argument_group("Advanced", "Advanced options.")
+    adv.add_argument("-l", "--log", help="Log file path, else stdout",
+                        metavar="PATH/TO/LOG", default=sys.stdout)
+    adv.add_argument("-v", "--verbose", action="count", dest="v",
+                        default=0, help="Logs verbosity (-v, -vv)")
+    adv.add_argument("--version", action="version",
+                     version=f"%(prog)s {__version__}")
+    args = parser.parse_args()
+
+    run_mods = {"smp": args.smp,
+                "ipl": args.ipl,
+                "ofa": args.ofa,
+                "tps": args.tps,
+                "fba": args.fba,
+                "fsk": args.fsk}
+    
+    main(in_path=args.in_path, out_path=args.out_path, mods=run_mods, verbose=args.v, log=args.log)
