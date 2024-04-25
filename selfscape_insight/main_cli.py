@@ -20,12 +20,12 @@ Note:
     This is the main module.
 
 Version:
-    0.5.1
+    0.6
 
 Author:
     Noah Duggan Erickson
 """
-__version__ = '0.5.1'
+__version__ = '0.6'
 
 
 import argparse
@@ -38,10 +38,13 @@ from features import ip_loc as ipl
 from features import off_fb_act as ofa
 from features import topics as tps
 from features import feelings as fba
+from features import filesize_sankey as fsk
 
 from core.various_helpers import pointless_function
 
 # CHANGELOG:
+#   0.6: (25 April 2024)
+#     - Added filesize_sankey feature
 #   0.5.1: (25 April 2024)
 #     - Abandon & destroy json_ingest
 #     - Use pathlib for path handling
@@ -79,13 +82,14 @@ def main():
     mod_group.add_argument('--ofa', help='off_fb_act module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--tps', help='topics module', action=argparse.BooleanOptionalAction)
     mod_group.add_argument('--fba', help='on_fb_act module', action=argparse.BooleanOptionalAction)
+    mod_group.add_argument('--fsk', help='filesize_sankey module', action=argparse.BooleanOptionalAction)
     adv = parser.add_argument_group('Advanced Options')
     adv.add_argument('-l', '--log', help='Log file path, else stdout', metavar='PATH/TO/LOG', default=sys.stdout)
     adv.add_argument('-v', '--verbose', action='count', dest='v', default=0, help='Logs verbosity (-v, -vv)')
     adv.add_argument('--version', action='version', version='%(prog)s %(__version__)s')
     args = parser.parse_args()
 
-    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fba': args.fba}
+    mods = {'smp': args.smp, 'ipl': args.ipl, 'ofa': args.ofa, 'tps': args.tps, 'fba': args.fba, 'fsk': args.fsk}
     if any(mods.values()):
         for key in mods:
             if mods[key] is None:
@@ -178,6 +182,14 @@ def main():
     else:
         logger.info("Feelings module not run.")
     
+    # filesize_sankey module
+    #
+    if mods['fsk']:
+        path = Path(args.in_path)
+        feat_outs.append(fsk.run(path, out_path, logger.getChild('fsk'), auditor.getChild('fsk')))
+    else:
+        logger.info("Filesize_sankey module not run.")
+
     for i in range(len(feat_outs)):
         print(f"F[{i}]:")
         print(feat_outs[i],"\n")
