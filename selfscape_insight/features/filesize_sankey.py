@@ -23,18 +23,22 @@ Note:
     This sub-module is part of the 'selfscape_insight' package in the 'features' module.
 
 Todo:
-    * Add mimetypes-based color coding
-    * Refactor helpers into separate module in core
     * Prettify the output
 
 Version:
-    1.0.1
+    1.1
 
 Author:
     Noah Duggan Erickson
 """
 
 # CHANGELOG:
+#   1.1: (26 April 2024)
+#     - Use mimetypes to color code file types
+#     - Added legend (non-functional) to Sankey diagram
+#     - Updated signatures and imports to match new standards
+#     - Moved over to SsiLogger for logging
+#     - Move helper functions to core
 #   1.0.1: (09 April 2024)
 #     - Added docstrings & comments
 #   1.0: (05 April 2024)
@@ -43,85 +47,33 @@ Author:
 
 import argparse
 import os
-# import mimetypes
+import sys
+from pathlib import Path
+import mimetypes
+from collections import defaultdict
 
 import pandas as pd
 import plotly.graph_objects as go
+import seaborn as sns
 
-def pdEnumFiles(rootPath):
-    ''' Enumerates files in a root directory and returns as a pandas dataframe
+if __name__ == "__main__":
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-    Enumerates files in a root directory, with `inbox` directories excluded,
-    and returns as a pandas dataframe with columns for root, file, and path.
+from core.various_helpers import pointless_function # pylint disable=wrong-import-position
+from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+import core.filesize_sankey_core as fsc # pylint disable=wrong-import-position
 
-    Args:
-        rootPath (str): The path to the root directory to enumerate
-    
-    Returns:
-        pd.DataFrame: A pandas dataframe with columns for root, file, and path
-        for each file in the root directory
-    '''
-    fileList = []
-    rootList = []
-    pathList = []
-    for root, dirs, files in os.walk(rootPath):
-        for file in files:
-            if (not 'inbox' in root):
-                fileList.append(file)
-                rootList.append(root)
-                pathList.append(f"{root}/{file}")
-    return pd.DataFrame({'root': rootList, 'file': fileList, 'path':pathList})
+def run(json_path:str, out_path:str, logger:SsiLogger) -> str:
+    logger.info("Running the filesize_sankey feature module")
 
-def dEnumDirs(rootPath):
-    ''' Generates ID values for directories in a root directory
-
-    Walks through a root directory and maps sequential ID values
-    to each subdirectory via a dictionary.
-
-    Args:
-        rootPath (str): The path to the root directory to enumerate
-    
-    Returns:
-        dict: A dictionary mapping each subdirectory path to a unique ID value
-    '''
-    pathDict = {'-':0}
-    pathDict[rootPath] = 1
-    counter = 2
-    for root, dirs, files in os.walk(rootPath):
-        for dire in dirs:
-            pathDict[f"{root}/{dire}"] = counter
-            counter += 1
-    return pathDict
-
-def pdEnumDirs(rootPath):
-    ''' Enumerates directories in a root directory and returns a dataframe
-
-    Enumerates directories in a root directory and returns a pandas
-    dataframe with columns for root, dir, and path.
-    
-    Args:
-        rootPath (str): The path to the root directory to enumerate
-
-    Returns:
-        pd.DataFrame: A pandas dataframe with columns root, dir, and path
-    '''
-    dirList = [rootPath]
-    rootList = ['-']
-    pathList = [rootPath]
-    for root, dirs, files in os.walk(rootPath):
-        for dire in dirs:
-            dirList.append(dire)
-            rootList.append(root)
-            pathList.append(f"{root}/{dire}")
-    return pd.DataFrame({'root': rootList, 'dir': dirList, 'path':pathList})
-
-def run(json_path:str, out_path:str):
+    logger.use_file(Path('ALL'), 'metadata')
     # Enumerate files and directories, get filesizes
     #
-    fdf = pdEnumFiles(json_path)
+    fdf = fsc.pdEnumFiles(json_path)
     fdf['size'] = fdf.apply(lambda x: os.stat(x['path']).st_size, axis=1)
-    pdict = dEnumDirs(json_path)
-    ddf = pdEnumDirs(json_path)
+    pdict = fsc.dEnumDirs(json_path)
+    ddf = fsc.pdEnumDirs(json_path)
+    logger.debug(f"Found {len(fdf)} files and {len(ddf)} directories")
 
     # Map directories to parent directories via IDs
     #
@@ -134,6 +86,7 @@ def run(json_path:str, out_path:str):
     fdf = fdf.join(ddf, on='root')
     ddf['path'] = ddf.index
     ddf.index = ddf['didx']
+    logger.debug(f"Assigned IDs to directories and files")
 
     # Aggregate file sizes by directory
     #
@@ -144,9 +97,11 @@ def run(json_path:str, out_path:str):
         for j, v in tsr.items():
             ddf.at[j, 'size'] = v
     ddf = ddf.dropna()
+    logger.debug(f"Aggregated file sizes by directory")
 
     # Build Sankey diagram connections
     #
+    logger.info("Building Sankey diagram")
     tddf = pd.DataFrame({'source': ddf['pidx'], 'target': list(ddf.index), 'value': ddf['size'], 'label':ddf['path'].apply((lambda x: f"{x}.dir"))})
     tddf.index = list(range(len(tddf)))
     tddf['label'] = tddf['label'].apply((lambda x: x.split('/')[-1]))
@@ -160,27 +115,48 @@ def run(json_path:str, out_path:str):
     tls = tls.sort_index()
 
     # Assign colors based on file extension
-    # TODO: Replace dict with mimetype-based color coding
     #
-    tldf = pd.DataFrame({'label':tls.apply((lambda x: x.split('.')[0])), 'ext':tls.apply((lambda x: x.split('.')[-1]))})
-    colorDict = {'root': 'black', 'dir': 'purple', 'json': 'blue', 'txt': 'white', 'jpg': 'orange', 'mp4':'red'}
-    tldf['colors'] = tldf['ext'].map(colorDict)
+    tldf = pd.DataFrame({'label':tls.apply((lambda x: x.split('.')[0])), 'ext':tls.apply((lambda x: '.' + x.split('.')[-1]))})
+    if not mimetypes.inited:
+        mimetypes.init()
+    types = defaultdict((lambda : 'unk/unk'), mimetypes.types_map)
+    types['.dir'] = 'dir/dir'
+    types['.root'] = 'root/root'
+    tldf['type'] = tldf['ext'].map(types)
+    cmap = sns.color_palette('rainbow', len(tldf['type'].unique()))
+    cmap = [f'rgb({int(c[0]*255)},{int(c[1]*255)},{int(c[2]*255)})' for c in cmap]
+    cmap = dict(zip(tldf['type'].unique(), cmap))
+    tldf['colors'] = tldf['type'].map(cmap)
 
     # Generate Sankey diagram visuals
     #
-    node = dict(label = tldf['label'], color = tldf['colors'])
+    node = dict(customdata = tldf['label'], label=tldf['type'], color = tldf['colors'], pad = 15, hovertemplate = '%{customdata} (%{value} bytes)')
     link = dict(source = bdf['source'], target = bdf['target'], value = bdf['value'])
-    data = go.Sankey(node = node, link = link)
+    data = go.Sankey(node = node, link = link, orientation='v')
     fig = go.Figure(data)
 
-    fig.write_html(os.path.join(out_path, 'filesize_sankey.html'))
-    return f"Wrote to {os.path.join(out_path, 'filesize_sankey.html')}"
+    for c in cmap.items():
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode='markers', marker=dict(size=10, color=c[1]), showlegend=True, name=c[0], ))
+    fig.update_layout(legend=dict(orientation="v", yanchor="top", y=1.02, xanchor="right", x=0.01),
+                      title_text="Filesize Sankey Diagram", font_size=10, autosize=True, plot_bgcolor='rgba(255,255,255,0)')
+
+    logger.info("Sankey diagram built")
+
+    op = out_path + os.sep + 'filesize_sankey.html'
+    logger.wrote_file(Path(op))
+    fig.write_html(op)
+    return "Wrote to " + op
 
 if __name__ == "__main__":
+    print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='filesize_sankey',
                                      description='A short description of what your code does')
-    parser.add_argument('-json_path', metavar='path/to/jsons/',
-                        help='path to json files', required=True)
-    parser.add_argument('-out_path', metavar='path/to/output(/filesize_sankey.html)',)
+    parser.add_argument('-i', '--in_file', metavar='(NAME)_JSON', help='path to json file where \'NAME\' is tlk', required=True)
+    parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send output(s)', required=False, default='.')
+    parser.add_argument('-v', '--verbose', action='count', default=0, help='increase verbosity', required=False)
     args = parser.parse_args()
-    print(run(args.json_path, args.out_path))
+
+    logger = RootLogger()
+    logger.setup(verb=args.verbose)
+
+    print(run(args.in_file, args.out_path, logger))
