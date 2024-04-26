@@ -1,28 +1,33 @@
-"""A short description of what your code does.
+"""This script analyzes IP locations and their activity over time.
 
-A longer description of what your code does,
-including what csvs it takes in, and what it
-contributes to the final output
+The script takes in account activity data (in CSV format) containing IP addresses and timestamps. It processes this data to identify the density of activity, duration, and location associated with each IP address. The final output is an HTML page containing visualizations of IP location occurrences and their activity over time.
 
 Functions:
-    run(account_activity_v2): Runs the feature.
+    - convert_to_gps(ip_address): Converts IP addresses to GPS coordinates using MaxMind GeoLite2 database.
+    - convert_time(timestamp): Converts Unix timestamps to human-readable datetime objects.
+    - time_def(time1, time2): Calculates the time difference between two timestamps.
+    - density_report(time1, time2): Calculates the density of activity based on timestamps.
+    - create_df(df): Processes the input DataFrame to create a new DataFrame with relevant information.
+    - generate_graph(df): Generates bar graphs showing the occurrences of IPs over time.
+    - on_map_click(event): Handles click events on the generated map.
+    - create_html(df): Creates an HTML map with markers for IP locations and popups showing activity graphs.
+    - run(df): Main function to run the IP location analysis feature.
 
 Example usage:
-    >>> from features import ip_loc as ipl
-    >>> ipl.run(JsonReader.get_csv("account_activity_v2"))
-    filepath to HTML page containing results of analysis
-
-    $ python3 ip_loc.py -account_activity_v2 /path/to/account_activity_v2.csv
-    filepath to HTML page containing results of analysis
+    - From Python:
+        >>> from features import ip_loc as ipl
+        >>> ipl.run(JsonReader.get_csv("account_activity_v2"))
+        filepath to HTML page containing results of analysis
+    - From command line:
+        $ python3 ip_loc.py -account_activity_v2 /path/to/account_activity_v2.csv
+        filepath to HTML page containing results of analysis
 
 Dependencies:
-    pandas for data handling
-    geopandas for geospatial data handling
-    matplotlib.pyplot for basic datavis
-    folium for more advanced datavis
-    maxminddb for IP -> lat/long conversion
-    [ADD DESCRIPTIONS FOR FURTHER THIRD-PARTY IMPORTS HERE]
-
+    - pandas: Data handling.
+    - geopandas: Geospatial data handling.
+    - matplotlib.pyplot: Basic data visualization.
+    - folium: Advanced data visualization on maps.
+    - maxminddb: IP to latitude/longitude conversion.
 
 Note:
     This sub-module is part of the 'persona_sight' package in the 'features' module.
@@ -217,7 +222,7 @@ def create_html(df):
 #account_activity_v2
 def run(df):
     print("Running the ip_loc feature module")
-          
+    
     edited_df = create_df(df)
     folium_html = create_html(edited_df)
     folium_html.save("folium_occurance.html")
@@ -225,7 +230,7 @@ def run(df):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='ip_loc',
                                      description='A short description of what your code does')
-    parser.add_argument('-account_activity_v2', metavar='ACCOUNT_ACTIVITY_V2_CSV',
-                        help='path to account_activity_v2 csv file', required=True)
+    parser.add_argument('-account_activity_v2', metavar='ACCOUNT_ACTIVITY_V2',
+                        help='path to account_activity_v2 json file', required=True)
     args = parser.parse_args()
     run(args.account_activity_v2)
