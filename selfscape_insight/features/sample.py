@@ -31,7 +31,6 @@ Author:
 """
 
 import argparse
-import logging
 from pathlib import Path
 import sys
 
@@ -42,8 +41,9 @@ if __name__ == "__main__":
     sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from selfscape_insight.core.various_helpers import pointless_function # pylint disable=wrong-import-position
+from selfscape_insight.core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
 
-def run(in_path:Path, out_path:Path, logger:logging.Logger, auditor:logging.Logger) -> str:
+def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
     """Runs the feature.
 
     Tells how many ad-topics are on the user profile.
@@ -70,8 +70,7 @@ def run(in_path:Path, out_path:Path, logger:logging.Logger, auditor:logging.Logg
     #   - Demonstration of logging
     #   - Demonstration of basic auditor ethos
     #
-    auditor.info("Accessed %s" % in_path.name)
-    auditor.debug('full path: %s' % in_path.absolute())
+    logger.use_file(in_path)
     df = pd.read_json(in_path, orient='records', typ='frame')
     logger.debug("Read json file into %i x %i dataframe" % df.shape)
 
@@ -84,14 +83,14 @@ def run(in_path:Path, out_path:Path, logger:logging.Logger, auditor:logging.Logg
     # raise NotImplementedError(out_path.absolute())
     # Get a random image
     image_url = "https://source.unsplash.com/random"
-    auditor.warning('Sending a GET request to %s' % image_url)
+    logger.use_inet(image_url)
     response = requests.get(image_url, timeout=15)
     logger.debug('GET request returned with status code %i' % response.status_code)
 
     # Save the image to 'random.jpg'
     out_file = out_path / 'random.jpg'
     with open(out_file, 'wb') as file:
-        auditor.info("Created file %s" % out_file.absolute())
+        logger.wrote_file(out_file)
         b = file.write(response.content)
         logger.debug("Wrote %i bytes to %s" % (b, out_file.absolute()))
 
@@ -109,17 +108,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='sample_feature', description='A sample program feature for the purposes of demo-ing code structure and boilerplate')
     parser.add_argument('-i', '--in_file', metavar='BCTS_JSON', help='path to json file where \'bcts\' is tlk', required=True)
     parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send output(s)', required=False, default='.')
-    parser.add_argument('-v', '--verbose', action='store_true', help='increase verbosity', required=False)
+    parser.add_argument('-v', '--verbose', action='count', default=0, help='increase verbosity', required=False)
     args = parser.parse_args()
 
-    ch = logging.StreamHandler()
-    logfmt = "%(asctime)s : [%(name)s - %(levelname)s] : %(message)s"
-    logger = logging.getLogger('main')
-    logger.setLevel(logging.DEBUG if args.verbose else logging.WARNING)
-    logger.addHandler(ch)
-    auditor = logging.getLogger('auditor')
-    auditor.setLevel(logging.DEBUG if args.verbose else logging.INFO)
-    auditor.addHandler(ch)
-    ch.setFormatter(logging.Formatter(logfmt))
+    logger = RootLogger()
+    logger.setup(verb=args.verbose)
 
-    print(run(args.in_file, args.out_path, logger, auditor))
+    print(run(args.in_file, args.out_path, logger))
