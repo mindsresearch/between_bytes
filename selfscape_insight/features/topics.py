@@ -81,7 +81,8 @@ def create_collage(image_folder, output_path, collage_size=(4096, 2160)):
             img = img.resize((tile_width, tile_height - int(font_size * 1.2)))  # Resize image to fit the tile size
             collage.paste(img, ((i % width) * tile_width, (i // width) * tile_height))  # Paste image onto the collage
             # Draw image name under each picture
-            font = ImageFont.truetype("arial.ttf", font_size)
+            font_path = os.path.join(os.path.dirname(__file__), "NotoSans_Local.ttf")
+            font = ImageFont.truetype(font_path, font_size)
             topic = image_file.replace(".jpg","")
             # topic = topic[:20]
             draw.text(((i % width) * tile_width, (i // width) * tile_height + tile_height - int(font_size * 1.2)), topic, font=font, fill=(255, 255, 255))
