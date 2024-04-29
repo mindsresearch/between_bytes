@@ -332,8 +332,284 @@ def naive_converted(main_path):
     ax.set_yticklabels([])
 
     plt.show()
-    
     # plt.savefig('Facebook_Use_by_Year.png')
+
+    import spacy # for natural language processing
+    from spacytextblob.spacytextblob import SpacyTextBlob # for sentiment analysis
+
+    # natural language processing
+    try:
+        nlp = spacy.load('en_core_web_sm')
+    except OSError:
+        spacy.cli.download("en_core_web_sm")
+        nlp = spacy.load('en_core_web_sm')
+        
+    nlp.add_pipe('spacytextblob')
+
+    # defining a sentiment polarity function
+    def calc_sentiment(msg):
+        return msg._.blob.polarity
+    
+    # filling missing values with empty string
+    mdf['content'] = mdf['content'].fillna('')
+
+    # Apply sentiment analysis using spaCy's pipe method
+    mdf['sentiment'] = [calc_sentiment(msg) for msg in nlp.pipe(mdf['content'])]
+
+    # Sort the DataFrame by timestamp
+    mdf.sort_values(by='timestamp_ms', inplace=True)
+    # Process posts and add a "sentiment" column to postsdf
+    postsdf['sentiment'] = postsdf['data'].apply(lambda data_list: max([calc_sentiment(nlp(data_item['post'])) for data_item in data_list if 'post' in data_item], default=None))
+
+    # Sort the DataFrame by timestamp
+    postsdf = postsdf.sort_values(by='timestamp')
+
+    # Change color based on sentiment
+    colors = postsdf.apply(lambda x: (max(0, min(1, 1-x.sentiment)), max(0, min(1, 1+x.sentiment)), 0), axis=1)
+
+    ax = postsdf.plot.scatter(x='timestamp', y='sentiment', figsize=(12,6), color=colors)
+    ax.axhline(0, color='black')
+    ax.set_facecolor('gray')
+    plt.show()
+    # add year column
+    postsdf['year'] = postsdf['timestamp'].dt.year
+
+    # group by year and calc mean sentiment for each year
+    yearlysent = postsdf.groupby('year')['sentiment'].mean()
+
+    # change color based on sentiment
+    colors = yearlysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+
+    ax = yearlysent.plot(x='timestamp', y='sentiment', figsize=(12,6), color=colors)
+    ax.set_ylim(-0.25, 0.25)
+    ax.axhline(0, color='black')
+    ax.set_facecolor('gray')
+    # adjust timestamp to pacific time
+    postsdf['timestamp_pacific'] = postsdf['timestamp'] + pd.DateOffset(hours=8)
+
+    # add hour column
+    postsdf['hour'] = postsdf['timestamp_pacific'].dt.hour
+
+    # group by hour and calc mean sentiment for each hour
+    hourlysent = postsdf.groupby('hour')['sentiment'].mean()
+
+    # change color based on sentiment
+    colors = hourlysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+
+    ax = hourlysent.plot(kind='bar', x='timestamp', y='sentiment', figsize=(12,6), color=colors)
+    ax.set_facecolor('gray')
+    plt.show()
+
+    # group by hour and count the number of entries for each hour
+    hourly_counts = postsdf.groupby('hour').size()
+
+    # group by hour and calc mean sentiment for each hour
+    hourly_sentiment = postsdf.groupby('hour')['sentiment'].mean()
+
+    # change color based on sentiment
+    colors = hourly_sentiment.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+
+    # plot bar chart with frequency as height and sentiment as color
+    ax = hourly_counts.plot(kind='bar', figsize=(12,6), color=colors)
+    ax.set_facecolor('gray')
+
+    ax.set_ylabel('Post Count')
+
+    # add labels for sentiment value
+    for i, (index, val) in enumerate(hourly_sentiment.items()):
+        ax.text(i, hourly_counts[index] + 0.1, f'{val:.2f}', ha='center', va='bottom')
+    plt.show()
+
+    # add hour column
+    postsdf['day'] = postsdf['timestamp'].dt.day
+
+    # Group by day of the week and calculate the mean sentiment for each day
+    dailysent = postsdf.groupby(postsdf['timestamp'].dt.dayofweek)['sentiment'].mean()
+
+    # change color based on sentiment
+    colors = dailysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+
+    ax = dailysent.plot(kind='bar', x='timestamp', y='sentiment', figsize=(12,6), color=colors)
+    ax.set_facecolor('gray')
+    ax.set_xticks([0, 1, 2, 3, 4, 5, 6], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+    plt.show()
+
+    # Change color based on sentiment
+    colors = mdf.apply(lambda x: (max(0, min(1, 1-x.sentiment)), max(0, min(1, 1+x.sentiment)), 0), axis=1)
+
+    ax = mdf.plot.scatter(x='timestamp_ms', y='sentiment', figsize=(12,6), color=colors)
+    ax.set_facecolor('gray')
+    plt.show()
+
+    # add year column
+    mdf['year'] = mdf['timestamp'].dt.year
+
+    # group by year and calc mean sentiment for each year
+    messageyearlysent = mdf.groupby('year')['sentiment'].mean()
+
+    # change color based on sentiment
+    colors = messageyearlysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+
+    ax = messageyearlysent.plot(x='timestamp_ms', y='sentiment', figsize=(12,6), color=colors)
+    ax.set_ylim(-0.25, 0.25)
+    ax.axhline(0, color='black')
+    ax.set_facecolor('gray')
+    plt.show()
+
+    # adjust timestamp to pacific time
+    mdf['timestamp_pacific'] = mdf['timestamp_ms'] + pd.DateOffset(hours=8)
+
+    # add hour column
+    mdf['hour'] = mdf['timestamp_pacific'].dt.hour
+
+    # group by hour and calc mean sentiment for each hour
+    messagehourlysent = mdf.groupby('hour')['sentiment'].mean()
+
+    # change color based on sentiment
+    colors = messagehourlysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+
+    ax = messagehourlysent.plot(kind='bar', x='timestamp_pacific', y='sentiment', figsize=(12,6), color=colors)
+    ax.set_facecolor('gray')
+    plt.show()
+
+    # group by hour and count the number of entries for each hour
+    message_hourly_counts = mdf.groupby('hour').size()
+
+    # group by hour and calc mean sentiment for each hour
+    message_hourly_sentiment = mdf.groupby('hour')['sentiment'].mean()
+
+    # change color based on sentiment
+    colors = message_hourly_sentiment.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+
+    # plot bar chart with frequency as height and sentiment as color
+    ax = message_hourly_counts.plot(kind='bar', figsize=(12,6), color=colors)
+    ax.set_facecolor('gray')
+
+    ax.set_ylabel('Post Count')
+
+    # add labels for sentiment value
+    for i, (index, val) in enumerate(message_hourly_sentiment.items()):
+        ax.text(i, message_hourly_counts[index] + 0.1, f'{val:.2f}', ha='center', va='bottom')
+    plt.show()
+
+    # add hour column
+    mdf['day'] = mdf['timestamp_pacific'].dt.day
+
+    # Group by day of the week and calculate the mean sentiment for each day
+    messagedailysent = mdf.groupby(mdf['timestamp_pacific'].dt.dayofweek)['sentiment'].mean()
+
+    # change color based on sentiment
+    colors = messagedailysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+
+    ax = messagedailysent.plot(kind='bar', x='timestamp_pacific', y='sentiment', figsize=(12,6), color=colors)
+    ax.set_facecolor('gray')
+    ax.set_xticks([0, 1, 2, 3, 4, 5, 6], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+    plt.show()
+
+    from wordcloud import WordCloud, STOPWORDS, get_single_color_func
+    import matplotlib.pyplot as plt
+
+    # concatenate text data
+    wc_text = ' '.join(mdf['content'].astype(str).apply(lambda x: x.encode('utf-8').decode('utf-8')))
+
+    # define stop words
+    stop_words = ['â'] + list(STOPWORDS)
+
+    # function to assign colors based on sentiment scores
+    def grouped_color_func(color_to_words, default_color, word):
+        color_func_to_words = [(get_single_color_func(color), set(words)) for (color, words) in color_to_words.items()]
+        default_color_func = get_single_color_func(default_color)
+
+        def get_color_func(word):
+            try:
+                color_func = next(color_func for (color_func, words) in color_func_to_words if word in words)
+            except StopIteration:
+                color_func = default_color_func
+            return color_func
+
+        return get_color_func(word)(word)
+
+    # tokenize messages into words
+    mdf['tokenized_content'] = mdf['content'].str.split()
+
+    # calculate sentiment scores for each word
+    word_sentiments = {}
+    for index, row in mdf.iterrows():
+        for word in row['tokenized_content']:
+            if word not in word_sentiments:
+                word_sentiments[word] = {'total_sentiment': 0, 'count': 0}
+            word_sentiments[word]['total_sentiment'] += row['sentiment']
+            word_sentiments[word]['count'] += 1
+
+    # calculate average sentiment scores
+    for word, values in word_sentiments.items():
+        word_sentiments[word]['average_sentiment'] = values['total_sentiment'] / values['count']
+
+    # define colors based on sentiment scores
+    color_to_words = {
+        'red': [word for word, values in word_sentiments.items() if values['average_sentiment'] < -0.25],
+        'green': [word for word, values in word_sentiments.items() if values['average_sentiment'] > 0.25],
+    }
+
+    default_color = 'grey'
+
+    # randomize color tones
+    grouped_color_func_result = lambda word, font_size, position, orientation, random_state, font_path: grouped_color_func(color_to_words, default_color, word)
+
+    # create and display word cloud
+    wc = WordCloud(stopwords=stop_words, width=800, height=400, max_words=200, background_color='black', collocations=False).generate(wc_text)
+    wc.recolor(color_func=grouped_color_func_result)
+
+    plt.figure(figsize=(12, 6))
+    plt.imshow(wc, interpolation='bilinear')
+    plt.axis('off')
+    plt.show()
+
+    # define stop words
+    stop_words = ['â', 'ð', 'Iâ', 've', 'm', 'll', 'thatâ', 's', 'd', 'donâ', 't', 'weâ', 're', 'itâ', 'heâ', 'whoâ', 'theyâ', 'havenâ', 'thereâ', 'isnâ', 'sheâ', 'heâ', 'Fredâ'] + list(STOPWORDS)
+
+    grouped_data = mdf.groupby('Year')
+
+    for year, group in grouped_data:
+        # concatenate text data for the current year
+        wc_text = ' '.join(group['content'].astype(str))
+
+        # tokenize messages into words for the current year
+        group['tokenized_content'] = group['content'].str.split()
+
+        # calculate sentiment scores for each word for the current year
+        word_sentiments = {}
+        for index, row in group.iterrows():
+            for word in row['tokenized_content']:
+                if word not in word_sentiments:
+                    word_sentiments[word] = {'total_sentiment': 0, 'count': 0}
+                word_sentiments[word]['total_sentiment'] += row['sentiment']
+                word_sentiments[word]['count'] += 1
+
+        # calculate average sentiment scores for the current year
+        for word, values in word_sentiments.items():
+            word_sentiments[word]['average_sentiment'] = values['total_sentiment'] / values['count']
+
+        # define colors based on sentiment scores for the current year
+        color_to_words = {
+            'red': [word for word, values in word_sentiments.items() if values['average_sentiment'] < -0.25],
+            'green': [word for word, values in word_sentiments.items() if values['average_sentiment'] > 0.25],
+        }
+
+        default_color = 'grey'
+
+        # randomize color tones for the current year
+        grouped_color_func_result = lambda word, font_size, position, orientation, random_state, font_path: grouped_color_func(color_to_words, default_color, word)
+
+        # create and display word cloud for the current year
+        wc = WordCloud(stopwords=stop_words, width=800, height=400, max_words=200, background_color='black', collocations=False).generate(wc_text)
+        wc.recolor(color_func=grouped_color_func_result)
+
+        plt.figure(figsize=(12, 6))
+        plt.imshow(wc, interpolation='bilinear')
+        plt.title(f'Word Cloud for Year {year}')
+        plt.axis('off')
+        plt.show()
     return
 
 def run(main_path):
