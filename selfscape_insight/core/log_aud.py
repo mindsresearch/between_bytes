@@ -228,7 +228,7 @@ class RootLogger(SsiLogger):
         Raises:
             ValueError: If an invalid verbosity level is provided.
         """
-        print('Setting verbosity level to:', verb)
+        # print('Setting verbosity level to:', verb)
         match verb:
             case 0:
                 self.logger.setLevel(logging.WARNING)
@@ -268,11 +268,11 @@ class RootLogger(SsiLogger):
         if file and stream:
             raise TypeError('You can only set one output at a time.')
         if file:
-            print('Logging to file: ', file)
+            # print('Logging to file: ', file)
             log_hand = logging.FileHandler(file)
             aud_hand = logging.FileHandler(file)
         else:
-            print('Logging to stream:', stream or 'stdout')
+            # print('Logging to stream:', stream or 'stdout')
             log_hand = logging.StreamHandler(stream or sys.stderr)
             aud_hand = logging.StreamHandler(stream or sys.stdout)
         log_hand.setFormatter(lf)

@@ -40,8 +40,8 @@ import requests
 if __name__ == "__main__":
     sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from selfscape_insight.core.various_helpers import pointless_function # pylint disable=wrong-import-position
-from selfscape_insight.core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+from core.various_helpers import pointless_function # pylint disable=wrong-import-position
+from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
 
 def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
     """Runs the feature.

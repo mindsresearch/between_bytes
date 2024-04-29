@@ -32,7 +32,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from selfscape_insight.run import main
+from run import main
 
 def exec():
     parser = argparse.ArgumentParser(prog="selfscape_insight",

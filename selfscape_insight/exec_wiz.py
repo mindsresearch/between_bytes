@@ -10,16 +10,14 @@ Author:
     Noah Duggan Erickson
 """
 
-from tkinter import BOTH, W, E, END, DISABLED, Tk
+from tkinter import BOTH, W, E, END, DISABLED, Tk, StringVar
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 
 import os
-import sys
-import logging
 
-from selfscape_insight.run import main
+from run import main
 
 class SelfScapeInsightLauncher(Tk):
     """ Main window for the SelfScape Insight launcher.
@@ -47,25 +45,36 @@ class SelfScapeInsightLauncher(Tk):
         self.run_button.pack()
 
     def run(self):
-        self.run_button.config(state=DISABLED)
         in_dir = self.basic.get_in_directory()
         if in_dir == "":
-            logging.critical("No input directory selected")
             raise ValueError("No input directory selected")
-        print(f"Input dir:\n  {in_dir}")
+        # print(f"Input dir:\n  {in_dir}")
         out_dir = self.basic.get_out_directory()
         if out_dir == "":
-            logging.warning("No output directory selected")
-        print(f"Output dir:\n  {out_dir}")
-        print(f"Modules:\n  {self.modules.get_mods()}")
-        print(f"Log file:\n  {self.advanced.get_log_file()}")
-        print(f"Dev mode:\n  {self.advanced.get_is_dev()}")
-        print(f"Do PKL out:\n  {self.advanced.get_out_pkl()}")
-        if self.advanced.get_out_pkl():
-            out_pkl = os.path.join(out_dir, "data")
-        else:
-            out_pkl = "temp"
-        main(in_path=in_dir, out_path=out_dir, mods=self.modules.get_mods(), verbose=(2 if self.advanced.get_is_dev() else 0))
+            raise ValueError("No output directory selected")
+        # print(f"Output dir:\n  {out_dir}")
+        # print(f"   (Already exists? {os.path.exists(out_dir)})")
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+        # print(f"Modules:\n  {self.modules.get_mods()}")
+
+        log_file = self.advanced.get_log_file()
+        if log_file == "":
+            resp = messagebox.askyesno(title="Warning",
+                                        message="No log file selected. Create one in output directory? (otherwise, use stdout)",
+                                        icon="warning")
+            if resp:
+                log_file = out_dir + os.sep + "logs.log"
+            else:
+                log_file = None
+        # print(f"Log file:\n  {log_file}")
+
+        # print(f"log level:\n  {self.advanced.get_verb_lvl()}")
+        self.run_button.config(state=DISABLED)
+        try:
+            main(in_path=in_dir, out_path=out_dir, mods=self.modules.get_mods(), verbose=self.advanced.get_verb_lvl(), log=log_file)
+        except Exception as e:
+            messagebox.showerror(title="Error", message="An error occurred during execution! Please check the log file for more information.")
         self.destroy()
 
 class BasicConfig(ttk.Frame):
@@ -102,12 +111,13 @@ class BasicConfig(ttk.Frame):
                                           command=self.select_out_directory)
         out_directory_button.grid(row=2, column=2)
 
-    def select_in_directory(self):
+    def select_in_directory(self) -> None:
         folder_selected = filedialog.askdirectory()
         self.in_directory_entry.delete(0, END)
         self.in_directory_entry.insert(0, folder_selected)
 
-    def select_out_directory(self):
+    def select_out_directory(self) -> None:
+        # NOTE: Checking that path exists is not handled here
         temp = self.get_out_directory()
         folder_selected = filedialog.askdirectory()
         if len(os.listdir(folder_selected)) > 0:
@@ -117,9 +127,7 @@ class BasicConfig(ttk.Frame):
             if resp is None:
                 folder_selected = temp
             elif resp:
-                print("Creating /output directory")
-                # os.makedirs(folder_selected + "/output")
-                folder_selected += "/ssi_output"
+                folder_selected += os.sep + "ssi_output"
 
         self.out_directory_entry.delete(0, END)
         self.out_directory_entry.insert(0, folder_selected)
@@ -142,7 +150,7 @@ class ModuleSelection(ttk.Frame):
         super().__init__()
 
         mod_label = ttk.Label(self, text="Module Selection")
-        mod_label.grid(row=0, column=0, columnspan=5)
+        mod_label.grid(row=0, column=0, columnspan=3)
 
         self.mod_1 = ttk.Checkbutton(self, text="Sample")
         self.mod_1.grid(row=1, column=0, sticky=(W, E))
@@ -154,19 +162,23 @@ class ModuleSelection(ttk.Frame):
         self.mod_3.grid(row=1, column=2, sticky=(W, E))
         self.mod_3.invoke()
         self.mod_4 = ttk.Checkbutton(self, text="Topics")
-        self.mod_4.grid(row=1, column=3, sticky=(W, E))
+        self.mod_4.grid(row=2, column=0, sticky=(W, E))
         self.mod_4.invoke()
-        self.mod_5 = ttk.Checkbutton(self, text="Feelings")
-        self.mod_5.grid(row=1, column=4, sticky=(W, E))
+        self.mod_5 = ttk.Checkbutton(self, text="On-Facebook Activity")
+        self.mod_5.grid(row=2, column=1, sticky=(W, E))
         self.mod_5.invoke()
+        self.mod_6 = ttk.Checkbutton(self, text="Filesize Sankey")
+        self.mod_6.grid(row=2, column=2, sticky=(W, E))
+        self.mod_6.invoke()
 
-    def get_mods(self):
+    def get_mods(self) -> dict:
         return {
             "smp": self.mod_1.instate(["selected"]),
             "ipl": self.mod_2.instate(["selected"]),
             "ofa": self.mod_3.instate(["selected"]),
             "tps": self.mod_4.instate(["selected"]),
-            "fgs": self.mod_5.instate(["selected"])
+            "fba": self.mod_5.instate(["selected"]),
+            "fsk": self.mod_6.instate(["selected"])
         }
 
 class AdvConfig(ttk.Frame):
@@ -193,11 +205,13 @@ class AdvConfig(ttk.Frame):
                                      command=self.select_new_log_filename)
         log_file_button.grid(row=1, column=2)
 
-        self.dev_button = ttk.Checkbutton(self, text="Dev mode")
-        self.dev_button.grid(row=2, column=0, sticky=W)
+        verb_lvl_label = ttk.Label(self, text="Verbosity Level:")
+        verb_lvl_label.grid(row=2, column=0, sticky=W)
 
-        self.bp_button = ttk.Checkbutton(self, text="Send data to output dir")
-        self.bp_button.grid(row=2, column=1, sticky=W)
+        options = ['Select One', 'PROD', 'INFO', 'DEBUG', 'SUPER']
+        self._verb_lvl = StringVar()
+        self.verb_drop = ttk.OptionMenu(self, self._verb_lvl, *options)
+        self.verb_drop.grid(row=2, column=1, sticky=W)
 
     def select_new_log_filename(self):
         log_file = filedialog.asksaveasfilename()
@@ -205,11 +219,19 @@ class AdvConfig(ttk.Frame):
         self.log_file_entry.insert(0, log_file)
 
     def get_log_file(self):
-        return self.log_file_entry.get() or sys.stdout
-    def get_is_dev(self):
-        return self.dev_button.instate(["selected"])
-    def get_out_pkl(self):
-        return self.bp_button.instate(["selected"])
+        return self.log_file_entry.get()
+    def get_verb_lvl(self):
+        match self._verb_lvl.get():
+            case 'PROD':
+                return 0
+            case 'INFO':
+                return 1
+            case 'DEBUG':
+                return 2
+            case 'SUPER':
+                return 3
+            case _:
+                return 0
 
 if __name__ == "__main__":
     launcher = SelfScapeInsightLauncher()

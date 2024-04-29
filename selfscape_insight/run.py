@@ -23,19 +23,18 @@ Author:
 """
 __version__ = '0.2'
 
-import sys
 from pathlib import Path
 
-from selfscape_insight.features import sample as smp
-from selfscape_insight.features import ip_loc as ipl
-from selfscape_insight.features import off_fb_act as ofa
-from selfscape_insight.features import topics as tps
-from selfscape_insight.features import feelings as fba
-from selfscape_insight.features import filesize_sankey as fsk
+from features import sample as smp
+from features import ip_loc as ipl
+from features import off_fb_act as ofa
+from features import topics as tps
+from features import feelings as fba
+from features import filesize_sankey as fsk
 
-from selfscape_insight.core.log_aud import RootLogger
+from core.log_aud import RootLogger
 
-from selfscape_insight.core.various_helpers import pointless_function
+from core.various_helpers import pointless_function
 
 # CHANGELOG:
 #   0.6: (25 April 2024)
@@ -52,7 +51,7 @@ from selfscape_insight.core.various_helpers import pointless_function
 #     - Removed CSV compatibility (see: json_ingest 3.0.0rc2)
 #     - Added module output path argument
 #   0.4.1: (15 April 2024)
-#     - Assorted fixes to error handling and logging
+#     - Assorted fixes to err handling and logging
 #   0.4: (05 April 2024)
 #     - Propogated readers/json_ingest.py logging abilities
 #   0.3: (04 April 2024)
@@ -63,7 +62,16 @@ from selfscape_insight.core.various_helpers import pointless_function
 #   0.1:
 #     - Initial Release
 
-def main(in_path:Path, out_path:Path, mods:dict, verbose:int=0, log:Path=None):
+def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=None):
+    """Runs the program.
+
+    Args:
+        in_path (Path): Path to the directory containing the Facebook profile data
+        out_path (Path): Path to the directory where output files will be saved
+        mods (dict): Dictionary of modules to run
+        verbose (int): Verbosity level for logging (0-3)
+        log (Path): Path to the log file. If None, log to stdout.
+    """
     print(pointless_function()) # remove in production
     if any(mods.values()):
         for key in mods:
@@ -73,11 +81,13 @@ def main(in_path:Path, out_path:Path, mods:dict, verbose:int=0, log:Path=None):
         for key in mods:
             if mods[key] is None:
                 mods[key] = True
-    print(f"Modules: {mods}\nVerbose: {verbose}")
+    # print(f"Modules: {mods}\nVerbose: {verbose}")
     
     logger = RootLogger()
     logger.setup(verb=verbose, output=log)
 
+    in_path = Path(in_path)
+    out_path = Path(out_path)
     feat_outs = []
     
     # sample module
@@ -87,7 +97,7 @@ def main(in_path:Path, out_path:Path, mods:dict, verbose:int=0, log:Path=None):
         if path.exists():
             feat_outs.append(smp.run(path, out_path, logger.get_child('smp')))
         else:
-            logger.error("The file for the sample module (%s) does not exist! Skipping..." % path.name)
+            logger.err("The file for the sample module (%s) does not exist! Skipping..." % path.name)
             logger.debug("Expected path: %s" % path)
     else:
         logger.info("Sample module not run.")
@@ -99,7 +109,7 @@ def main(in_path:Path, out_path:Path, mods:dict, verbose:int=0, log:Path=None):
         if path.exists():
             feat_outs.append(ipl.run(path, out_path, logger.get_child('ipl')))
         else:
-            logger.error("The file for the IP Location module (%s) does not exist! Skipping..." % path.name)
+            logger.err("The file for the IP Location module (%s) does not exist! Skipping..." % path.name)
             logger.debug("Expected path: %s" % path)
     else:
         logger.info("IP Location module not run.")
@@ -111,7 +121,7 @@ def main(in_path:Path, out_path:Path, mods:dict, verbose:int=0, log:Path=None):
         if path.exists():
             feat_outs.append(ofa.run(path, out_path, logger.get_child('ofa')))
         else:
-            logger.error("The file for the Off-Facebook Activity module (%s) does not exist! Skipping..." % path.name)
+            logger.err("The file for the Off-Facebook Activity module (%s) does not exist! Skipping..." % path.name)
             logger.debug("Expected path: %s" % path)
     else:
         logger.info("Off-Facebook Activity module not run.")
@@ -125,7 +135,7 @@ def main(in_path:Path, out_path:Path, mods:dict, verbose:int=0, log:Path=None):
             if p.exists():
                 feat_outs.append(tps.run(p, out_path, logger.get_child('tps')))
             else:
-                logger.error("A file for the Topics module (%s) does not exist! Skipping..." % p.name)
+                logger.err("A file for the Topics module (%s) does not exist! Skipping..." % p.name)
                 logger.debug("Expected path: %s" % p)
     else:
         logger.info("Topics module not run.")
