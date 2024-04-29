@@ -58,10 +58,11 @@ import json
 # Please update requirements.txt as needed!
 
 def convert_to_gps(ip_address):
-     with maxminddb.open_database('selfscape_insight/features/GeoLite2-City.mmdb') as reader:
+    path = os.path.join(os.path.dirname(__file__), 'GeoLite2-City.mmdb')
+    with maxminddb.open_database(path) as reader:
         response = reader.get(ip_address)
      
-     return response
+    return response
   #################
   
   #################
@@ -140,18 +141,15 @@ def create_df(df):
 
 def generate_graph(df):
     ip_maps = {}
-    unique_ip = df.drop_duplicates('ip_address')  # Get DataFrame with unique IP addresses
-    for index, row in unique_ip.iterrows():
-        ip = row['ip_address']
+    unique_ip = df['ip_address'].unique()
+    for ip in unique_ip:
         filtered_df = df[df['ip_address'] == ip].copy()
         
-        filtered_df['timestamp'] = pd.to_datetime(filtered_df['timestamp'])  # Ensure 'timestamp' is datetime
-        filtered_df['year'] =  filtered_df['timestamp'].dt.year
-        filtered_df['month'] =  filtered_df['timestamp'].dt.month
-
+        filtered_df['timestamp'] = pd.to_datetime(filtered_df['timestamp'], unit='s')  # Convert timestamp to datetime
+        filtered_df['year'] = filtered_df['timestamp'].dt.year
+        filtered_df['month'] = filtered_df['timestamp'].dt.month
+        
         year_month_counts =  filtered_df.groupby(['year', 'month']).size().unstack(fill_value=0)
-
-        year_month_counts = year_month_counts.sort_index()
 
         # Plotting
         year_month_counts.plot(kind='bar', figsize=(12, 6), colormap='viridis')
@@ -176,7 +174,7 @@ def generate_graph(df):
         ip_maps[ip] = html
         
         # Clear the current plot to prepare for the next iteration
-        plt.clf()
+        plt.close()
         
     return ip_maps
 
@@ -228,23 +226,22 @@ def run(pathname):
     with open(pathname, 'r') as file:
         data = json.load(file)
     
-    account_activity_v2_value = data.get
+    account_activity_v2_value = data.get("account_activity_v2")
+    
+    df = pd.DataFrame(account_activity_v2_value)
     
     print("Running the ip_loc feature module")
     
     # Assuming df is your DataFrame
-    print(df.iloc[0, df.columns.get_loc('ip_address')])
 
     edited_df = create_df(df)
     folium_html = create_html(edited_df)
     folium_html.save("folium_occurance.html")
 
-# if __name__ == "__main__":
-#     parser = argparse.ArgumentParser(prog='ip_loc',
-#                                      description='A short description of what your code does')
-#     parser.add_argument('-account_activity_v2', metavar='ACCOUNT_ACTIVITY_V2',
-#                         help='path to account_activity_v2 json file', required=True)
-#     args = parser.parse_args()
-#     #run(args.account_activity_v2)
-
-run("/Users/trevorle/Downloads/facebook-trevle5-2023-11-28-QV86r0HN/security_and_login_information/account_activity.json")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog='ip_loc',
+                                     description='A short description of what your code does')
+    parser.add_argument('-account_activity_v2', metavar='ACCOUNT_ACTIVITY_V2',
+                        help='path to account_activity_v2 json file', required=True)
+    args = parser.parse_args()
+    run(args.account_activity_v2)

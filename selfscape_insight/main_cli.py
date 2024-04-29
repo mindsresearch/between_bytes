@@ -120,7 +120,7 @@ def main():
     #
     if mods['ipl']:
         try:
-            featOuts.append(ipl.run(fileHandler.get_csv("account_activity_v2")))
+            featOuts.append(ipl.run(args.in_path + "/security_and_login_information/account_activity.json"))
         except ValueError:
             logger.error("One of the files for the ip_loc module does not exist! Skipping...")
     else:
