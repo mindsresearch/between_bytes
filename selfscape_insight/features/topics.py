@@ -4,22 +4,36 @@ A longer description of what your code does,
 including what json it takes in, and what it
 contributes to the final output
 
+Description:
+
+Input JSON file:
+* your_topics.json (Facebook removed this in data requests)
+* ads_interests.json
+
+Contributions:
+
+
 Functions:
     run(file_path): Runs the feature.
+    special_character(df): Converts the strings in the given DataFrame to latin-1 then to utf-8 to handle any special characters in the names of the topics
+    create_collage(image_folder, output_path, collage_size=(4096, 2160)): Creates a collage of given size using the images from image_folder with the image names under each image and saved to the output_path
+
 
 Example usage:
     >>> from features import topics as tps
     >>> tps.run(args.file_path + "path to desire file")
-    filepath to HTML page containing results of analysis
 
     $ python3 topics.py -file_path "file path"
-    filepath to HTML page containing results of analysis
+    filepath to the json file to be made into a collage
 
 Dependencies:
     pandas for data handling
     requests and BeautifulSoup4 for webscraping image acquisition
     pillow (PIL) for image handling
-    [ADD DESCRIPTIONS FOR FURTHER THIRD-PARTY IMPORTS HERE]
+    os for grabbing path files
+    tqdm for progress bars
+    random for shuffling images
+    tempfile for the holding the individual images before collage creation
 
 
 Note:
@@ -44,10 +58,9 @@ from bs4 import BeautifulSoup
 from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 # Add your other third-party/external imports here
-# Please update requirements.txt as needed!
 
 
-def specialCharacter (df):
+def special_character (df):
     temp_df = df.copy()
     for x in range(0, len(df)):
         temp_df.iloc[x] = df.iloc[x].encode("latin-1").decode("utf-8")
@@ -92,13 +105,12 @@ def create_collage(image_folder, output_path, collage_size=(4096, 2160)):
     # Save the collage
     collage.save(output_path)
 
-
 def run(file_path):
     print("Running the collage feature module")
 
     topics = pd.read_json(file_path)
     topics.columns = ["Ads_interests"]
-    topics["Ads_interests"] = specialCharacter(topics["Ads_interests"])
+    topics["Ads_interests"] = special_character(topics["Ads_interests"])
 
     output_path = os.path.basename(file_path).split(".")[0] + ".jpg"
 
@@ -125,8 +137,8 @@ def run(file_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='topics',
-                                     description='A short description of what your code does')
-    parser.add_argument('-file_path', metavar='PATH_2_COLLAGE',
-                        help='path to file to make into a collages', required=True)
+                                     description='Creates a collage of images with name underneath for a single JSON file')
+    parser.add_argument('-file_path', metavar='PATH_2_FILE',
+                        help='path to file to use for creating a collage', required=True)
     args = parser.parse_args()
     print(run(args.file_path))
