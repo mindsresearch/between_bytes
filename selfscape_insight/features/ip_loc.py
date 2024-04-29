@@ -53,6 +53,7 @@ from folium.plugins import HeatMap, TimestampedGeoJson
 import random
 from io import BytesIO
 import base64
+import json
 
 # Please update requirements.txt as needed!
 
@@ -223,12 +224,18 @@ def create_html(df):
 
 #account_activity_v2
 def run(pathname):
-    df = pd.read_json(pathname)
-    print(df.head())
-    new_df = pd.DataFrame(df["account_activity_v2"])
+
+    with open(pathname, 'r') as file:
+        data = json.load(file)
+    
+    account_activity_v2_value = data.get
+    
     print("Running the ip_loc feature module")
-    print(new_df)
-    edited_df = create_df(new_df)
+    
+    # Assuming df is your DataFrame
+    print(df.iloc[0, df.columns.get_loc('ip_address')])
+
+    edited_df = create_df(df)
     folium_html = create_html(edited_df)
     folium_html.save("folium_occurance.html")
 
@@ -240,4 +247,4 @@ def run(pathname):
 #     args = parser.parse_args()
 #     #run(args.account_activity_v2)
 
-run("/Users/trevorle/School/Senior_Project/Facebook Data/account_activity.json")
+run("/Users/trevorle/Downloads/facebook-trevle5-2023-11-28-QV86r0HN/security_and_login_information/account_activity.json")
