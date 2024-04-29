@@ -150,6 +150,8 @@ def generate_graph(df):
 
         year_month_counts =  filtered_df.groupby(['year', 'month']).size().unstack(fill_value=0)
 
+        year_month_counts = year_month_counts.sort_index()
+
         # Plotting
         year_month_counts.plot(kind='bar', figsize=(12, 6), colormap='viridis')
 
@@ -220,17 +222,22 @@ def create_html(df):
 
 
 #account_activity_v2
-def run(df):
+def run(pathname):
+    df = pd.read_json(pathname)
+    print(df.head())
+    new_df = pd.DataFrame(df["account_activity_v2"])
     print("Running the ip_loc feature module")
-    
-    edited_df = create_df(df)
+    print(new_df)
+    edited_df = create_df(new_df)
     folium_html = create_html(edited_df)
     folium_html.save("folium_occurance.html")
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='ip_loc',
-                                     description='A short description of what your code does')
-    parser.add_argument('-account_activity_v2', metavar='ACCOUNT_ACTIVITY_V2',
-                        help='path to account_activity_v2 json file', required=True)
-    args = parser.parse_args()
-    run(args.account_activity_v2)
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser(prog='ip_loc',
+#                                      description='A short description of what your code does')
+#     parser.add_argument('-account_activity_v2', metavar='ACCOUNT_ACTIVITY_V2',
+#                         help='path to account_activity_v2 json file', required=True)
+#     args = parser.parse_args()
+#     #run(args.account_activity_v2)
+
+run("/Users/trevorle/School/Senior_Project/Facebook Data/account_activity.json")
