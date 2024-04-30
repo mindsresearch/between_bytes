@@ -5,13 +5,21 @@ including what json it takes in, and what it
 contributes to the final output
 
 Description:
+1. Reads the given JSON file
+2. Changing all special characters to readable characters for python
+3. Creates a temporary directory for storing images
+4. Uses requests to ask for an image from Google Images given a term from the JSON file
+5. Saves the return images to the temp dir
+6. Creates a collage using the images and their names as the descriptor words
+7. Saves the collage as a .jpg
+8. Removes the temp dir
 
 Input JSON file:
-* your_topics.json (Facebook removed this in data requests)
+* your_topics.json (Facebook removed this from its data requests, unable to find after January 2024)
 * ads_interests.json
 
 Contributions:
-
+Outputs a randomly sorted collage of images with descriptor words
 
 Functions:
     run(file_path): Runs the feature.
