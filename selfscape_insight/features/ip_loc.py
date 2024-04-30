@@ -39,6 +39,15 @@ Author:
     Trevor Le
 """
 
+### LIST OF CHANGES COMPARED TO BASE ###
+### - Refer to the "Noah's Shenanigans" section.
+###   - better geocoding
+###   - (semi-subsequent) spatial aggregation.
+###   - NOTE: I have left the imports within that section
+###       for sake of containment. Please relocate them
+###       to top if you want to move forward with that version.
+### - Added return string for CLI usage.
+
 import argparse
 import os
 from datetime import timedelta, datetime
@@ -235,8 +244,23 @@ def run(pathname):
     # Assuming df is your DataFrame
 
     edited_df = create_df(df)
+
+    print('====== STARTING NOAH\'S SHENANIGANS ======')
+    from geopy.geocoders import Nominatim
+    gc = Nominatim(user_agent="selfscape-insight") # Better geocoder. In PROD, append OS username to UA. (e.g. "selfscape-insight:noah")
+    from tqdm import tqdm
+    import time
+    for i, r in tqdm(edited_df.iterrows(), total=len(edited_df), desc='Geocoding...'):
+        time.sleep(0.5) # To avoid rate limiting
+        loc = gc.geocode({'city': r['City'], 'state': r['State']})
+        edited_df.at[i, 'latitude'] = loc.latitude
+        edited_df.at[i, 'longitude'] = loc.longitude
+        edited_df.at[i, 'ip_address'] = r['City'] # Lazy spatial aggregation instead of IP addresses drawing over eachother
+    print('====== END OF NOAH\'S SHENANIGANS ======')
+
     folium_html = create_html(edited_df)
     folium_html.save("folium_occurance.html")
+    return "Wrote folium_occurance.html"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='ip_loc',
