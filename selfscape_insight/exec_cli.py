@@ -61,7 +61,7 @@ def exec():
                             action=argparse.BooleanOptionalAction)
     adv = parser.add_argument_group("Advanced", "Advanced options.")
     adv.add_argument("-l", "--log", help="Log file path, else stdout",
-                        metavar="PATH/TO/LOG", default=sys.stdout)
+                        metavar="PATH/TO/LOG", default=None)
     adv.add_argument("-v", "--verbose", action="count", dest="v",
                         default=0, help="Logs verbosity (-v, -vv)")
     adv.add_argument("--version", action="version",
