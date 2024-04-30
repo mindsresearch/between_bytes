@@ -6,10 +6,11 @@ Functions:
     pdEnumDirs(rootPath): Enumerates directories in a root directory and returns a dataframe
 """
 import os
+from pathlib import Path
 
 import pandas as pd
 
-def pdEnumFiles(rootPath):
+def pdEnumFiles(root_path:Path):
     ''' Enumerates files in a root directory and returns as a pandas dataframe
 
     Enumerates files in a root directory, with `inbox` directories excluded,
@@ -25,15 +26,15 @@ def pdEnumFiles(rootPath):
     fileList = []
     rootList = []
     pathList = []
-    for root, dirs, files in os.walk(rootPath):
+    for root, dirs, files in root_path.walk():
         for file in files:
-            if (not 'inbox' in root):
+            if (not 'inbox' in str(root)):
                 fileList.append(file)
                 rootList.append(root)
-                pathList.append(f"{root}/{file}")
+                pathList.append(root / file)
     return pd.DataFrame({'root': rootList, 'file': fileList, 'path':pathList})
 
-def dEnumDirs(rootPath):
+def dEnumDirs(root_path):
     ''' Generates ID values for directories in a root directory
 
     Walks through a root directory and maps sequential ID values
@@ -46,15 +47,15 @@ def dEnumDirs(rootPath):
         dict: A dictionary mapping each subdirectory path to a unique ID value
     '''
     pathDict = {'-':0}
-    pathDict[rootPath] = 1
+    pathDict[root_path] = 1
     counter = 2
-    for root, dirs, files in os.walk(rootPath):
+    for root, dirs, files in root_path.walk():
         for dire in dirs:
             pathDict[f"{root}/{dire}"] = counter
             counter += 1
     return pathDict
 
-def pdEnumDirs(rootPath):
+def pdEnumDirs(root_path):
     ''' Enumerates directories in a root directory and returns a dataframe
 
     Enumerates directories in a root directory and returns a pandas
@@ -66,10 +67,10 @@ def pdEnumDirs(rootPath):
     Returns:
         pd.DataFrame: A pandas dataframe with columns root, dir, and path
     '''
-    dirList = [rootPath]
+    dirList = [root_path]
     rootList = ['-']
-    pathList = [rootPath]
-    for root, dirs, files in os.walk(rootPath):
+    pathList = [root_path]
+    for root, dirs, files in root_path.walk():
         for dire in dirs:
             dirList.append(dire)
             rootList.append(root)

@@ -30,7 +30,7 @@ from features import ip_loc as ipl
 from features import off_fb_act as ofa
 from features import topics as tps
 from features import feelings as fba
-from features import filesize_sankey as fsk
+from features import filesize_sunburst as fsk # Temporarily borrowing name
 
 from core.log_aud import RootLogger
 

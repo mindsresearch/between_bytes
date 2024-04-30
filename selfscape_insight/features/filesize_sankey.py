@@ -64,6 +64,7 @@ from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-pos
 import core.filesize_sankey_core as fsc # pylint disable=wrong-import-position
 
 def run(json_path:str, out_path:str, logger:SsiLogger) -> str:
+    raise Exception("This feature is currently broken pending pathlib transition. Please use filesize_sunburst instead.")
     logger.info("Running the filesize_sankey feature module")
 
     logger.use_file(Path('ALL'), 'metadata')
@@ -93,7 +94,7 @@ def run(json_path:str, out_path:str, logger:SsiLogger) -> str:
     ddf['size'] = fdf.groupby('didx').sum()['size']
     ddf = ddf.fillna(0)
     for i in range(25): # Arbitrary number of iterations to ensure all directories are accounted for
-        tsr = ddf.groupby('pidx').sum()['size']
+        tsr = ddf.drop('path', axis=1).groupby('pidx').sum()['size']
         for j, v in tsr.items():
             ddf.at[j, 'size'] = v
     ddf = ddf.dropna()
@@ -142,10 +143,10 @@ def run(json_path:str, out_path:str, logger:SsiLogger) -> str:
 
     logger.info("Sankey diagram built")
 
-    op = out_path + os.sep + 'filesize_sankey.html'
+    op = out_path / 'filesize_sankey.html'
     logger.wrote_file(Path(op))
     fig.write_html(op)
-    return "Wrote to " + op
+    return f"Wrote to {op}"
 
 if __name__ == "__main__":
     print(pointless_function()) # remove in production
