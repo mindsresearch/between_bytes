@@ -33,6 +33,15 @@ Author:
     Peter Hafner
 """
 
+### LIST OF CHANGES COMPATED TO FBA BASE ###
+### - Refactored series coloring into get_colors function
+### - Outputs to png files instead of plt.show()-ing
+### - Added plot titles (please double check I am interpreting them correctly!)
+### - Added name input (will ultimately become some sort of args-y thing)
+### - Moved mid-stream imports to top
+### - Fixed plot cross-contamination by closing plots after saving
+### - Various other hotfixes and improvements to make it run on Noah's (old) data
+
 import os
 import argparse
 # Add your other built-in imports here
@@ -44,13 +53,22 @@ from matplotlib.collections import PolyCollection
 import spacy
 from spacytextblob.spacytextblob import SpacyTextBlob # for sentiment analysis
 from wordcloud import WordCloud, STOPWORDS, get_single_color_func
+import numpy as np
+import seaborn as sns
 # Add your other third-party/external imports here
 # Please update requirements.txt as needed!
 import json
 import os
 
+# An attempt at outsourcing colormapping to sns, but would need some tweaking first...
+#
+def get_colors(s: pd.Series):
+    return s.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+    # c = sns.color_palette("RdYlGn", as_cmap=True)
+    # return s.apply(lambda x: c(x))
+
 def naive_converted(main_path):
-    user_name = 'Peter Hafner'
+    user_name = input("Enter your name: ")
     posts_path = main_path+'/your_activity_across_facebook/posts/your_posts__check_ins__photos_and_videos_1.json'
 
     f = open(posts_path)
@@ -108,7 +126,7 @@ def naive_converted(main_path):
     # ax.set_title('Facebook Use by Year')
     # ax.set_facecolor('gray')
 
-    comments_path = r"{}\your_activity_across_facebook\comments_and_reactions\comments.json".format(main_path)
+    comments_path = r"{}/your_activity_across_facebook/comments_and_reactions/comments.json".format(main_path)
     # if (os.path.exists(comments_path)):
     #     f = open(comments_path)
     #     commentsdata = json.load(f)
@@ -299,12 +317,6 @@ def naive_converted(main_path):
     ax.set_yscale('log')
     # plt.show()
 
-    # testing 3d plot
-    from mpl_toolkits.mplot3d import Axes3D
-    from matplotlib.collections import PolyCollection
-    import matplotlib.pyplot as plt
-    import numpy as np
-
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
@@ -331,11 +343,11 @@ def naive_converted(main_path):
     ax.set_ylim3d(-1, 4)
     ax.set_yticklabels([])
 
-    plt.show()
-    # plt.savefig('Facebook_Use_by_Year.png')
-
-    import spacy # for natural language processing
-    from spacytextblob.spacytextblob import SpacyTextBlob # for sentiment analysis
+    # plt.show()
+    plt.title('Facebook Use by Year')
+    plt.savefig('Facebook_Use_by_Year.png')
+    print("Facebook_Use_by_Year.png saved")
+    plt.close()
 
     # natural language processing
     try:
@@ -370,7 +382,11 @@ def naive_converted(main_path):
     ax = postsdf.plot.scatter(x='timestamp', y='sentiment', figsize=(12,6), color=colors)
     ax.axhline(0, color='black')
     ax.set_facecolor('gray')
-    plt.show()
+    # plt.show()
+    plt.title('Posts Sentiment Scatter')
+    plt.savefig('Posts_Sentiment_Scatter.png')
+    print("Posts_Sentiment_Scatter.png saved")
+    plt.close()
     # add year column
     postsdf['year'] = postsdf['timestamp'].dt.year
 
@@ -378,12 +394,14 @@ def naive_converted(main_path):
     yearlysent = postsdf.groupby('year')['sentiment'].mean()
 
     # change color based on sentiment
-    colors = yearlysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+    colors = get_colors(yearlysent)
 
     ax = yearlysent.plot(x='timestamp', y='sentiment', figsize=(12,6), color=colors)
     ax.set_ylim(-0.25, 0.25)
     ax.axhline(0, color='black')
     ax.set_facecolor('gray')
+    plt.close()
+
     # adjust timestamp to pacific time
     postsdf['timestamp_pacific'] = postsdf['timestamp'] + pd.DateOffset(hours=8)
 
@@ -394,11 +412,15 @@ def naive_converted(main_path):
     hourlysent = postsdf.groupby('hour')['sentiment'].mean()
 
     # change color based on sentiment
-    colors = hourlysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+    colors = get_colors(hourlysent)
 
     ax = hourlysent.plot(kind='bar', x='timestamp', y='sentiment', figsize=(12,6), color=colors)
     ax.set_facecolor('gray')
-    plt.show()
+    # plt.show()
+    plt.title('Posts Hourly Sentiment')
+    plt.savefig('Posts_Hourly_Sentiment.png')
+    print("Posts_Hourly_Sentiment.png saved")
+    plt.close()
 
     # group by hour and count the number of entries for each hour
     hourly_counts = postsdf.groupby('hour').size()
@@ -407,7 +429,7 @@ def naive_converted(main_path):
     hourly_sentiment = postsdf.groupby('hour')['sentiment'].mean()
 
     # change color based on sentiment
-    colors = hourly_sentiment.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+    colors = get_colors(hourly_sentiment)
 
     # plot bar chart with frequency as height and sentiment as color
     ax = hourly_counts.plot(kind='bar', figsize=(12,6), color=colors)
@@ -418,7 +440,11 @@ def naive_converted(main_path):
     # add labels for sentiment value
     for i, (index, val) in enumerate(hourly_sentiment.items()):
         ax.text(i, hourly_counts[index] + 0.1, f'{val:.2f}', ha='center', va='bottom')
-    plt.show()
+    # plt.show()
+    plt.title('Hourly Post Count')
+    plt.savefig('Hourly_Post_Count.png')
+    print("Hourly_Post_Count.png saved")
+    plt.close()
 
     # add hour column
     postsdf['day'] = postsdf['timestamp'].dt.day
@@ -427,37 +453,51 @@ def naive_converted(main_path):
     dailysent = postsdf.groupby(postsdf['timestamp'].dt.dayofweek)['sentiment'].mean()
 
     # change color based on sentiment
-    colors = dailysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+    colors = get_colors(dailysent)
 
     ax = dailysent.plot(kind='bar', x='timestamp', y='sentiment', figsize=(12,6), color=colors)
     ax.set_facecolor('gray')
     ax.set_xticks([0, 1, 2, 3, 4, 5, 6], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
-    plt.show()
+    # plt.show()
+    plt.title('Daily Posts Sentiment')
+    plt.savefig('Daily_Post_Sentiment.png')
+    print("Daily_Post_Sentiment.png saved")
+    plt.close()
 
     # Change color based on sentiment
     colors = mdf.apply(lambda x: (max(0, min(1, 1-x.sentiment)), max(0, min(1, 1+x.sentiment)), 0), axis=1)
 
-    ax = mdf.plot.scatter(x='timestamp_ms', y='sentiment', figsize=(12,6), color=colors)
+    ax = mdf.plot.scatter(x='datetime', y='sentiment', figsize=(12,6), color=colors)
+    ax.axhline(0, color='black')
+    ax.set_ylim(-1, 1)
     ax.set_facecolor('gray')
-    plt.show()
+    # plt.show()
+    plt.title('Message Sentiment Scatter')
+    plt.savefig('Message_Sentiment_Scatter.png')
+    print("Message_Sentiment_Scatter.png saved")
+    plt.close()
 
     # add year column
-    mdf['year'] = mdf['timestamp'].dt.year
+    mdf['year'] = mdf['datetime'].dt.year
 
     # group by year and calc mean sentiment for each year
     messageyearlysent = mdf.groupby('year')['sentiment'].mean()
 
     # change color based on sentiment
-    colors = messageyearlysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+    colors = get_colors(messageyearlysent)
 
     ax = messageyearlysent.plot(x='timestamp_ms', y='sentiment', figsize=(12,6), color=colors)
     ax.set_ylim(-0.25, 0.25)
     ax.axhline(0, color='black')
     ax.set_facecolor('gray')
-    plt.show()
+    # plt.show()
+    plt.title('Message Yearly Sentiment')
+    plt.savefig('Message_Yearly_Sentiment.png')
+    print("Message_Yearly_Sentiment.png saved")
+    plt.close()
 
     # adjust timestamp to pacific time
-    mdf['timestamp_pacific'] = mdf['timestamp_ms'] + pd.DateOffset(hours=8)
+    mdf['timestamp_pacific'] = mdf['datetime'] + pd.DateOffset(hours=8)
 
     # add hour column
     mdf['hour'] = mdf['timestamp_pacific'].dt.hour
@@ -466,11 +506,16 @@ def naive_converted(main_path):
     messagehourlysent = mdf.groupby('hour')['sentiment'].mean()
 
     # change color based on sentiment
-    colors = messagehourlysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+    colors = get_colors(messagehourlysent)
 
-    ax = messagehourlysent.plot(kind='bar', x='timestamp_pacific', y='sentiment', figsize=(12,6), color=colors)
+    ax = messagehourlysent.plot(kind='bar', figsize=(12,6), color=colors)
+    ax.axhline(0, color='black')
     ax.set_facecolor('gray')
-    plt.show()
+    # plt.show()
+    plt.title('Message Hourly Count')
+    plt.savefig('Message_Hourly_Count.png')
+    print("Message_Hourly_Count.png saved")
+    plt.close()
 
     # group by hour and count the number of entries for each hour
     message_hourly_counts = mdf.groupby('hour').size()
@@ -479,7 +524,7 @@ def naive_converted(main_path):
     message_hourly_sentiment = mdf.groupby('hour')['sentiment'].mean()
 
     # change color based on sentiment
-    colors = message_hourly_sentiment.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+    colors = get_colors(message_hourly_sentiment)
 
     # plot bar chart with frequency as height and sentiment as color
     ax = message_hourly_counts.plot(kind='bar', figsize=(12,6), color=colors)
@@ -490,7 +535,11 @@ def naive_converted(main_path):
     # add labels for sentiment value
     for i, (index, val) in enumerate(message_hourly_sentiment.items()):
         ax.text(i, message_hourly_counts[index] + 0.1, f'{val:.2f}', ha='center', va='bottom')
-    plt.show()
+    # plt.show()
+    plt.title('Message Hourly Count')
+    plt.savefig('Message_Hourly_Count.png')
+    print("Message_Hourly_Count.png saved")
+    plt.close()
 
     # add hour column
     mdf['day'] = mdf['timestamp_pacific'].dt.day
@@ -499,15 +548,16 @@ def naive_converted(main_path):
     messagedailysent = mdf.groupby(mdf['timestamp_pacific'].dt.dayofweek)['sentiment'].mean()
 
     # change color based on sentiment
-    colors = messagedailysent.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
+    colors = get_colors(messagedailysent)
 
     ax = messagedailysent.plot(kind='bar', x='timestamp_pacific', y='sentiment', figsize=(12,6), color=colors)
     ax.set_facecolor('gray')
     ax.set_xticks([0, 1, 2, 3, 4, 5, 6], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
-    plt.show()
-
-    from wordcloud import WordCloud, STOPWORDS, get_single_color_func
-    import matplotlib.pyplot as plt
+    # plt.show()
+    plt.title('Message Daily Sentiment')
+    plt.savefig('Message_Daily_Sentiment.png')
+    print("Message_Daily_Sentiment.png saved")
+    plt.close()
 
     # concatenate text data
     wc_text = ' '.join(mdf['content'].astype(str).apply(lambda x: x.encode('utf-8').decode('utf-8')))
@@ -563,7 +613,11 @@ def naive_converted(main_path):
     plt.figure(figsize=(12, 6))
     plt.imshow(wc, interpolation='bilinear')
     plt.axis('off')
-    plt.show()
+    # plt.show()
+    plt.title('All-time Word Cloud')
+    plt.savefig('Word_Cloud.png')
+    print("Word_Cloud.png saved")
+    plt.close()
 
     # define stop words
     stop_words = ['â', 'ð', 'Iâ', 've', 'm', 'll', 'thatâ', 's', 'd', 'donâ', 't', 'weâ', 're', 'itâ', 'heâ', 'whoâ', 'theyâ', 'havenâ', 'thereâ', 'isnâ', 'sheâ', 'heâ', 'Fredâ'] + list(STOPWORDS)
@@ -609,7 +663,10 @@ def naive_converted(main_path):
         plt.imshow(wc, interpolation='bilinear')
         plt.title(f'Word Cloud for Year {year}')
         plt.axis('off')
-        plt.show()
+        # plt.show()
+        plt.savefig(f'Word_Cloud_{year}.png')
+        print(f"Word_Cloud_{year}.png saved")
+        plt.close()
     return
 
 def run(main_path):
