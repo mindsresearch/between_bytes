@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "selfscape_insight"
-version = "0.3"
+version = "0.3.1"
 description = "Assorted visualizations and other representations of the data that Facebook collects"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -49,9 +49,16 @@ classifiers = [
     "Programming Language :: Python :: 3.12"
 ]
 
+[project.optional-dependencies]
+doc = [
+    "sphinx >=7.2.6",
+    "pydata-sphinx-theme >=0.15.2",
+    "sphinx_design >=0.5.0"
+]
+
 [project.urls]
 WWU-CS = "https://cs.wwu.edu"
 Source = "https://github.com/mindsresearch/selfscape_insight"
 
 [project.scripts]
-scape-cli = "selfscape_insight.main_cli:main"
+scape-cli = "selfscape_insight.exec_cli:exec"

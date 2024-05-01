@@ -34,7 +34,9 @@ Author:
 """
 
 import os
+import sys
 import argparse
+from pathlib import Path
 # Add your other built-in imports here
 
 import pandas as pd
@@ -47,15 +49,27 @@ from wordcloud import WordCloud, STOPWORDS, get_single_color_func
 # Add your other third-party/external imports here
 # Please update requirements.txt as needed!
 
-def run(csv_you_are_using):
+if __name__ == "__main__":
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from core.various_helpers import pointless_function # pylint disable=wrong-import-position
+from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+
+def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
     # TODO: Please refer to sample.py for run() docstring format!
-    print("Running the feelings feature module")
+    logger.info("Running the feelings feature module")
     return "The feelings module did stuff!"
 
 if __name__ == "__main__":
+    print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='feelings',
                                      description='A short description of what your code does')
-    parser.add_argument('-csv_you_are_using', metavar='CSV_YOU_ARE_USING_CSV',
-                        help='path to csv_you_are_using csv file', required=True)
+    parser.add_argument('-i', '--in_file', metavar='(NAME)_JSON', help='path to json file where \'NAME\' is tlk', required=True)
+    parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send output(s)', required=False, default='.')
+    parser.add_argument('-v', '--verbose', action='count', default=0, help='increase verbosity', required=False)
     args = parser.parse_args()
-    print(run(args.csv_you_are_using))
+
+    logger = RootLogger()
+    logger.setup(verb=args.verbose)
+
+    print(run(args.in_file, args.out_path, logger))

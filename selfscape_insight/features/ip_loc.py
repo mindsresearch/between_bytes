@@ -36,7 +36,9 @@ Author:
 
 import argparse
 import os
+import sys
 from datetime import timedelta, datetime
+from pathlib import Path
 # Add your other built-in imports here
 
 import pandas as pd
@@ -47,16 +49,27 @@ import folium
 # Add your other third-party/external imports here
 # Please update requirements.txt as needed!
 
+if __name__ == "__main__":
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-def run(account_activity_v2):
+from core.various_helpers import pointless_function # pylint disable=wrong-import-position
+from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+
+def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
     # TODO: Please refer to sample.py for run() docstring format!
-    print("Running the ip_loc feature module")
+    logger.info("Running the ip_loc feature module")
     return "The ip_loc module did stuff!"
 
 if __name__ == "__main__":
+    print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='ip_loc',
                                      description='A short description of what your code does')
-    parser.add_argument('-account_activity_v2', metavar='ACCOUNT_ACTIVITY_V2_CSV',
-                        help='path to account_activity_v2 csv file', required=True)
+    parser.add_argument('-i', '--in_file', metavar='(NAME)_JSON', help='path to json file where \'NAME\' is tlk', required=True)
+    parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send output(s)', required=False, default='.')
+    parser.add_argument('-v', '--verbose', action='count', default=0, help='increase verbosity', required=False)
     args = parser.parse_args()
-    print(run(args.account_activity_v2))
+
+    logger = RootLogger()
+    logger.setup(verb=args.verbose)
+
+    print(run(args.in_file, args.out_path, logger))
