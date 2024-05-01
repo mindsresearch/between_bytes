@@ -252,8 +252,8 @@ def run(pathname):
 
     edited_df = create_df(df)
     folium_html = create_html(edited_df)
-    folium_html.save("folium_occurance.html")
-    return "Wrote folium_occurance.html"
+    folium_html.save("interactive_occurance.html")
+    return "Wrote interactive_occurance.html"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='ip_loc',
