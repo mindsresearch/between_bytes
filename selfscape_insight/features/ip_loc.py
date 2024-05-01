@@ -30,27 +30,21 @@ Dependencies:
     - maxminddb: IP to latitude/longitude conversion.
 
 Note:
-    This sub-module is part of the 'persona_sight' package in the 'features' module.
+    This sub-module is part of the 'selfscape_insight' package in the 'features' module.
 
 Version:
-    0.1.0
+    1.0
 
 Author:
     Trevor Le
 """
 
-### LIST OF CHANGES COMPARED TO BASE ###
-### - Refer to the "Noah's Shenanigans" section.
-###   - better geocoding
-###   - (semi-subsequent) spatial aggregation.
-###   - NOTE: I have left the imports within that section
-###       for sake of containment. Please relocate them
-###       to top if you want to move forward with that version.
-### - Added return string for CLI usage.
-
 import argparse
 import os
-from datetime import timedelta, datetime
+from datetime import datetime
+from io import BytesIO
+import base64
+import json
 # Add your other built-in imports here
 
 import pandas as pd
@@ -58,11 +52,6 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 import maxminddb
 import folium
-from folium.plugins import HeatMap, TimestampedGeoJson
-import random
-from io import BytesIO
-import base64
-import json
 
 # Please update requirements.txt as needed!
 
@@ -72,23 +61,15 @@ def convert_to_gps(ip_address):
         response = reader.get(ip_address)
      
     return response
-  #################
-  
-  #################
+
 def convert_time(timestamp):
      return (datetime.fromtimestamp(timestamp))
 
-  #################
-  
-  #################
-  
 #For this to work time1 must be earlier than time2
 def time_def(time1, time2):
     return time2 - time1;
 
-  #################
-  
-  #################
+
 def density_report(time1, time2):
     t1_convert_time = datetime.fromtimestamp(time1)
     t2_convert_time = datetime.fromtimestamp(time2)
@@ -148,26 +129,53 @@ def create_df(df):
     mydict.append(temp_dict)
     return pd.DataFrame(mydict)
 
+import pandas as pd
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
+
 def generate_graph(df):
     ip_maps = {}
     unique_ip = df['ip_address'].unique()
+    
+    month_colors = {
+        'January': 'blue',
+        'February': 'green',
+        'March': 'red',
+        'April': 'orange',
+        'May': 'purple',
+        'June': 'brown',
+        'July': 'pink',
+        'August': 'gray',
+        'September': 'cyan',
+        'October': 'magenta',
+        'November': 'yellow',
+        'December': 'lime'
+    }
+    
     for ip in unique_ip:
         filtered_df = df[df['ip_address'] == ip].copy()
         
         filtered_df['timestamp'] = pd.to_datetime(filtered_df['timestamp'], unit='s')  # Convert timestamp to datetime
         filtered_df['year'] = filtered_df['timestamp'].dt.year
-        filtered_df['month'] = filtered_df['timestamp'].dt.month
+        filtered_df['month'] = filtered_df['timestamp'].dt.month_name()
         
         year_month_counts =  filtered_df.groupby(['year', 'month']).size().unstack(fill_value=0)
 
         # Plotting
-        year_month_counts.plot(kind='bar', figsize=(12, 6), colormap='viridis')
+        ax = year_month_counts.plot(kind='bar', figsize=(12, 6))
 
-        plt.title('Total Occurrences of Year and Month for ' + ip)
+        plt.title(f'Total Occurrences of Year and Month for {ip}')
         plt.xlabel('Year-Month')
         plt.ylabel('Total Occurrences')
         plt.xticks(rotation=45)
-        plt.legend(title='Month', bbox_to_anchor=(1, 1))
+        
+        for i, month in enumerate(year_month_counts.columns):
+            ax.get_children()[i].set_color(month_colors[month])
+        
+        months = year_month_counts.columns.tolist()
+        ax.legend(months, title='Month', bbox_to_anchor=(1, 1))
+
         plt.tight_layout()
 
         # Save the plot to a BytesIO buffer
@@ -186,6 +194,7 @@ def generate_graph(df):
         plt.close()
         
     return ip_maps
+
 
 # Function to handle click events on markers
 def on_map_click(event):
@@ -206,11 +215,9 @@ def create_html(df):
     
     
     
-    unique_ip = df['ip_address'].unique()
     ip_time = generate_graph(df)
     
     for index, row in df.groupby('ip_address')[['latitude', 'longitude']].first().iterrows():
-        popup_text = index  # Access IP address directly
         folium.Marker(location=[row['latitude'], row['longitude']], popup=ip_time[index]).add_to(mymap)
 
     mymap.add_child(folium.ClickForMarker(popup=None))
