@@ -64,8 +64,8 @@ import seaborn as sns
 if __name__ == '__main__':
     sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from core.various_helpers import pointless_function # pylint disable=wrong-import-position
-from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+from core.various_helpers import pointless_function # pylint: disable=wrong-import-position
+from core.log_aud import SsiLogger, RootLogger # pylint: disable=wrong-import-position
 
 def enum_files(in_path:Path, json_only:bool=False) -> pd.DataFrame:
     if json_only:
@@ -102,9 +102,12 @@ def get_cmap(types:pd.Series) -> dict:
     return dict(zip(types.unique(), cmap))
 
 def create_legend(cmap:dict) -> str:
-    lines = ['<tr style="color:%s"><td>%s</td><td>%s</td></tr>' %
-             (c, t, c) for t, c in cmap.items()]
-    return '''
+    lines = [(f'<tr style="background-color:{c};">'
+              f'<td> {t} </td>'
+              f'<td> {c} </td>'
+              f'</tr>\n')
+             for t, c in cmap.items()]
+    return f'''
     <!DOCTYPE html>
     <html>
     <head>
@@ -113,11 +116,11 @@ def create_legend(cmap:dict) -> str:
     <body>
     <h1>Filesize_sunburst Legend</h1>
     <table>
-    %s
+    {''.join(lines)}
     </table>
     </body>
     </html>
-    ''' % ''.join(lines)
+    '''
 
 def build_sunburst(df:pd.DataFrame) -> go.Sunburst:
     return go.Sunburst(parents=df['parent'],
@@ -151,12 +154,12 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger, mode:int=0):
 
     logger.info('Getting mimetypes...')
     df['type'] = get_mimetypes(df['file'])
-    logger.info('(1) Found %i unique types: %s' %
+    logger.info('(1) Found %i unique types: %s' % # pylint: disable=consider-using-f-string
                 (len(df['type'].unique()),
                  str(df['type'].unique())))
     if mode == 2:
         df_json['type'] = get_mimetypes(df_json['file'])
-        logger.info('(2) Found %i unique types: %s' %
+        logger.info('(2) Found %i unique types: %s' % # pylint: disable=consider-using-f-string
                     (len(df_json['type'].unique()),
                      str(df_json['type'].unique())))
 
@@ -187,7 +190,7 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger, mode:int=0):
 if __name__ == '__main__':
     print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='filesize_sunburst',
-                                     description='Create a sunburst diagram of file sizes in a directory tree') # pylint disable=line-too-long
+                                     description='Create a sunburst diagram of file sizes in a directory tree') # pylint: disable=line-too-long
     parser.add_argument('-i', '--in_path', metavar='JSON_PATH',
                         required=True,
                         help='path to root of download')
@@ -203,7 +206,7 @@ if __name__ == '__main__':
     mode_group.add_argument('-a', '--all_files', action='store_true',
                             help='process all files')
     mode_group.add_argument('-b', '--both', action='store_true',
-                            help='process all files and json files side-by-side') # pylint disable=line-too-long
+                            help='process all files and json files side-by-side') # pylint: disable=line-too-long
 
     args = parser.parse_args()
 
