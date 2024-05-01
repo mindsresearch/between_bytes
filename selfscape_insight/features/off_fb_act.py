@@ -26,6 +26,9 @@ Version:
     0.2
 
 Author:
+    Noah Duggan Erickson
+
+Acknowledgements:
     Liam Gore
 """
 __version__ = '0.2'
