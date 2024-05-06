@@ -60,15 +60,17 @@ import seaborn as sns
 import json
 import os
 
-# An attempt at outsourcing colormapping to sns, but would need some tweaking first...
-#
 def get_colors(s: pd.Series):
     return s.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
-    # c = sns.color_palette("RdYlGn", as_cmap=True)
-    # return s.apply(lambda x: c(x))
+
+def get_username(main_path):
+    prof_info_path = main_path+'/personal_information/profile_information/profile_information.json'
+    with open(prof_info_path, 'r') as file:
+        profile_dict = json.load(file)
+    return profile_dict["profile_v2"]["name"]["full_name"]
 
 def naive_converted(main_path):
-    user_name = input("Enter your name: ")
+    user_name = get_username(main_path)
     posts_path = main_path+'/your_activity_across_facebook/posts/your_posts__check_ins__photos_and_videos_1.json'
 
     f = open(posts_path)
@@ -672,7 +674,6 @@ def naive_converted(main_path):
 def run(main_path):
     # TODO: Please refer to sample.py for run() docstring format!
     print("Running the facebook_act feature module")
-    print("Path: ", main_path)
 
     naive_converted(main_path)
 
