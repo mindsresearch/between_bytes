@@ -129,28 +129,64 @@ def create_df(df):
     mydict.append(temp_dict)
     return pd.DataFrame(mydict)
 
-import pandas as pd
-import matplotlib.pyplot as plt
-from io import BytesIO
-import base64
+def generate_graph(df):
+    ip_maps = {}
+    unique_ip = df['ip_address'].unique()
+    ip_list = list(unique_ip)
+    for ip in ip_list:
+        filtered_df = df[df['ip_address'] == ip] 
+        
+        filtered_df['timestamp'] = pd.to_datetime(filtered_df['timestamp'])  # Ensure 'timestamp' is datetime
+        filtered_df['year'] =  filtered_df['timestamp'].dt.year
+        filtered_df['month'] =  filtered_df['timestamp'].dt.month
+
+        year_month_counts =  filtered_df.groupby(['year', 'month']).size().unstack(fill_value=0)
+
+        # Plotting
+        year_month_counts.plot(kind='bar', figsize=(12, 6), colormap='viridis')
+
+        plt.title('Total Occurrences of Year and Month for ' + ip)
+        plt.xlabel('Year-Month')
+        plt.ylabel('Total Occurrences')
+        plt.xticks(rotation=45)
+        plt.legend(title='Month', bbox_to_anchor=(1, 1))
+        plt.tight_layout()
+
+        # Save the plot to a BytesIO buffer
+        buffer = BytesIO()
+        plt.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+        # Create HTML content for popup with the image
+        html = f'<img src="data:image/png;base64,{image_base64}">'
+        
+        # Update the ip_maps dictionary with IP address and its corresponding graph HTML
+        ip_maps[ip] = html
+        
+        # Clear the current plot to prepare for the next iteration
+        plt.clf()
+        
+    return ip_maps
+
 
 def generate_graph(df):
     ip_maps = {}
     unique_ip = df['ip_address'].unique()
     
     month_colors = {
-        'January': 'blue',
-        'February': 'green',
-        'March': 'red',
-        'April': 'orange',
-        'May': 'purple',
-        'June': 'brown',
-        'July': 'pink',
-        'August': 'gray',
-        'September': 'cyan',
-        'October': 'magenta',
-        'November': 'yellow',
-        'December': 'lime'
+    'January': '#1f77b4',   # blue
+    'February': '#2ca02c',  # green
+    'March': '#d62728',     # red
+    'April': '#ff7f0e',     # orange
+    'May': '#9467bd',       # purple
+    'June': '#8c564b',      # brown
+    'July': '#e377c2',      # pink
+    'August': '#7f7f7f',    # gray
+    'September': '#17becf', # cyan
+    'October': '#e31a1c',   # magenta
+    'November': '#ff00ff',  # yellow
+    'December': '#33a02c'   # lime
     }
     
     for ip in unique_ip:
@@ -165,7 +201,9 @@ def generate_graph(df):
         # Plotting
         ax = year_month_counts.plot(kind='bar', figsize=(12, 6))
 
-        plt.title(f'Total Occurrences of Year and Month for {ip}')
+        city = filtered_df['City'].iloc[0] 
+
+        plt.title(f'Total Occurrences of Year and Month for {city}')
         plt.xlabel('Year-Month')
         plt.ylabel('Total Occurrences')
         plt.xticks(rotation=45)
@@ -195,6 +233,32 @@ def generate_graph(df):
         
     return ip_maps
 
+def graph_over_all_time(ip_df):
+    ip_df['timestamp'] = pd.to_datetime(ip_df['timestamp'], unit='s')
+    ip_df['year'] = ip_df['timestamp'].dt.year
+    ip_df['month'] = ip_df['timestamp'].dt.month
+
+    year_month_counts = ip_df.groupby(['year', 'month']).size().unstack(fill_value=0)
+
+    # Plotting
+    year_month_counts.plot(kind='bar', figsize=(12, 6), colormap='viridis')
+
+    plt.title('Total Occurrences of Year and Month')
+    plt.xlabel('Year-Month')
+    plt.ylabel('Total Occurrences')
+    plt.xticks(rotation=45)
+    plt.legend(title='Month', bbox_to_anchor=(1, 1))
+    plt.tight_layout()
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+    # Create HTML content for popup with the image
+    html = f'<img src="data:image/png;base64,{image_base64}">'
+
+    return html
 
 # Function to handle click events on markers
 def on_map_click(event):
@@ -253,11 +317,15 @@ def run(pathname):
     edited_df = create_df(df)
     folium_html = create_html(edited_df)
     folium_html.save("interactive_occurance.html")
+    
+    ip_timeline = graph_over_all_time(edited_df)
+    ip_timeline.save("graph_over_all_time.html")
+    
     return "Wrote interactive_occurance.html"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='ip_loc',
-                                     description='A short description of what your code does')
+                                     description='Creates an interactive map with occurances ')
     parser.add_argument('-account_activity_v2', metavar='ACCOUNT_ACTIVITY_V2',
                         help='path to account_activity_v2 json file', required=True)
     args = parser.parse_args()
