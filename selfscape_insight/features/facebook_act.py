@@ -102,17 +102,12 @@ def naive_converted(main_path):
 
     # plotting stuff
     pdf['timestamp'] = pd.to_datetime(pdf['timestamp'], unit='s')
-    # pdf
 
     # add year column
     pdf['Year'] = pdf['timestamp'].dt.year
-    # pdf
 
     # group by year
     yearlyposts = pdf.groupby('Year').size().reset_index(name='Posts')
-
-    # print df
-    # print(pd.DataFrame.to_string(yearlyposts))
 
     # make index year
     yearlyposts.set_index('Year', inplace=True)
@@ -120,29 +115,7 @@ def naive_converted(main_path):
     # hacky x tick fix, will clean up later
     years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
-    # create area plot
-    # ax = yearlyposts.plot.area(figsize=(12, 6))
-    # ax.set_xlabel('Year')
-    # ax.set_xticks(years)
-    # ax.set_ylabel('Interactions')
-    # ax.set_title('Facebook Use by Year')
-    # ax.set_facecolor('gray')
-
     comments_path = r"{}/your_activity_across_facebook/comments_and_reactions/comments.json".format(main_path)
-    # if (os.path.exists(comments_path)):
-    #     f = open(comments_path)
-    #     commentsdata = json.load(f)
-
-    #     # load as df
-    #     commentsdf = pd.read_json(comments_path)
-    #     # print(commentsdf)
-    # else:
-    #     f = open('../../empty_comments.json')
-    #     commentsdata = json.load(f)
-
-    #     # load as df
-    #     commentsdf = pd.read_json('../../empty_comments.json')
-    #     # print(commentsdf)
     f = open(comments_path)
     commentsdata = json.load(f)
 
@@ -152,16 +125,9 @@ def naive_converted(main_path):
     # create new df
     cdf = pd.DataFrame(columns=['timestamp', 'data', 'title'])
 
-    # print(cdf)
-    # print(pd.DataFrame.to_string(cdf))
-
     count = 0
     # for each item in json
     for i in commentsdata['comments_v2']:
-        # print(count)
-        # print(i.get('timestamp'))
-        # print(i.get('data'))
-        # print(i.get('title'))
         count+=1
         cdf.loc[len(cdf)] =  {'timestamp': i.get('timestamp'), 'data': i.get('data'), 'title': i.get('title')}
 
@@ -176,22 +142,11 @@ def naive_converted(main_path):
     # group by year
     yearlycomms = cdf.groupby('Year').size().reset_index(name='Comments')
 
-    # print df
-    # print(pd.DataFrame.to_string(yearlycomms))
-
     # make index year
     yearlycomms.set_index('Year', inplace=True)
 
     # hacky x tick fix, will clean up later
     years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
-
-    # create area plot
-    # ax = yearlycomms.plot.area(figsize=(12, 6))
-    # ax.set_xlabel('Year')
-    # ax.set_xticks(years)
-    # ax.set_ylabel('Interactions')
-    # ax.set_title('Facebook Use by Year')
-    # ax.set_facecolor('gray')
 
     reactions_path = main_path+'/your_activity_across_facebook/comments_and_reactions/'
 
@@ -222,18 +177,6 @@ def naive_converted(main_path):
 
     # make index year
     yearlylikes.set_index('Year', inplace=True)
-
-    # hacky x tick fix, will clean up later
-    years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
-
-    # create area plot
-    # ax = yearlylikes.plot.area(figsize=(12, 6))
-    # ax.set_xlabel('Year')
-    # ax.set_xticks(years)
-    # ax.set_ylabel('Interactions')
-    # ax.set_title('Facebook Use by Year')
-    # ax.set_facecolor('gray')
-    # plt.show()
 
     messages_path = main_path + '/your_activity_across_facebook/messages/inbox/'
 
