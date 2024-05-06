@@ -299,6 +299,9 @@ def create_html(df):
     # Display the map
     return mymap
 
+def save_timeline_graph(html_content, file_path):
+    with open(file_path, 'w') as f:
+        f.write(html_content)
 
 #account_activity_v2
 def run(pathname):
@@ -319,8 +322,8 @@ def run(pathname):
     folium_html.save("interactive_occurance.html")
     
     ip_timeline = graph_over_all_time(edited_df)
-    ip_timeline.save("graph_over_all_time.html")
-    
+    save_timeline_graph(ip_timeline, 'graph_over_all_time.html')
+
     return "Wrote interactive_occurance.html"
 
 if __name__ == "__main__":
