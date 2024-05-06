@@ -113,14 +113,15 @@ def create_collage(image_folder, output_path, collage_size=(4096, 2160)):
     # Save the collage
     collage.save(output_path)
 
-def run(file_path):
+def run(file_path, out_path, SsiLogger):
     print("Running the collage feature module")
 
     topics = pd.read_json(file_path)
+    SsiLogger.use_file(file_path)
     topics.columns = ["Ads_interests"]
     topics["Ads_interests"] = special_character(topics["Ads_interests"])
 
-    output_path = os.path.basename(file_path).split(".")[0] + ".jpg"
+    output_path = out_path + os.path.basename(file_path).split(".")[0] + ".jpg"
 
     with tempfile.TemporaryDirectory() as temp_dir_topics:
         print(f"Created temporary directory: {temp_dir_topics}")
@@ -133,6 +134,7 @@ def run(file_path):
                 "tbm": "isch",
             }
             html = requests.get("https://www.google.com/search", params=params, timeout=30)
+            SsiLogger.use_inet(html)
             soup = BeautifulSoup(html.content, features="lxml")
             image = soup.find_all("img")[1]["src"]
             data = requests.get(image).content
@@ -144,9 +146,9 @@ def run(file_path):
     return "Your collage has been created: " + str(output_path)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='topics',
-                                     description='Creates a collage of images with name underneath for a single JSON file')
-    parser.add_argument('-file_path', metavar='PATH_2_FILE',
-                        help='path to file to use for creating a collage', required=True)
+    parser = argparse.ArgumentParser(prog='sample_feature', description='A sample program feature for the purposes of demo-ing code structure and boilerplate')
+    parser.add_argument('-i', '--in_file', metavar='BCTS_JSON', help='path to json file for collaging', required=True)
+    parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send output', required=False, default='.')
+    parser.add_argument('-v', '--verbose', action='count', default=0, help='increase verbosity', required=False)
     args = parser.parse_args()
-    print(run(args.file_path))
+    print(run(args.in_file, args.out_path))
