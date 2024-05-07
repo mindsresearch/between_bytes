@@ -75,7 +75,9 @@ class SelfScapeInsightLauncher(Tk):
             main(in_path=in_dir, out_path=out_dir, mods=self.modules.get_mods(), verbose=self.advanced.get_verb_lvl(), log=log_file)
         except Exception as e:
             messagebox.showerror(title="Error", message="An error occurred during execution! Please check the log file for more information.")
-        self.destroy()
+        finally:
+            self.destroy()
+            raise SystemExit
 
 class BasicConfig(ttk.Frame):
     """ Launcher basic configuration frame.
@@ -154,7 +156,7 @@ class ModuleSelection(ttk.Frame):
 
         self.mod_1 = ttk.Checkbutton(self, text="Sample")
         self.mod_1.grid(row=1, column=0, sticky=(W, E))
-        self.mod_1.invoke()
+        # self.mod_1.invoke()
         self.mod_2 = ttk.Checkbutton(self, text="IP Location")
         self.mod_2.grid(row=1, column=1, sticky=(W, E))
         self.mod_2.invoke()
@@ -167,9 +169,12 @@ class ModuleSelection(ttk.Frame):
         self.mod_5 = ttk.Checkbutton(self, text="On-Facebook Activity")
         self.mod_5.grid(row=2, column=1, sticky=(W, E))
         self.mod_5.invoke()
-        self.mod_6 = ttk.Checkbutton(self, text="Filesize Sankey")
+        self.mod_6 = ttk.Checkbutton(self, text="Filesize Sunburst")
         self.mod_6.grid(row=2, column=2, sticky=(W, E))
         self.mod_6.invoke()
+        self.mod_7 = ttk.Checkbutton(self, text="Notifications")
+        self.mod_7.grid(row=3, column=0, sticky=(W, E))
+        self.mod_7.invoke()
 
     def get_mods(self) -> dict:
         return {
@@ -178,7 +183,8 @@ class ModuleSelection(ttk.Frame):
             "ofa": self.mod_3.instate(["selected"]),
             "tps": self.mod_4.instate(["selected"]),
             "fba": self.mod_5.instate(["selected"]),
-            "fsk": self.mod_6.instate(["selected"])
+            "fsb": self.mod_6.instate(["selected"]),
+            "ntf": self.mod_7.instate(["selected"])
         }
 
 class AdvConfig(ttk.Frame):

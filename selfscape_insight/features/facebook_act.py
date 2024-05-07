@@ -43,7 +43,10 @@ Author:
 ### - Various other hotfixes and improvements to make it run on Noah's (old) data
 
 import os
+import sys
 import argparse
+import json
+from pathlib import Path
 # Add your other built-in imports here
 
 import pandas as pd
@@ -57,21 +60,26 @@ import numpy as np
 import seaborn as sns
 # Add your other third-party/external imports here
 # Please update requirements.txt as needed!
-import json
-import os
+
+if __name__ == "__main__":
+    sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from core.various_helpers import pointless_function # pylint disable=wrong-import-position
+from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
 
 def get_colors(s: pd.Series):
     return s.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
 
 def get_username(main_path):
-    prof_info_path = main_path+'/personal_information/profile_information/profile_information.json'
+    prof_info_path = main_path / 'personal_information' / 'profile_information' / 'profile_information.json'
     with open(prof_info_path, 'r') as file:
         profile_dict = json.load(file)
     return profile_dict["profile_v2"]["name"]["full_name"]
 
-def naive_converted(main_path):
-    user_name = get_username(main_path)
-    posts_path = main_path+'/your_activity_across_facebook/posts/your_posts__check_ins__photos_and_videos_1.json'
+def run(in_path:Path, out_path:Path, logger:SsiLogger):
+    out_path = out_path / "facebook_act"
+    user_name = get_username(in_path)
+    posts_path = in_path / 'your_facebook_activity' / 'posts' / 'your_posts__check_ins__photos_and_videos_1.json'
 
     f = open(posts_path)
 
@@ -115,12 +123,10 @@ def naive_converted(main_path):
     # hacky x tick fix, will clean up later
     years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
-    comments_path = r"{}/your_activity_across_facebook/comments_and_reactions/comments.json".format(main_path)
+    comments_path = in_path / "your_facebook_activity" / "comments_and_reactions" / "comments.json"
+    logger.use_file(comments_path)
     f = open(comments_path)
     commentsdata = json.load(f)
-
-    # load as df
-    commentsdf = pd.read_json(comments_path)
 
     # create new df
     cdf = pd.DataFrame(columns=['timestamp', 'data', 'title'])
@@ -148,7 +154,7 @@ def naive_converted(main_path):
     # hacky x tick fix, will clean up later
     years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
-    reactions_path = main_path+'/your_activity_across_facebook/comments_and_reactions/'
+    reactions_path = in_path / 'your_facebook_activity' / 'comments_and_reactions'
 
     # get all json files here except comments
     reactions_files = [file for file in os.listdir(reactions_path) if file.endswith('.json') and file !='comments.json']
@@ -158,6 +164,7 @@ def naive_converted(main_path):
 
     # load each file
     for reactions_file in reactions_files:
+        logger.use_file(reactions_file)
         with open(os.path.join(reactions_path, reactions_file)) as file:
             reactions_data = json.load(file)
             for i in reactions_data:
@@ -178,7 +185,7 @@ def naive_converted(main_path):
     # make index year
     yearlylikes.set_index('Year', inplace=True)
 
-    messages_path = main_path + '/your_activity_across_facebook/messages/inbox/'
+    messages_path = in_path / 'your_activity_across_facebook' / 'messages' / 'inbox'
 
     # List to store file paths
     message_files = []
@@ -195,6 +202,7 @@ def naive_converted(main_path):
 
     # load each file
     for file_path in message_files:
+        logger.use_file(file_path)
         with open(file_path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
             participants = data.get('participants')
@@ -288,10 +296,9 @@ def naive_converted(main_path):
     ax.set_ylim3d(-1, 4)
     ax.set_yticklabels([])
 
-    # plt.show()
     plt.title('Facebook Use by Year')
-    plt.savefig('Facebook_Use_by_Year.png')
-    print("Facebook_Use_by_Year.png saved")
+    plt.savefig(out_path / 'Facebook_Use_by_Year.png')
+    logger.wrote_file(out_path / 'Facebook_Use_by_Year.png')
     plt.close()
 
     # natural language processing
@@ -327,10 +334,10 @@ def naive_converted(main_path):
     ax = postsdf.plot.scatter(x='timestamp', y='sentiment', figsize=(12,6), color=colors)
     ax.axhline(0, color='black')
     ax.set_facecolor('gray')
-    # plt.show()
     plt.title('Posts Sentiment Scatter')
-    plt.savefig('Posts_Sentiment_Scatter.png')
-    print("Posts_Sentiment_Scatter.png saved")
+    plt.savefig(out_path / 'Posts_Sentiment_Scatter.png')
+    # print("Posts_Sentiment_Scatter.png saved")
+    logger.wrote_file(out_path / 'Posts_Sentiment_Scatter.png')
     plt.close()
     # add year column
     postsdf['year'] = postsdf['timestamp'].dt.year
@@ -363,8 +370,9 @@ def naive_converted(main_path):
     ax.set_facecolor('gray')
     # plt.show()
     plt.title('Posts Hourly Sentiment')
-    plt.savefig('Posts_Hourly_Sentiment.png')
-    print("Posts_Hourly_Sentiment.png saved")
+    plt.savefig(out_path / 'Posts_Hourly_Sentiment.png')
+    # print("Posts_Hourly_Sentiment.png saved")
+    logger.wrote_file(out_path / 'Posts_Hourly_Sentiment.png')
     plt.close()
 
     # group by hour and count the number of entries for each hour
@@ -387,8 +395,9 @@ def naive_converted(main_path):
         ax.text(i, hourly_counts[index] + 0.1, f'{val:.2f}', ha='center', va='bottom')
     # plt.show()
     plt.title('Hourly Post Count')
-    plt.savefig('Hourly_Post_Count.png')
-    print("Hourly_Post_Count.png saved")
+    plt.savefig(out_path / 'Hourly_Post_Count.png')
+    # print("Hourly_Post_Count.png saved")
+    logger.wrote_file(out_path / 'Hourly_Post_Count.png')
     plt.close()
 
     # add hour column
@@ -405,8 +414,9 @@ def naive_converted(main_path):
     ax.set_xticks([0, 1, 2, 3, 4, 5, 6], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
     # plt.show()
     plt.title('Daily Posts Sentiment')
-    plt.savefig('Daily_Post_Sentiment.png')
-    print("Daily_Post_Sentiment.png saved")
+    plt.savefig(out_path / 'Daily_Post_Sentiment.png')
+    # print("Daily_Post_Sentiment.png saved")
+    logger.wrote_file(out_path / 'Daily_Post_Sentiment.png')
     plt.close()
 
     # Change color based on sentiment
@@ -418,8 +428,9 @@ def naive_converted(main_path):
     ax.set_facecolor('gray')
     # plt.show()
     plt.title('Message Sentiment Scatter')
-    plt.savefig('Message_Sentiment_Scatter.png')
-    print("Message_Sentiment_Scatter.png saved")
+    plt.savefig(out_path / 'Message_Sentiment_Scatter.png')
+    # print("Message_Sentiment_Scatter.png saved")
+    logger.wrote_file(out_path / 'Message_Sentiment_Scatter.png')
     plt.close()
 
     # add year column
@@ -437,8 +448,9 @@ def naive_converted(main_path):
     ax.set_facecolor('gray')
     # plt.show()
     plt.title('Message Yearly Sentiment')
-    plt.savefig('Message_Yearly_Sentiment.png')
-    print("Message_Yearly_Sentiment.png saved")
+    plt.savefig(out_path / 'Message_Yearly_Sentiment.png')
+    # print("Message_Yearly_Sentiment.png saved")
+    logger.wrote_file(out_path / 'Message_Yearly_Sentiment.png')
     plt.close()
 
     # adjust timestamp to pacific time
@@ -458,8 +470,9 @@ def naive_converted(main_path):
     ax.set_facecolor('gray')
     # plt.show()
     plt.title('Message Hourly Count')
-    plt.savefig('Message_Hourly_Count.png')
-    print("Message_Hourly_Count.png saved")
+    plt.savefig(out_path / 'Message_Hourly_Count.png')
+    # print("Message_Hourly_Count.png saved")
+    logger.wrote_file(out_path / 'Message_Hourly_Count.png')
     plt.close()
 
     # group by hour and count the number of entries for each hour
@@ -482,8 +495,9 @@ def naive_converted(main_path):
         ax.text(i, message_hourly_counts[index] + 0.1, f'{val:.2f}', ha='center', va='bottom')
     # plt.show()
     plt.title('Message Hourly Count')
-    plt.savefig('Message_Hourly_Count.png')
-    print("Message_Hourly_Count.png saved")
+    plt.savefig(out_path / 'Message_Hourly_Count.png')
+    # print("Message_Hourly_Count.png saved")
+    logger.wrote_file(out_path / 'Message_Hourly_Count.png')
     plt.close()
 
     # add hour column
@@ -500,8 +514,9 @@ def naive_converted(main_path):
     ax.set_xticks([0, 1, 2, 3, 4, 5, 6], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
     # plt.show()
     plt.title('Message Daily Sentiment')
-    plt.savefig('Message_Daily_Sentiment.png')
-    print("Message_Daily_Sentiment.png saved")
+    plt.savefig(out_path / 'Message_Daily_Sentiment.png')
+    # print("Message_Daily_Sentiment.png saved")
+    logger.wrote_file(out_path / 'Message_Daily_Sentiment.png')
     plt.close()
 
     # concatenate text data
@@ -560,8 +575,9 @@ def naive_converted(main_path):
     plt.axis('off')
     # plt.show()
     plt.title('All-time Word Cloud')
-    plt.savefig('Word_Cloud.png')
-    print("Word_Cloud.png saved")
+    plt.savefig(out_path / 'Word_Cloud.png')
+    # print("Word_Cloud.png saved")
+    logger.wrote_file(out_path / 'Word_Cloud.png')
     plt.close()
 
     # define stop words
@@ -609,23 +625,22 @@ def naive_converted(main_path):
         plt.title(f'Word Cloud for Year {year}')
         plt.axis('off')
         # plt.show()
-        plt.savefig(f'Word_Cloud_{year}.png')
-        print(f"Word_Cloud_{year}.png saved")
+        plt.savefig(out_path / f'Word_Cloud_{year}.png')
+        # print(f"Word_Cloud_{year}.png saved")
+        logger.wrote_file(out_path / f'Word_Cloud_{year}.png')
         plt.close()
     return
 
-def run(main_path):
-    # TODO: Please refer to sample.py for run() docstring format!
-    print("Running the facebook_act feature module")
-
-    naive_converted(main_path)
-
-    return "The facebook_act module did stuff!"
-
 if __name__ == "__main__":
+    print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='facebook_act',
-                                     description='Analyses and visualizes activity across facebook')
-    parser.add_argument('-csv_you_are_using', metavar='CSV_YOU_ARE_USING_CSV',
-                        help='path to csv_you_are_using csv file', required=True)
+                                     description='A short description of what your code does')
+    parser.add_argument('-i', '--in_file', metavar='ROOT', help='path to root of json data', required=True)
+    parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send outputs', required=False, default='.')
+    parser.add_argument('-v', '--verbose', action='count', default=0, help='increase verbosity', required=False)
     args = parser.parse_args()
-    print(run(args.file_path))
+
+    logger = RootLogger()
+    logger.setup(verb=args.verbose)
+
+    print(run(args.in_file, args.out_path, logger))

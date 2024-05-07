@@ -55,9 +55,11 @@ def exec():
                            action=argparse.BooleanOptionalAction)
     mod_group.add_argument("--tps", help="topics module",
                            action=argparse.BooleanOptionalAction)
-    mod_group.add_argument("--fba", help="feelings module",
+    mod_group.add_argument("--fba", help="on-fb-act module",
                            action=argparse.BooleanOptionalAction)
-    mod_group.add_argument("--fsk", help="filesize_sankey module",
+    mod_group.add_argument("--fsb", help="filesize_sunburst module",
+                            action=argparse.BooleanOptionalAction)
+    mod_group.add_argument("--ntf", help="notifications module",
                             action=argparse.BooleanOptionalAction)
     adv = parser.add_argument_group("Advanced", "Advanced options.")
     adv.add_argument("-l", "--log", help="Log file path, else stdout",
@@ -73,7 +75,8 @@ def exec():
                 "ofa": args.ofa,
                 "tps": args.tps,
                 "fba": args.fba,
-                "fsk": args.fsk}
+                "fsb": args.fsb,
+                "ntf": args.ntf}
     
     in_path = Path(args.in_path)
     out_path = Path(args.out_path)

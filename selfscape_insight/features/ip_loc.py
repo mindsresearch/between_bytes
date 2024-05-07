@@ -45,6 +45,8 @@ from datetime import datetime
 from io import BytesIO
 import base64
 import json
+from pathlib import Path
+import sys
 # Add your other built-in imports here
 
 import pandas as pd
@@ -309,34 +311,39 @@ def save_timeline_graph(html_content, file_path):
         f.write(html_content)
 
 #account_activity_v2
-def run(pathname):
+def run(in_path:Path, out_path:Path, logger:SsiLogger):
 
-    with open(pathname, 'r') as file:
+    out_path = out_path / "ip_loc"
+    out_path.mkdir(parents=True, exist_ok=True)
+
+    with open(in_path, 'r') as file:
         data = json.load(file)
     
     account_activity_v2_value = data.get("account_activity_v2")
     
     df = pd.DataFrame(account_activity_v2_value)
     
-    print("Running the ip_loc feature module")
+    logger.info("Running the ip_loc feature module")
     
     # Assuming df is your DataFrame
 
     edited_df = create_df(df)
     folium_html = create_html(edited_df)
-    folium_html.save("interactive_occurance.html")
+    folium_html.save(out_path / "interactive_occurance.html")
+    logger.wrote_file(out_path / "interactive_occurance.html")
     
     ip_timeline = graph_over_all_time(edited_df)
-    save_timeline_graph(ip_timeline, 'graph_over_all_time.html')
+    save_timeline_graph(ip_timeline, out_path / 'graph_over_all_time.html')
+    logger.wrote_file(out_path / 'graph_over_all_time.html')
 
-    return "Wrote interactive_occurance.html"
+    return "Wrote interactive_occurance.html and graph_over_all_time.html!"
 
 if __name__ == "__main__":
     print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='ip_loc',
                                      description='A short description of what your code does')
-    parser.add_argument('-i', '--in_file', metavar='(NAME)_JSON', help='path to json file where \'NAME\' is tlk', required=True)
-    parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send output(s)', required=False, default='.')
+    parser.add_argument('-i', '--in_file', metavar='(NAME)_JSON', help='path to account_activity json', required=True)
+    parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send outputs', required=False, default='.')
     parser.add_argument('-v', '--verbose', action='count', default=0, help='increase verbosity', required=False)
     args = parser.parse_args()
 

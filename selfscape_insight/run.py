@@ -29,8 +29,9 @@ from features import sample as smp
 from features import ip_loc as ipl
 from features import off_fb_act as ofa
 from features import topics as tps
-from features import feelings as fba
-from features import filesize_sunburst as fsk # Temporarily borrowing name
+from features import facebook_act as fba
+from features import filesize_sunburst as fsb
+from features import notifs as ntf
 
 from core.log_aud import RootLogger
 
@@ -72,7 +73,6 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=None):
         verbose (int): Verbosity level for logging (0-3)
         log (Path): Path to the log file. If None, log to stdout.
     """
-    print(pointless_function()) # remove in production
     if any(mods.values()):
         for key in mods:
             if mods[key] is None:
@@ -101,6 +101,16 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=None):
             logger.debug("Expected path: %s" % path)
     else:
         logger.info("Sample module not run.")
+
+    # notifications module
+    #
+    if mods['ntf']:
+        path = in_path / 'logged_information' / 'notifications' / 'notifications.json'
+        if path.exists():
+            feat_outs.append(ntf.run(path, out_path, logger.get_child('ntf')))
+        else:
+            logger.err("The file for the Notifications module (%s) does not exist! Skipping..." % path.name)
+            logger.debug("Expected path: %s" % path)
 
     # ip_loc module
     #
@@ -140,21 +150,22 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=None):
     else:
         logger.info("Topics module not run.")
 
-    # feelings module
+    # on_fb_act module
     #
     if mods['fba']:
         path = in_path
-        feat_outs.append(fba.run(path, out_path, logger.get_child('fba')))
+        # feat_outs.append(fba.run(path, out_path, logger.get_child('fba')))
+        logger.err("The On-Facebook Activity module is temporarily excluded.")
     else:
-        logger.info("Feelings module not run.")
+        logger.info("On-Facebook Activity module not run.")
     
     # filesize_sankey module
     #
-    if mods['fsk']:
+    if mods['fsb']:
         path = in_path
-        feat_outs.append(fsk.run(path, out_path, logger.get_child('fsk')))
+        feat_outs.append(fsb.run(path, out_path, logger.get_child('fsk')))
     else:
-        logger.info("Filesize_sankey module not run.")
+        logger.info("Filesize_sunburst module not run.")
 
     for i in range(len(feat_outs)):
         print(f"F[{i}]:")

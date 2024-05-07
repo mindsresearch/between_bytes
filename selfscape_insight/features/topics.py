@@ -120,18 +120,19 @@ def create_collage(image_folder, output_path, collage_size=(4096, 2160)):
     # Save the collage
     collage.save(output_path)
 
-def run(file_path, out_path, SsiLogger):
+def run(in_path:Path, out_path:Path, logger:SsiLogger):
     print("Running the collage feature module")
 
-    topics = pd.read_json(file_path)
-    SsiLogger.use_file(file_path)
+    topics = pd.read_json(in_path)
+    logger.use_file(in_path)
     topics.columns = ["Ads_interests"]
     topics["Ads_interests"] = special_character(topics["Ads_interests"])
 
-    output_path = out_path + os.path.basename(file_path).split(".")[0] + ".jpg"
+    output_path = out_path / (in_path.stem + ".jpg")
 
     with tempfile.TemporaryDirectory() as temp_dir_topics:
-        print(f"Created temporary directory: {temp_dir_topics}")
+        logger.debug(f"Created temporary directory: {temp_dir_topics}")
+        # logger.wrote_file(temp_dir_topics)
         
         # Download images to the temporary directory
         for index, row in tqdm(topics.iterrows(), desc="Topics: ", total=len(topics)):
@@ -141,7 +142,7 @@ def run(file_path, out_path, SsiLogger):
                 "tbm": "isch",
             }
             html = requests.get("https://www.google.com/search", params=params, timeout=30)
-            SsiLogger.use_inet(html)
+            logger.use_inet(html.url)
             soup = BeautifulSoup(html.content, features="lxml")
             image = soup.find_all("img")[1]["src"]
             data = requests.get(image).content
