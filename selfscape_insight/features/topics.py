@@ -141,11 +141,13 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
                 "q": lead,
                 "tbm": "isch",
             }
-            html = requests.get("https://www.google.com/search", params=params, timeout=30)
-            logger.use_inet(html.url)
+            # html = requests.get("https://www.google.com/search", params=params, timeout=30)
+            html = _req_url('https://google.com/search', params=params, logger=logger)
+            # logger.use_inet(html.url)
             soup = BeautifulSoup(html.content, features="lxml")
             image = soup.find_all("img")[1]["src"]
             data = requests.get(image).content
+            # data = _req_url(image, None, logger)
             with open(os.path.join(temp_dir_topics, f"{lead}.jpg"), "wb") as f:
                 f.write(data)
 
@@ -153,6 +155,14 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
         create_collage(temp_dir_topics, output_path)
     return "Your collage has been created: " + str(output_path)
 
+def _req_url(url:str, params:dict, logger:SsiLogger):
+    try:
+        resp = requests.get(url, params=params, timeout=30)
+    except Exception as e:
+        logger.err(f'Something went wrong with params: {params}')
+        logger.debug(e)
+    else:
+        return resp
 if __name__ == "__main__":
     print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='topics',
