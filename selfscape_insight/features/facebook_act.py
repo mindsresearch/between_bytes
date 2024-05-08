@@ -71,15 +71,14 @@ def get_colors(s: pd.Series):
     return s.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
 
 def get_username(main_path):
-    prof_info_path = main_path / 'personal_information' / 'profile_information' / 'profile_information.json'
+    prof_info_path = main_path+'/personal_information/profile_information/profile_information.json'
     with open(prof_info_path, 'r') as file:
         profile_dict = json.load(file)
     return profile_dict["profile_v2"]["name"]["full_name"]
 
-def run(in_path:Path, out_path:Path, logger:SsiLogger):
-    out_path = out_path / "facebook_act"
-    user_name = get_username(in_path)
-    posts_path = in_path / 'your_facebook_activity' / 'posts' / 'your_posts__check_ins__photos_and_videos_1.json'
+def naive_converted(main_path, out_path, logger:SsiLogger):
+    user_name = get_username(main_path)
+    posts_path = main_path+'/your_activity_across_facebook/posts/your_posts__check_ins__photos_and_videos_1.json'
 
     f = open(posts_path)
 
@@ -123,10 +122,13 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     # hacky x tick fix, will clean up later
     years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
-    comments_path = in_path / "your_facebook_activity" / "comments_and_reactions" / "comments.json"
-    logger.use_file(comments_path)
+    comments_path = r"{}/your_activity_across_facebook/comments_and_reactions/comments.json".format(main_path)
+    logger.use_file(Path(comments_path))
     f = open(comments_path)
     commentsdata = json.load(f)
+
+    # load as df
+    commentsdf = pd.read_json(comments_path)
 
     # create new df
     cdf = pd.DataFrame(columns=['timestamp', 'data', 'title'])
@@ -154,7 +156,7 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     # hacky x tick fix, will clean up later
     years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
-    reactions_path = in_path / 'your_facebook_activity' / 'comments_and_reactions'
+    reactions_path = main_path+'/your_activity_across_facebook/comments_and_reactions/'
 
     # get all json files here except comments
     reactions_files = [file for file in os.listdir(reactions_path) if file.endswith('.json') and file !='comments.json']
@@ -164,7 +166,7 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
 
     # load each file
     for reactions_file in reactions_files:
-        logger.use_file(reactions_file)
+        logger.use_file(Path(reactions_file))
         with open(os.path.join(reactions_path, reactions_file)) as file:
             reactions_data = json.load(file)
             for i in reactions_data:
@@ -185,7 +187,7 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     # make index year
     yearlylikes.set_index('Year', inplace=True)
 
-    messages_path = in_path / 'your_activity_across_facebook' / 'messages' / 'inbox'
+    messages_path = main_path + '/your_activity_across_facebook/messages/inbox/'
 
     # List to store file paths
     message_files = []
@@ -202,7 +204,7 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
 
     # load each file
     for file_path in message_files:
-        logger.use_file(file_path)
+        logger.use_file(Path(file_path))
         with open(file_path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
             participants = data.get('participants')
@@ -234,20 +236,6 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     # make index year
     yearlymessages.set_index('Year', inplace=True)
 
-    # hacky x tick fix, will clean up later
-    years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
-
-    # create area plot
-    # ax = yearlymessages.plot.area(figsize=(12, 6))
-    # ax.set_xlabel('Year')
-    # ax.set_xticks(years)
-    # ax.set_ylabel('Messages')
-    # ax.set_title('Facebook Use by Year')
-    # ax.set_facecolor('gray')
-    # Merging 3 dataframes together
-    # print(pd.DataFrame.to_string(yearlyposts))
-    # print(pd.DataFrame.to_string(yearlycomms))
-    # print(pd.DataFrame.to_string(yearlylikes))
     yearlyints = pd.merge(yearlyposts, yearlycomms, on="Year", how="outer")
     yearlyints = pd.merge(yearlyints, yearlylikes, on="Year", how="outer")
     yearlyints = pd.merge(yearlyints, yearlymessages, on="Year", how="outer")
@@ -296,9 +284,10 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     ax.set_ylim3d(-1, 4)
     ax.set_yticklabels([])
 
+    # plt.show()
     plt.title('Facebook Use by Year')
-    plt.savefig(out_path / 'Facebook_Use_by_Year.png')
-    logger.wrote_file(out_path / 'Facebook_Use_by_Year.png')
+    plt.savefig(out_path+'Facebook_Use_by_Year.png')
+    logger.wrote_file(Path(out_path) / 'Facebook_Use_by_Year.png')
     plt.close()
 
     # natural language processing
@@ -334,10 +323,10 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     ax = postsdf.plot.scatter(x='timestamp', y='sentiment', figsize=(12,6), color=colors)
     ax.axhline(0, color='black')
     ax.set_facecolor('gray')
+    # plt.show()
     plt.title('Posts Sentiment Scatter')
-    plt.savefig(out_path / 'Posts_Sentiment_Scatter.png')
-    # print("Posts_Sentiment_Scatter.png saved")
-    logger.wrote_file(out_path / 'Posts_Sentiment_Scatter.png')
+    plt.savefig(out_path+'Posts_Sentiment_Scatter.png')
+    logger.wrote_file(Path(out_path) / 'Posts_Sentiment_Scatter.png')
     plt.close()
     # add year column
     postsdf['year'] = postsdf['timestamp'].dt.year
@@ -370,9 +359,8 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     ax.set_facecolor('gray')
     # plt.show()
     plt.title('Posts Hourly Sentiment')
-    plt.savefig(out_path / 'Posts_Hourly_Sentiment.png')
-    # print("Posts_Hourly_Sentiment.png saved")
-    logger.wrote_file(out_path / 'Posts_Hourly_Sentiment.png')
+    plt.savefig(out_path+'Posts_Hourly_Sentiment.png')
+    logger.wrote_file(Path(out_path) / 'Posts_Hourly_Sentiment.png')
     plt.close()
 
     # group by hour and count the number of entries for each hour
@@ -395,9 +383,8 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
         ax.text(i, hourly_counts[index] + 0.1, f'{val:.2f}', ha='center', va='bottom')
     # plt.show()
     plt.title('Hourly Post Count')
-    plt.savefig(out_path / 'Hourly_Post_Count.png')
-    # print("Hourly_Post_Count.png saved")
-    logger.wrote_file(out_path / 'Hourly_Post_Count.png')
+    plt.savefig(out_path+'Hourly_Post_Count.png')
+    logger.wrote_file(Path(out_path) / 'Hourly_Post_Count.png')
     plt.close()
 
     # add hour column
@@ -414,9 +401,8 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     ax.set_xticks([0, 1, 2, 3, 4, 5, 6], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
     # plt.show()
     plt.title('Daily Posts Sentiment')
-    plt.savefig(out_path / 'Daily_Post_Sentiment.png')
-    # print("Daily_Post_Sentiment.png saved")
-    logger.wrote_file(out_path / 'Daily_Post_Sentiment.png')
+    plt.savefig(out_path+'Daily_Post_Sentiment.png')
+    logger.wrote_file(Path(out_path) / 'Daily_Post_Sentiment.png')
     plt.close()
 
     # Change color based on sentiment
@@ -428,9 +414,8 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     ax.set_facecolor('gray')
     # plt.show()
     plt.title('Message Sentiment Scatter')
-    plt.savefig(out_path / 'Message_Sentiment_Scatter.png')
-    # print("Message_Sentiment_Scatter.png saved")
-    logger.wrote_file(out_path / 'Message_Sentiment_Scatter.png')
+    plt.savefig(out_path+'Message_Sentiment_Scatter.png')
+    logger.wrote_file(Path(out_path) / 'Message_Sentiment_Scatter.png')
     plt.close()
 
     # add year column
@@ -448,9 +433,8 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     ax.set_facecolor('gray')
     # plt.show()
     plt.title('Message Yearly Sentiment')
-    plt.savefig(out_path / 'Message_Yearly_Sentiment.png')
-    # print("Message_Yearly_Sentiment.png saved")
-    logger.wrote_file(out_path / 'Message_Yearly_Sentiment.png')
+    plt.savefig(out_path+'Message_Yearly_Sentiment.png')
+    logger.wrote_file(Path(out_path) / 'Message_Yearly_Sentiment.png')
     plt.close()
 
     # adjust timestamp to pacific time
@@ -470,9 +454,8 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     ax.set_facecolor('gray')
     # plt.show()
     plt.title('Message Hourly Count')
-    plt.savefig(out_path / 'Message_Hourly_Count.png')
-    # print("Message_Hourly_Count.png saved")
-    logger.wrote_file(out_path / 'Message_Hourly_Count.png')
+    plt.savefig(out_path+'Message_Hourly_Count.png')
+    logger.wrote_file(Path(out_path) / 'Message_Hourly_Count.png')
     plt.close()
 
     # group by hour and count the number of entries for each hour
@@ -495,9 +478,8 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
         ax.text(i, message_hourly_counts[index] + 0.1, f'{val:.2f}', ha='center', va='bottom')
     # plt.show()
     plt.title('Message Hourly Count')
-    plt.savefig(out_path / 'Message_Hourly_Count.png')
-    # print("Message_Hourly_Count.png saved")
-    logger.wrote_file(out_path / 'Message_Hourly_Count.png')
+    plt.savefig(out_path+'Message_Hourly_Count.png')
+    logger.wrote_file(Path(out_path) / 'Message_Hourly_Count.png')
     plt.close()
 
     # add hour column
@@ -514,9 +496,8 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     ax.set_xticks([0, 1, 2, 3, 4, 5, 6], ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
     # plt.show()
     plt.title('Message Daily Sentiment')
-    plt.savefig(out_path / 'Message_Daily_Sentiment.png')
-    # print("Message_Daily_Sentiment.png saved")
-    logger.wrote_file(out_path / 'Message_Daily_Sentiment.png')
+    plt.savefig(out_path+'Message_Daily_Sentiment.png')
+    logger.wrote_file(Path(out_path) / 'Message_Daily_Sentiment.png')
     plt.close()
 
     # concatenate text data
@@ -575,9 +556,8 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     plt.axis('off')
     # plt.show()
     plt.title('All-time Word Cloud')
-    plt.savefig(out_path / 'Word_Cloud.png')
-    # print("Word_Cloud.png saved")
-    logger.wrote_file(out_path / 'Word_Cloud.png')
+    plt.savefig(out_path+'Word_Cloud.png')
+    logger.wrote_file(Path(out_path) / 'Word_Cloud.png')
     plt.close()
 
     # define stop words
@@ -625,16 +605,29 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
         plt.title(f'Word Cloud for Year {year}')
         plt.axis('off')
         # plt.show()
-        plt.savefig(out_path / f'Word_Cloud_{year}.png')
-        # print(f"Word_Cloud_{year}.png saved")
-        logger.wrote_file(out_path / f'Word_Cloud_{year}.png')
+        plt.savefig(f'{out_path}yearly_word_clouds/Word_Cloud_{year}.png')
+        logger.wrote_file(Path(out_path) / f'Word_Cloud_{year}.png')
         plt.close()
     return
+
+def run(path, out_path, logger):
+    # TODO: Please refer to sample.py for run() docstring format!
+    print("Running the facebook_act feature module")
+    conv_path = str(path)
+
+    out_conv_path = str(out_path)+"/facebook_act/"
+
+    os.makedirs(out_conv_path, exist_ok=True)
+    os.makedirs(out_conv_path+"yearly_word_clouds/", exist_ok=True)
+
+    naive_converted(conv_path, out_conv_path, logger)
+
+    return "The facebook_act module did stuff!"
 
 if __name__ == "__main__":
     print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='facebook_act',
-                                     description='A short description of what your code does')
+                                     description='Analyses and visualizes activity across facebook')
     parser.add_argument('-i', '--in_file', metavar='ROOT', help='path to root of json data', required=True)
     parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send outputs', required=False, default='.')
     parser.add_argument('-v', '--verbose', action='count', default=0, help='increase verbosity', required=False)
