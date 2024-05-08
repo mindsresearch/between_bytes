@@ -1,23 +1,26 @@
 Features Module
 ===============
 
+.. important::
+
+    TODO: Fix and expand to include added features.
+
 Sample Feature
 --------------
 
-.. automodule:: selfscape_insight.features.sample
-    :members:
-    :undoc-members:
+Temporary filler content...
 
 Topics Feature
 --------------
 
-.. automodule:: selfscape_insight.features.topics
-    :members:
-    :undoc-members:
+Temporary filler content...
 
 Feelings Feature
 ----------------
 
-.. automodule:: selfscape_insight.features.feelings
-    :members:
-    :undoc-members:
+Temporary filler content...
+
+Off-Facebook Activity Feature
+-----------------------------
+
+Temporary filler content...

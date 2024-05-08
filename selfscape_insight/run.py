@@ -16,12 +16,12 @@ TODO:
     - "refactor" versioning following exec_cli.py split
 
 Version:
-    0.2
+    1.0
 
 Author:
     Noah Duggan Erickson
 """
-__version__ = '0.2'
+__version__ = '1.0'
 
 from pathlib import Path
 
@@ -35,9 +35,11 @@ from features import notifs as ntf
 
 from core.log_aud import RootLogger
 
-from core.various_helpers import pointless_function
-
 # CHANGELOG:
+#   1.0: (08 May 2024)
+#     - Added notifs feature
+#     - Renamed feelings to on_fb_act
+#     - Removed demo helper
 #   0.6: (25 April 2024)
 #     - Added filesize_sankey feature
 #     - Refactor for wizard launcher

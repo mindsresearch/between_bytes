@@ -17,6 +17,10 @@ Before you can install SelfScape Insight, you need to have the following softwar
 Installation From Source
 ------------------------
 
+.. hint::
+
+    NEW: If you are using Linux, the script in ``build.sh`` can automatically build and install the package for you in a ``venv`` environment. The script can also optionally build the docs (which you are reading right now).
+
 1. Clone the repository from GitHub, and navigate to the project directory:
 
 .. code-block:: bash
