@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "selfscape_insight"
-version = "0.3.1"
+version = "1.0rc1"
 description = "Assorted visualizations and other representations of the data that Facebook collects"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -53,7 +53,8 @@ classifiers = [
 doc = [
     "sphinx >=7.2.6",
     "pydata-sphinx-theme >=0.15.2",
-    "sphinx_design >=0.5.0"
+    "sphinx_design >=0.5.0",
+    "rstcloth >=0.6.0"
 ]
 
 [project.urls]

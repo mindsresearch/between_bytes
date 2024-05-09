@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'SelfScape Insight'
 copyright = '(C) 2024, The Authors. License: GNU AGPL-3.0'
 author = 'Noah Duggan Erickson, Liam Gore, Peter Hafner, Carter Jacobs, Trevor Le'
-release = '0.3'
+release = '1.0rc1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

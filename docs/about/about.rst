@@ -9,3 +9,4 @@ General information about the project
 
    authors
    project
+   our_insights/our_insights
