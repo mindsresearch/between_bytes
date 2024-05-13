@@ -156,8 +156,7 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=None):
     #
     if mods['fba']:
         path = in_path
-        # feat_outs.append(fba.run(path, out_path, logger.get_child('fba')))
-        logger.err("The On-Facebook Activity module is temporarily excluded.")
+        feat_outs.append(fba.run(path, out_path, logger.get_child('fba')))
     else:
         logger.info("On-Facebook Activity module not run.")
     
