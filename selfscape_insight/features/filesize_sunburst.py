@@ -8,8 +8,8 @@ Functions:
     run: The main function of the script. It takes in a path to a
          directory and returns a string indicating where the output
          HTML file was written. It can also take in a mode argument
-        to specify whether to include all files, only JSON files,
-        or both.
+         to specify whether to include all files, only JSON files,
+         or both.
 
     enum_files: Enumerates all files in a directory tree and returns
                 a DataFrame with columns for the file, path, size,
