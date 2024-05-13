@@ -43,3 +43,16 @@ TODO: Eventually transition this from the font to SVGs
     "opsz" 48;
   font-size: 6em;
 }
+
+.header-symbol-small {
+  font-family: "Material Symbols Outlined", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 600,
+    "GRAD" 200,
+    "opsz" 36;
+  font-size: 4em;
+}

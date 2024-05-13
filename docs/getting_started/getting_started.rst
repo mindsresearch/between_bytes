@@ -40,7 +40,7 @@ Check out some of these resources to get started with the project!
       :text-align: center
       :link: wizard.html
 
-      settings_applications
+      dynamic_form
       ^^^
 
       Start the program with a guided wizard.

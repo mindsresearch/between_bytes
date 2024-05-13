@@ -16,7 +16,7 @@ My Visuals
    :gutter: 3
 
    .. grid-item-card:: Filesize Sunburst
-      :class-header: header-symbol
+      :class-header: header-symbol-small
       :link:
          ../../../_static/351d96c7053b330365fe0b14b322c79c/sunburst.html
       :text-align: center
@@ -27,7 +27,7 @@ My Visuals
       See how much space different types of data take up.
 
    .. grid-item-card:: Topics
-      :class-header: header-symbol
+      :class-header: header-symbol-small
       :link:
          ../../../_static/351d96c7053b330365fe0b14b322c79c/ads_interests.jpg
       :text-align: center
@@ -38,7 +38,7 @@ My Visuals
       See what Facebook thinks I am interested in.
 
    .. grid-item-card:: Notifications
-      :class-header: header-symbol
+      :class-header: header-symbol-small
       :link:
          ../../../_static/351d96c7053b330365fe0b14b322c79c/2024_notifications.html
       :text-align: center
@@ -49,7 +49,7 @@ My Visuals
       See how frequently Facebook sends notifications
 
    .. grid-item-card:: Off-Facebook Activity
-      :class-header: header-symbol
+      :class-header: header-symbol-small
       :link:
          ../../../_static/351d96c7053b330365fe0b14b322c79c/top_cos.html
       :text-align: center
@@ -60,7 +60,7 @@ My Visuals
       See what Facebook knows about my activity off of Facebook.
 
    .. grid-item-card:: IP Location
-      :class-header: header-symbol
+      :class-header: header-symbol-small
       :link:
          ../../../_static/351d96c7053b330365fe0b14b322c79c/interactive_occurance.html
       :text-align: center
@@ -71,7 +71,7 @@ My Visuals
       See where Facebook thinks I am.
 
    .. grid-item-card:: On-Facebook Activity
-      :class-header: header-symbol
+      :class-header: header-symbol-small
       :link:
          ../../../_static/351d96c7053b330365fe0b14b322c79c/Facebook_Use_by_Year.png
       :text-align: center

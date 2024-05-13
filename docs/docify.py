@@ -74,7 +74,7 @@ def build_section(rc, name, content):
 
 def build_nav_card(rc, name, symbol, desc, ref):
     rc.directive('grid-item-card', arg=name,
-                 fields=[('class-header', 'header-symbol'), ('link', ref), ('text-align', 'center')],
+                 fields=[('class-header', 'header-symbol-small'), ('link', ref), ('text-align', 'center')],
                  indent=3)
     rc.newline()
     rc.h5(symbol, indent=6)
