@@ -63,3 +63,4 @@ Source = "https://github.com/mindsresearch/selfscape_insight"
 
 [project.scripts]
 scape-cli = "selfscape_insight.exec_cli:exec"
+scape-gui = "selfscape_insight.exec_wiz:exec"

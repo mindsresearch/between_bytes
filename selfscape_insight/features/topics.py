@@ -69,11 +69,7 @@ from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 # Add your other third-party/external imports here
 
-if __name__ == "__main__":
-    sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from core.various_helpers import pointless_function # pylint disable=wrong-import-position
-from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+from selfscape_insight.core.log_aud import SsiLogger, RootLogger
 
 def special_character (df):
     temp_df = df.copy()
@@ -154,7 +150,6 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     return "Your collage has been created: " + str(output_path)
 
 if __name__ == "__main__":
-    print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='topics',
                                      description='A short description of what your code does')
     parser.add_argument('-i', '--in_file', metavar='JSON', help='path to json file', required=True, nargs='+')

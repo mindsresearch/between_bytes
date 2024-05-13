@@ -56,11 +56,7 @@ import maxminddb
 import folium
 # Please update requirements.txt as needed!
 
-if __name__ == "__main__":
-    sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from core.various_helpers import pointless_function # pylint disable=wrong-import-position
-from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+from selfscape_insight.core.log_aud import SsiLogger, RootLogger
 
 def convert_to_gps(ip_address):
     path = os.path.join(os.path.dirname(__file__), 'GeoLite2-City.mmdb')
@@ -339,7 +335,6 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
     return "Wrote interactive_occurance.html and graph_over_all_time.html!"
 
 if __name__ == "__main__":
-    print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='ip_loc',
                                      description='A short description of what your code does')
     parser.add_argument('-i', '--in_file', metavar='(NAME)_JSON', help='path to account_activity json', required=True)

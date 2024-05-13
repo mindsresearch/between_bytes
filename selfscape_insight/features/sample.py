@@ -37,11 +37,7 @@ import sys
 import pandas as pd
 import requests
 
-if __name__ == "__main__":
-    sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from core.various_helpers import pointless_function # pylint disable=wrong-import-position
-from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+from selfscape_insight.core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
 
 def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
     """Runs the feature.
@@ -104,7 +100,6 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
 # commandline as shown in Example 2
 #
 if __name__ == "__main__":
-    print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='sample_feature', description='A sample program feature for the purposes of demo-ing code structure and boilerplate')
     parser.add_argument('-i', '--in_file', metavar='BCTS_JSON', help='path to json file where \'bcts\' is tlk', required=True)
     parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send output(s)', required=False, default='.')

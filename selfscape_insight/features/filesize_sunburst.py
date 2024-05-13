@@ -61,11 +61,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import seaborn as sns
 
-if __name__ == '__main__':
-    sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from core.various_helpers import pointless_function # pylint: disable=wrong-import-position
-from core.log_aud import SsiLogger, RootLogger # pylint: disable=wrong-import-position
+from selfscape_insight.core.log_aud import SsiLogger, RootLogger
 
 def enum_files(in_path:Path, json_only:bool=False) -> pd.DataFrame:
     if json_only:
@@ -188,7 +184,6 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger, mode:int=0):
     return f'Wrote sunburst.html and legend.html to {op}'
 
 if __name__ == '__main__':
-    print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='filesize_sunburst',
                                      description='Create a sunburst diagram of file sizes in a directory tree') # pylint: disable=line-too-long
     parser.add_argument('-i', '--in_path', metavar='JSON_PATH',

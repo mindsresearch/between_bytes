@@ -61,11 +61,7 @@ import seaborn as sns
 # Add your other third-party/external imports here
 # Please update requirements.txt as needed!
 
-if __name__ == "__main__":
-    sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from core.various_helpers import pointless_function # pylint disable=wrong-import-position
-from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+from selfscape_insight.core.log_aud import SsiLogger, RootLogger
 
 def get_colors(s: pd.Series):
     return s.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
@@ -625,7 +621,6 @@ def run(path, out_path, logger):
     return "The facebook_act module did stuff!"
 
 if __name__ == "__main__":
-    print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='facebook_act',
                                      description='Analyses and visualizes activity across facebook')
     parser.add_argument('-i', '--in_file', metavar='ROOT', help='path to root of json data', required=True)

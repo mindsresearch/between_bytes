@@ -29,10 +29,9 @@ __version__ = '0.1'
 
 
 import argparse
-import sys
 from pathlib import Path
 
-from run import main
+from selfscape_insight.run import main
 
 def exec():
     parser = argparse.ArgumentParser(prog="selfscape_insight",

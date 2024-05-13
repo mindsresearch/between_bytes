@@ -17,7 +17,7 @@ from tkinter import messagebox
 
 import os
 
-from run import main
+from selfscape_insight.run import main
 
 class SelfScapeInsightLauncher(Tk):
     """ Main window for the SelfScape Insight launcher.
@@ -239,6 +239,9 @@ class AdvConfig(ttk.Frame):
             case _:
                 return 0
 
-if __name__ == "__main__":
+def exec():
     launcher = SelfScapeInsightLauncher()
     launcher.mainloop()
+
+if __name__ == "__main__":
+    exec()

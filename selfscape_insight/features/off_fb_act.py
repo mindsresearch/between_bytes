@@ -44,11 +44,7 @@ from plotly.subplots import make_subplots
 # Add your other third-party/external imports here
 # Please update requirements.txt as needed!
 
-if __name__ == "__main__":
-    sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from core.various_helpers import pointless_function # pylint disable=wrong-import-position
-from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+from selfscape_insight.core.log_aud import SsiLogger, RootLogger
 
 def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
     # Create new output directory
