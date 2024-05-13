@@ -26,6 +26,7 @@ dependencies = [
     "requests >=2.31.0",
     "maxminddb >=2.6.0",
     "beautifulsoup4 >=4.12.3",
+    "lxml >=5.2.2",
     "matplotlib >=3.8.4",
     "spacy >=3.7.4",
     "spacytextblob >=4.0.0",

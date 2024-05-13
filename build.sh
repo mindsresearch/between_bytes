@@ -13,9 +13,7 @@ virtualenv venv
 
 echo "Building and installing..."
 flit install --python venv/bin/python3
-
-
-echo "SelfScape Insight installed in venv!"
+echo "SelfScape Insight built and installed in venv!"
 
 read -p "Do you want to build docs? (Y/n) " build_docs
 
@@ -26,3 +24,8 @@ if [ "$build_docs" = "$yes" ]; then
     cd ..
     echo "Docs built!"
 fi
+
+echo "Done!"
+echo "To run the program, activate the venv ($ source venv/bin/activate)"
+echo "and run the CLI version ($ scape-cli) or the GUI version ($ scape-gui)"
+echo "To view the docs, open docs/_build/html/index.html in a browser"
