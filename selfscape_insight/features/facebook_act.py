@@ -78,7 +78,7 @@ def get_username(main_path):
 
 def naive_converted(main_path, out_path, logger:SsiLogger):
     user_name = get_username(main_path)
-    posts_path = main_path+'/your_activity_across_facebook/posts/your_posts__check_ins__photos_and_videos_1.json'
+    posts_path = main_path+'/your_facebook_activity/posts/your_posts__check_ins__photos_and_videos_1.json'
 
     f = open(posts_path)
 
@@ -122,7 +122,7 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     # hacky x tick fix, will clean up later
     years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
-    comments_path = r"{}/your_activity_across_facebook/comments_and_reactions/comments.json".format(main_path)
+    comments_path = r"{}/your_facebook_activity/comments_and_reactions/comments.json".format(main_path)
     logger.use_file(Path(comments_path))
     f = open(comments_path)
     commentsdata = json.load(f)
@@ -156,7 +156,7 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     # hacky x tick fix, will clean up later
     years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
-    reactions_path = main_path+'/your_activity_across_facebook/comments_and_reactions/'
+    reactions_path = main_path+'/your_facebook_activity/comments_and_reactions/'
 
     # get all json files here except comments
     reactions_files = [file for file in os.listdir(reactions_path) if file.endswith('.json') and file !='comments.json']
@@ -187,7 +187,7 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     # make index year
     yearlylikes.set_index('Year', inplace=True)
 
-    messages_path = main_path + '/your_activity_across_facebook/messages/inbox/'
+    messages_path = main_path + '/your_facebook_activity/messages/inbox/'
 
     # List to store file paths
     message_files = []

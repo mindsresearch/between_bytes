@@ -16,12 +16,12 @@ TODO:
     - "refactor" versioning following exec_cli.py split
 
 Version:
-    1.0
+    1.0.1
 
 Author:
     Noah Duggan Erickson
 """
-__version__ = '1.0'
+__version__ = '1.0.1'
 
 from pathlib import Path
 
@@ -36,6 +36,8 @@ from features import notifs as ntf
 from core.log_aud import RootLogger
 
 # CHANGELOG:
+#   1.0.1: (13 May 2024)
+#     - Changed ordering of modules
 #   1.0: (08 May 2024)
 #     - Added notifs feature
 #     - Renamed feelings to on_fb_act
@@ -91,6 +93,14 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=None):
     in_path = Path(in_path)
     out_path = Path(out_path)
     feat_outs = []
+
+    # filesize_sunburst module
+    #
+    if mods['fsb']:
+        path = in_path
+        feat_outs.append(fsb.run(path, out_path, logger.get_child('fsb')))
+    else:
+        logger.info("Filesize_sunburst module not run.")
     
     # sample module
     #
@@ -159,14 +169,6 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=None):
         feat_outs.append(fba.run(path, out_path, logger.get_child('fba')))
     else:
         logger.info("On-Facebook Activity module not run.")
-    
-    # filesize_sankey module
-    #
-    if mods['fsb']:
-        path = in_path
-        feat_outs.append(fsb.run(path, out_path, logger.get_child('fsk')))
-    else:
-        logger.info("Filesize_sunburst module not run.")
 
     for i in range(len(feat_outs)):
         print(f"F[{i}]:")
