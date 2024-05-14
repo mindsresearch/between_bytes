@@ -1,30 +1,48 @@
-.. SelfScape Insight documentation master file, created by
-   sphinx-quickstart on Wed Apr  3 04:03:15 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+SelfScape Insight Documentation
+===============================
 
-Welcome to SelfScape Insight's documentation!
-=============================================
+Welcome to the SelfScape Insight documentation. This documentation provides an overview of the project, installation instructions, usage guidelines, and API references.
 
-.. warning::
+.. grid:: 2
+   :gutter: 2
 
-    This documentation is a work in progress. Please bear with us as we continue to improve it. Nothing in this documentation should be considered to be true or accurate.
+   .. grid-item-card:: Getting Started
+      :link: getting_started/index
 
+      :material-regular:`play_circle_outline;6em`
+      ^^^
+
+      Learn how to install and use SelfScape Insight.
+
+   .. grid-item-card:: API Reference
+      :link: api/index.html
+
+      :material-regular:`book;6em`
+      ^^^
+
+      Explore the API reference for SelfScape Insight.
+
+   .. grid-item-card:: Developer Guide
+      :link: devs/index
+
+      :material-regular:`code;6em`
+      ^^^
+
+      Learn how to contribute to SelfScape Insight.
+
+   .. grid-item-card:: About
+      :link: about/index
+
+      :material-regular:`info;6em`
+      ^^^
+
+      Learn more about SelfScape Insight.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :hidden:
 
-   getting_started/getting_started
-   about/about
-   devs/devs
-   api/api
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   getting_started/index
+   api/index
+   devs/index
+   about/index

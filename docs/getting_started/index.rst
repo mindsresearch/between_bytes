@@ -1,7 +1,8 @@
-Getting Started
-===============
+User Guide
+==========
 
-Check out some of these resources to get started with the project!
+Welcome to SelfScape Insight! This guide will help you get started with the project.
+
 
 .. grid:: 2
    :gutter: 2
@@ -9,46 +10,43 @@ Check out some of these resources to get started with the project!
    .. grid-item-card:: Download Data
       :link: data.html
       :text-align: center
-      :class-header: header-symbol
 
-      database
+      :material-regular:`data_exploration;6em`
       ^^^
 
       Learn how to get your data from Facebook.
 
-   .. grid-item-card:: Something Else
+   .. grid-item-card:: Download Program
       :text-align: center
-      :class-header: header-symbol
+      :link: download.html
 
-      help
+      :material-regular:`download;6em`
       ^^^
 
-      Some other as-yet undetermined page to go here.
+      Get the program and install it.
    
    .. grid-item-card:: CLI Quickstart
       :link: cli.html
       :text-align: center
-      :class-header: header-symbol
 
-      terminal
+      :material-regular:`terminal;6em`
       ^^^
 
       Run the program fast via terminal.
    
    .. grid-item-card:: Wizard Quickstart
-      :class-header: header-symbol
       :text-align: center
       :link: wizard.html
 
-      dynamic_form
+      :material-regular:`dynamic_form;6em`
       ^^^
 
       Start the program with a guided wizard.
 
 .. toctree::
-   :maxdepth: 2
    :hidden:
 
+   download
    data
-   cli
    wizard
+   cli
