@@ -1,0 +1,170 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #3b5998;
+    color: white;
+    padding: 10px 0;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 15px;
+}
+
+header .logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+header .search-bar input {
+    padding: 5px;
+    border-radius: 5px;
+    border: none;
+    width: 200px;
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+header nav ul li {
+    margin-left: 20px;
+}
+
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+header .profile-actions {
+    display: flex;
+    align-items: center;
+}
+
+header .profile-pic {
+    width: 40px;
+    height: 40px;
+    background-color: #ccc;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+header .notifications a {
+    color: white;
+    margin-left: 10px;
+    text-decoration: none;
+}
+
+main .container {
+    display: flex;
+    max-width: 1200px;
+    margin: auto;
+    padding: 15px;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #fff;
+    padding: 15px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 10px;
+}
+
+.sidebar ul li a {
+    color: #3b5998;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.content {
+    flex-grow: 1;
+    margin-left: 20px;
+}
+
+.post {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.post-avatar {
+    width: 50px;
+    height: 50px;
+    background-color: #ccc;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.post-user {
+    font-weight: bold;
+}
+
+.post-footer button {
+    background-color: #3b5998;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.post-footer button:hover {
+    background-color: #2d4373;
+}
+
+.right-sidebar {
+    width: 250px;
+    background-color: #fff;
+    padding: 15px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    margin-left: 20px;
+}
+
+.contacts h3 {
+    margin-top: 0;
+}
+
+.contacts ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.contacts ul li {
+    margin-bottom: 10px;
+}
+
+.contacts ul li a {
+    color: #3b5998;
+    text-decoration: none;
+}
