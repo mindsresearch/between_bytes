@@ -136,6 +136,7 @@ def download_image(params):
     except Exception as e:
         logger.error(f"Failed to download image for {lead}: {e}")
 
+
 def run(in_path: Path, out_path: Path, logger: SsiLogger):
     print("Running the collage feature module")
 
@@ -158,6 +159,43 @@ def run(in_path: Path, out_path: Path, logger: SsiLogger):
         create_collage(temp_dir_topics, output_path)
 
     return "Your collage has been created: " + str(output_path)
+
+
+
+
+# def run(in_path: Path, out_path: Path, logger: SsiLogger):
+#     print("Running the collage feature module")
+
+#     topics = pd.read_json(in_path)
+#     logger.use_file(in_path)
+#     topics.columns = ["Ads_interests"]
+#     topics["Ads_interests"] = special_character(topics["Ads_interests"])
+
+#     output_path = out_path / (in_path.stem + ".jpg")
+
+#     with tempfile.TemporaryDirectory() as temp_dir_topics:
+#         logger.debug(f"Created temporary directory: {temp_dir_topics}")
+#         # logger.wrote_file(temp_dir_topics)
+        
+#         # Download images to the temporary directory
+#         for index, row in tqdm(topics.iterrows(), desc="Topics: ", total=len(topics)):
+#             lead = row["Ads_interests"]
+#             params = {
+#                 "q": lead,
+#                 "tbm": "isch",
+#             }
+#             html = requests.get("https://www.google.com/search", params=params, timeout=30)
+#             logger.use_inet(html.url)
+#             soup = BeautifulSoup(html.content, features="lxml")
+#             image = soup.find_all("img")[1]["src"]
+#             data = requests.get(image).content
+#             with open(os.path.join(temp_dir_topics, f"{lead}.jpg"), "wb") as f:
+#                 f.write(data)
+
+#         # Create collage using images in the temporary directory
+#         create_collage(temp_dir_topics, output_path)
+
+#     return "Your collage has been created: " + str(output_path)
 
 if __name__ == "__main__":
     print(pointless_function()) # remove in production
