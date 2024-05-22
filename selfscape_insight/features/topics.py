@@ -67,6 +67,7 @@ import requests
 from bs4 import BeautifulSoup
 from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
+from multiprocessing import Pool
 # Add your other third-party/external imports here
 
 if __name__ == "__main__":
@@ -120,7 +121,23 @@ def create_collage(image_folder, output_path, collage_size=(4096, 2160)):
     # Save the collage
     collage.save(output_path)
 
-def run(in_path:Path, out_path:Path, logger:SsiLogger):
+def download_image(params):
+    lead, temp_dir, logger = params
+    try:
+        search_params = {"q": lead, "tbm": "isch"}
+        html = requests.get("https://www.google.com/search", params=search_params, timeout=30)
+        logger.use_inet(html.url)
+        soup = BeautifulSoup(html.content, features="lxml")
+        image = soup.find_all("img")[1]["src"]
+        data = requests.get(image).content
+        with open(os.path.join(temp_dir, f"{lead}.jpg"), "wb") as f:
+            f.write(data)
+        logger.debug(f"Downloaded image for {lead}")
+    except Exception as e:
+        logger.error(f"Failed to download image for {lead}: {e}")
+
+
+def run(in_path: Path, out_path: Path, logger: SsiLogger):
     print("Running the collage feature module")
 
     topics = pd.read_json(in_path)
@@ -132,25 +149,15 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger):
 
     with tempfile.TemporaryDirectory() as temp_dir_topics:
         logger.debug(f"Created temporary directory: {temp_dir_topics}")
-        # logger.wrote_file(temp_dir_topics)
         
-        # Download images to the temporary directory
-        for index, row in tqdm(topics.iterrows(), desc="Topics: ", total=len(topics)):
-            lead = row["Ads_interests"]
-            params = {
-                "q": lead,
-                "tbm": "isch",
-            }
-            html = requests.get("https://www.google.com/search", params=params, timeout=30)
-            logger.use_inet(html.url)
-            soup = BeautifulSoup(html.content, features="lxml")
-            image = soup.find_all("img")[1]["src"]
-            data = requests.get(image).content
-            with open(os.path.join(temp_dir_topics, f"{lead}.jpg"), "wb") as f:
-                f.write(data)
+        params_list = [(row["Ads_interests"], temp_dir_topics, logger) for _, row in topics.iterrows()]
+
+        with Pool(processes=os.cpu_count()) as pool:
+            list(tqdm(pool.imap(download_image, params_list), desc="Topics: ", total=len(params_list)))
 
         # Create collage using images in the temporary directory
         create_collage(temp_dir_topics, output_path)
+
     return "Your collage has been created: " + str(output_path)
 
 if __name__ == "__main__":
