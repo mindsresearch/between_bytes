@@ -67,7 +67,8 @@ from selfscape_insight.core.log_aud import RootLogger
 #   0.1:
 #     - Initial Release
 
-def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=None):
+
+def main(in_path: Path, out_path: Path, mods: dict, verbose: int = 0, log: str = None):
     """Runs the program.
 
     Args:
@@ -89,9 +90,8 @@ def main(in_path:str, out_path:str, mods:dict, verbose:int=0, log:str=None):
     
     logger = RootLogger()
     logger.setup(verb=verbose, output=log)
+    logger.info("Main runner version: {}".format(__version__))
 
-    in_path = Path(in_path)
-    out_path = Path(out_path)
     feat_outs = []
 
     # filesize_sunburst module

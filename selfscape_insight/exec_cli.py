@@ -33,6 +33,7 @@ from pathlib import Path
 
 from selfscape_insight.run import main
 
+
 def exec():
     parser = argparse.ArgumentParser(prog="selfscape_insight",
                                      usage="scape_cli -i PATH/TO/DATA [options]",
@@ -76,11 +77,13 @@ def exec():
                 "fba": args.fba,
                 "fsb": args.fsb,
                 "ntf": args.ntf}
-    
+
     in_path = Path(args.in_path)
     out_path = Path(args.out_path)
     out_path.mkdir(parents=True, exist_ok=True)
     main(in_path=in_path, out_path=out_path, mods=run_mods, verbose=args.v, log=args.log)
 
+
 if __name__ == "__main__":
+    print("Starting SelfScape Insight using CLI v.%s" % __version__)
     exec()

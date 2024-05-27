@@ -9,6 +9,7 @@ Version:
 Author:
     Noah Duggan Erickson
 """
+__version__ = "0.3"
 
 from tkinter import BOTH, W, E, END, DISABLED, Tk, StringVar
 from tkinter import ttk
@@ -16,8 +17,10 @@ from tkinter import filedialog
 from tkinter import messagebox
 
 import os
+from pathlib import Path
 
 from selfscape_insight.run import main
+
 
 class SelfScapeInsightLauncher(Tk):
     """ Main window for the SelfScape Insight launcher.
@@ -45,11 +48,11 @@ class SelfScapeInsightLauncher(Tk):
         self.run_button.pack()
 
     def run(self):
-        in_dir = self.basic.get_in_directory()
+        in_dir = Path(self.basic.get_in_directory())
         if in_dir == "":
             raise ValueError("No input directory selected")
         # print(f"Input dir:\n  {in_dir}")
-        out_dir = self.basic.get_out_directory()
+        out_dir = Path(self.basic.get_out_directory())
         if out_dir == "":
             raise ValueError("No output directory selected")
         # print(f"Output dir:\n  {out_dir}")
@@ -78,6 +81,7 @@ class SelfScapeInsightLauncher(Tk):
         finally:
             self.destroy()
             raise SystemExit
+
 
 class BasicConfig(ttk.Frame):
     """ Launcher basic configuration frame.
@@ -140,6 +144,7 @@ class BasicConfig(ttk.Frame):
     def get_out_directory(self):
         return self.out_directory_entry.get()
 
+
 class ModuleSelection(ttk.Frame):
     """ Launcher feature module selection frame.
 
@@ -187,6 +192,7 @@ class ModuleSelection(ttk.Frame):
             "ntf": self.mod_7.instate(["selected"])
         }
 
+
 class AdvConfig(ttk.Frame):
     """ Launcher advanced configuration frame.
 
@@ -226,6 +232,7 @@ class AdvConfig(ttk.Frame):
 
     def get_log_file(self):
         return self.log_file_entry.get()
+
     def get_verb_lvl(self):
         match self._verb_lvl.get():
             case 'PROD':
@@ -239,9 +246,12 @@ class AdvConfig(ttk.Frame):
             case _:
                 return 0
 
+
 def exec():
     launcher = SelfScapeInsightLauncher()
     launcher.mainloop()
 
+
 if __name__ == "__main__":
+    print("Starting SelfScape Insight using GUI v.%s" % __version__)
     exec()
