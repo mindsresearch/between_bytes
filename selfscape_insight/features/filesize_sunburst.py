@@ -128,8 +128,10 @@ def build_sunburst(df:pd.DataFrame) -> go.Sunburst:
                        )
 
 # mode: 0 = all files, 1 = json only, 2 = both
-def run(in_path:Path, out_path:Path, logger:SsiLogger, mode:int=0):
-    match mode:
+
+
+def run(in_path:Path, out_path:Path, logger:SsiLogger, fsb_mode:int=0):
+    match fsb_mode:
         case 0:
             logger.use_file(Path('ALL'), 'metadata')
             df = enum_files(in_path)
@@ -142,10 +144,10 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger, mode:int=0):
             logger.use_file(Path('JSON'), 'metadata')
             df_json = enum_files(in_path, json_only=True)
         case _:
-            logger.crit('Invalid mode', ValueError)
+            logger.crit(f'Invalid mode {fsb_mode}', ValueError)
 
     logger.debug(df.head().to_string())
-    if mode == 2:
+    if fsb_mode == 2:
         logger.debug(df_json.head().to_string())
 
     logger.info('Getting mimetypes...')
@@ -153,7 +155,7 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger, mode:int=0):
     logger.info('(1) Found %i unique types: %s' % # pylint: disable=consider-using-f-string
                 (len(df['type'].unique()),
                  str(df['type'].unique())))
-    if mode == 2:
+    if fsb_mode == 2:
         df_json['type'] = get_mimetypes(df_json['file'])
         logger.info('(2) Found %i unique types: %s' % # pylint: disable=consider-using-f-string
                     (len(df_json['type'].unique()),
@@ -161,11 +163,11 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger, mode:int=0):
 
     cmap = get_cmap(df['type'])
     df['colors'] = df['type'].map(cmap)
-    if mode == 2:
+    if fsb_mode == 2:
         df_json['colors'] = df_json['type'].map(cmap)
 
     logger.info('Building Sunburst diagram')
-    if mode < 2:
+    if fsb_mode < 2:
         fig = go.Figure(build_sunburst(df))
     else:
         fig = make_subplots(rows=1, cols=2,
@@ -182,6 +184,7 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger, mode:int=0):
         f.write(create_legend(cmap))
     logger.wrote_file(op / 'legend.html')
     return f'Wrote sunburst.html and legend.html to {op}'
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='filesize_sunburst',
@@ -216,4 +219,4 @@ if __name__ == '__main__':
         prog_mode = 0
 
     print(run(Path(args.in_path), Path(args.out_path),
-              m_logger, mode=prog_mode))
+              m_logger, fsb_mode=prog_mode))

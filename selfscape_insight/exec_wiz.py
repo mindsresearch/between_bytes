@@ -1,15 +1,13 @@
 """ Wizard-style launcher for the SelfScape Insight program.
 
-WARNING:
-    This code is not functional and is only a template for the final product.
 
 Version:
-    0.3
+    1.0rc1
 
 Author:
     Noah Duggan Erickson
 """
-__version__ = "0.3"
+__version__ = "1.0rc1"
 
 from tkinter import BOTH, W, E, END, DISABLED, Tk, StringVar
 from tkinter import ttk
@@ -19,7 +17,7 @@ from tkinter import messagebox
 import os
 from pathlib import Path
 
-from selfscape_insight.run import main
+from run import main
 
 
 class SelfScapeInsightLauncher(Tk):
@@ -67,7 +65,7 @@ class SelfScapeInsightLauncher(Tk):
                                         message="No log file selected. Create one in output directory? (otherwise, use stdout)",
                                         icon="warning")
             if resp:
-                log_file = out_dir + os.sep + "logs.log"
+                log_file = out_dir / "logs.log"
             else:
                 log_file = None
         # print(f"Log file:\n  {log_file}")
@@ -75,7 +73,7 @@ class SelfScapeInsightLauncher(Tk):
         # print(f"log level:\n  {self.advanced.get_verb_lvl()}")
         self.run_button.config(state=DISABLED)
         try:
-            main(in_path=in_dir, out_path=out_dir, mods=self.modules.get_mods(), verbose=self.advanced.get_verb_lvl(), log=log_file)
+            main(in_path=in_dir, out_path=out_dir, mods=self.modules.get_mods(), verbose=self.advanced.get_verb_lvl(), log=log_file, fsb_mode=self.modules.get_fsb_mode())
         except Exception as e:
             messagebox.showerror(title="Error", message="An error occurred during execution! Please check the log file for more information.")
         finally:
@@ -181,6 +179,17 @@ class ModuleSelection(ttk.Frame):
         self.mod_7.grid(row=3, column=0, sticky=(W, E))
         self.mod_7.invoke()
 
+        ttk.Separator(self, orient='horizontal').grid(row=4, columnspan=3)
+        opt_label = ttk.Label(self, text="Options")
+        opt_label.grid(row=5, column=0, columnspan=3)
+
+        fsb_mode_label = ttk.Label(self, text="FSB Mode")
+        fsb_mode_label.grid(row=6, column=0)
+        self._fsb_m = StringVar()
+        options = ['Select One', 'ALL', 'JSON', 'BOTH']
+        self.fsb_mode = ttk.OptionMenu(self, self._fsb_m, *options)
+        self.fsb_mode.grid(row=6, column=1)
+
     def get_mods(self) -> dict:
         return {
             "smp": self.mod_1.instate(["selected"]),
@@ -191,6 +200,15 @@ class ModuleSelection(ttk.Frame):
             "fsb": self.mod_6.instate(["selected"]),
             "ntf": self.mod_7.instate(["selected"])
         }
+
+    def get_fsb_mode(self) -> int:
+        match self._fsb_m.get():
+            case 'JSON':
+                return 1
+            case 'BOTH':
+                return 2
+            case _:
+                return 0
 
 
 class AdvConfig(ttk.Frame):
@@ -253,5 +271,4 @@ def exec():
 
 
 if __name__ == "__main__":
-    print("Starting SelfScape Insight using GUI v.%s" % __version__)
     exec()

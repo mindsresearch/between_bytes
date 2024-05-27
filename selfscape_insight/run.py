@@ -16,12 +16,12 @@ TODO:
     - "refactor" versioning following exec_cli.py split
 
 Version:
-    1.0.1
+    1.1
 
 Author:
     Noah Duggan Erickson
 """
-__version__ = '1.0.1'
+__version__ = '1.1'
 
 from pathlib import Path
 
@@ -36,6 +36,9 @@ from selfscape_insight.features import notifs as ntf
 from selfscape_insight.core.log_aud import RootLogger
 
 # CHANGELOG:
+#   1.1 (27 Nay 2024)
+#     - Added kwargs support for module options
+#     - Propagate fsb mode option via kwargs
 #   1.0.1: (13 May 2024)
 #     - Changed ordering of modules
 #   1.0: (08 May 2024)
@@ -48,9 +51,9 @@ from selfscape_insight.core.log_aud import RootLogger
 #   0.5.1: (25 April 2024)
 #     - Abandon & destroy json_ingest
 #     - Use pathlib for path handling
-#     - Propogate logging to feature modules
+#     - Propagate logging to feature modules
 #     - Add core helpers import (temporary as demo)
-#     - Propogate common output path to features
+#     - Propagate common output path to features
 #   0.5: (22 April 2024)
 #     - Updated names of a few variables
 #     - Removed CSV compatibility (see: json_ingest 3.0.0rc2)
@@ -58,7 +61,7 @@ from selfscape_insight.core.log_aud import RootLogger
 #   0.4.1: (15 April 2024)
 #     - Assorted fixes to err handling and logging
 #   0.4: (05 April 2024)
-#     - Propogated readers/json_ingest.py logging abilities
+#     - Propagated readers/json_ingest.py logging abilities
 #   0.3: (04 April 2024)
 #     - Added flit building and packaging; subsequent
 #       structural modifications
@@ -68,7 +71,7 @@ from selfscape_insight.core.log_aud import RootLogger
 #     - Initial Release
 
 
-def main(in_path: Path, out_path: Path, mods: dict, verbose: int = 0, log: str = None):
+def main(in_path: Path, out_path: Path, mods: dict, verbose: int = 0, log: str = None, **kwargs):
     """Runs the program.
 
     Args:
@@ -77,6 +80,7 @@ def main(in_path: Path, out_path: Path, mods: dict, verbose: int = 0, log: str =
         mods (dict): Dictionary of modules to run
         verbose (int): Verbosity level for logging (0-3)
         log (Path): Path to the log file. If None, log to stdout.
+        **kwargs (dict): Additional non-critical options for modules
     """
     if any(mods.values()):
         for key in mods:
@@ -98,7 +102,11 @@ def main(in_path: Path, out_path: Path, mods: dict, verbose: int = 0, log: str =
     #
     if mods['fsb']:
         path = in_path
-        feat_outs.append(fsb.run(path, out_path, logger.get_child('fsb')))
+        if 'fsb_mode' in kwargs:
+            fsb_mode = kwargs['fsb_mode']
+        else:
+            fsb_mode = 0
+        feat_outs.append(fsb.run(path, out_path, logger.get_child('fsb'), fsb_mode))
     else:
         logger.info("Filesize_sunburst module not run.")
     

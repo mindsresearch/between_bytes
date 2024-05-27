@@ -20,23 +20,22 @@ Note:
     This module has no independent functionality.
 
 Version:
-    0.1
+    1.0rc1
 
 Author:
     Noah Duggan Erickson
 """
-__version__ = '0.1'
+__version__ = '1.0rc1'
 
 
 import argparse
 from pathlib import Path
 
-from selfscape_insight.run import main
+from run import main
 
 
 def exec():
-    parser = argparse.ArgumentParser(prog="selfscape_insight",
-                                     usage="scape_cli -i PATH/TO/DATA [options]",
+    parser = argparse.ArgumentParser(
                                      description="Runs an assortment of analyses on a Facebook profile data download",
                                      epilog="(C) 2024 The Authors, License: GNU AGPL-3.0"
                                      )
@@ -62,12 +61,14 @@ def exec():
     mod_group.add_argument("--ntf", help="notifications module",
                             action=argparse.BooleanOptionalAction)
     adv = parser.add_argument_group("Advanced", "Advanced options.")
-    adv.add_argument("-l", "--log", help="Log file path, else stdout",
+    adv.add_argument("-l", "--log", help="Log file path, else stderr",
                         metavar="PATH/TO/LOG", default=None)
     adv.add_argument("-v", "--verbose", action="count", dest="v",
                         default=0, help="Logs verbosity (-v, -vv)")
     adv.add_argument("--version", action="version",
                      version=f"%(prog)s {__version__}")
+    mod_adv = parser.add_argument_group("Module Advanced Options")
+    mod_adv.add_argument("--fsb_args", metavar="MODE", default=0, type=int)
     args = parser.parse_args()
 
     run_mods = {"smp": args.smp,
@@ -81,9 +82,8 @@ def exec():
     in_path = Path(args.in_path)
     out_path = Path(args.out_path)
     out_path.mkdir(parents=True, exist_ok=True)
-    main(in_path=in_path, out_path=out_path, mods=run_mods, verbose=args.v, log=args.log)
+    main(in_path=in_path, out_path=out_path, mods=run_mods, verbose=args.v, log=args.log, fsb_mode=args.fsb_args)
 
 
 if __name__ == "__main__":
-    print("Starting SelfScape Insight using CLI v.%s" % __version__)
     exec()
