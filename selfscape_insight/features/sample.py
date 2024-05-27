@@ -7,9 +7,9 @@ there are on the profile.
 Functions:
     run(bcts): Runs the feature.
 
-Example usage:
-    >>> import sample_feature as sf
-    >>> sf.run(PathLike, logger, auditor)
+Examples:
+    >>> from selfscape_insight.features import sample as smp
+    >>> smp.run(Path('path/to/data'), Path('path/to/outs'), logger)
     There are X advertising-related topics in the profile!
     Go do more interesting things...
 
@@ -18,10 +18,8 @@ Example usage:
     Go do more interesting things...
 
 Dependencies:
-    No external dependencies.
-
-Note:
-    This sub-module is part of the 'selfscape_insight' package in the 'feature' module.
+    Pandas for data processing
+    Requests for URL handling
 
 Version:
     2.0
@@ -32,28 +30,23 @@ Author:
 
 import argparse
 from pathlib import Path
-import sys
 
 import pandas as pd
 import requests
 
 from selfscape_insight.core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
 
-def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
-    """Runs the feature.
 
-    Tells how many ad-topics are on the user profile.
-    (This description should be more verbose in a real feature!)
-
+def run(in_path: Path, out_path: Path, logger: SsiLogger) -> str:
+    """
     Args:
-        bcts (str): path to `other_categories_used_to_reach_you.json` file
-    
+        in_path: The path to the input file.
+        out_path: The path to the output directory.
+        logger: The logger object for logging messages.
+
     Returns:
-        str: This feature's contribution to the profile info dashboard datavis thing
-    
-    Warnings:
-        run() is a *required* function for the module! It *must*
-        be the only interaction that main.py has with the module.
+        A string message containing the number of advertising-related topics in the profile and the path to the created image.
+
     """
     logger.info("Starting sample feature...")
     in_path = Path(in_path)
@@ -95,6 +88,7 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
     # raise NotImplementedError("pause point")
     return f"There are {len(df['bcts'])} advertising-related topics in the profile!\nAn image was created at {out_file.absolute()}\nGo do more interesting things..."
 
+
 # Below is more-or-less boilerplate code that can be copy/pasted
 # and extended to allow the feature to run directly from the
 # commandline as shown in Example 2
@@ -102,11 +96,11 @@ def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='sample_feature', description='A sample program feature for the purposes of demo-ing code structure and boilerplate')
     parser.add_argument('-i', '--in_file', metavar='BCTS_JSON', help='path to json file where \'bcts\' is tlk', required=True)
-    parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send output(s)', required=False, default='.')
+    parser.add_argument('-o', '--out_path', metavar='OUTPUT_PATH', help='where to send output image', required=False, default='.')
     parser.add_argument('-v', '--verbose', action='count', default=0, help='increase verbosity', required=False)
     args = parser.parse_args()
 
-    logger = RootLogger()
-    logger.setup(verb=args.verbose)
+    main_logger = RootLogger()
+    main_logger.setup(verb=args.verbose)
 
-    print(run(args.in_file, args.out_path, logger))
+    print(run(args.in_file, args.out_path, main_logger))
