@@ -78,6 +78,7 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     user_name = get_username(main_path)
     posts_path = main_path+'/your_facebook_activity/posts/your_posts__check_ins__photos_and_videos_1.json'
 
+    logger.use_file(Path(posts_path))
     f = open(posts_path)
 
     postsdata = json.load(f)
