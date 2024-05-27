@@ -202,8 +202,8 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     mdfs = []
 
     # load each file
+    logger.use_file(Path('MESSAGES'))
     for file_path in message_files:
-        logger.use_file(Path(file_path))
         with open(file_path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
             participants = data.get('participants')
@@ -226,23 +226,23 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     # add year column
     mdf['Year'] = mdf['timestamp'].dt.year
 
-    print('====== pdf ======')
-    pdf['timestamp'].dt.date.value_counts().sort_index().to_csv('posts.csv')
-    # raise Exception('pause 0')
-    pdf.info()
-    print('====== cdf ======')
-    # print(cdf)
-    cdf['timestamp'].dt.date.value_counts().sort_index().to_csv('comments.csv')
-    cdf.info()
-    print('====== ldf ======')
-    # print(ldf)
-    ldf['timestamp'].dt.date.value_counts().sort_index().to_csv('likes.csv')
-    ldf.info()
-    print('====== mdf ======')
-    # print(mdf)
-    mdf['timestamp'].dt.date.value_counts().sort_index().to_csv('messages.csv')
-    mdf.info()
-    raise Exception('pause 1')
+    # print('====== pdf ======')
+    # pdf['timestamp'].dt.date.value_counts().sort_index().to_csv('posts.csv')
+    # # raise Exception('pause 0')
+    # pdf.info()
+    # print('====== cdf ======')
+    # # print(cdf)
+    # cdf['timestamp'].dt.date.value_counts().sort_index().to_csv('comments.csv')
+    # cdf.info()
+    # print('====== ldf ======')
+    # # print(ldf)
+    # ldf['timestamp'].dt.date.value_counts().sort_index().to_csv('likes.csv')
+    # ldf.info()
+    # print('====== mdf ======')
+    # # print(mdf)
+    # mdf['timestamp'].dt.date.value_counts().sort_index().to_csv('messages.csv')
+    # mdf.info()
+    # raise Exception('pause 1')
 
     # group by year
     yearlymessages = mdf.groupby('Year').size().reset_index(name='Messages')
@@ -301,8 +301,8 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     ax.set_ylim3d(-1, 4)
     ax.set_yticklabels([])
 
-    print(yearlyints)
-    raise Exception('pause')
+    # print(yearlyints)
+    # raise Exception('pause')
     # plt.show()
     plt.title('Facebook Use by Year')
     plt.savefig(out_path+'Facebook_Use_by_Year.png')
@@ -427,7 +427,7 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     # Change color based on sentiment
     colors = mdf.apply(lambda x: (max(0, min(1, 1-x.sentiment)), max(0, min(1, 1+x.sentiment)), 0), axis=1)
 
-    ax = mdf.plot.scatter(x='datetime', y='sentiment', figsize=(12,6), color=colors)
+    ax = mdf.plot.scatter(x='timestamp', y='sentiment', figsize=(12,6), color=colors)
     ax.axhline(0, color='black')
     ax.set_ylim(-1, 1)
     ax.set_facecolor('gray')
@@ -438,7 +438,7 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     plt.close()
 
     # add year column
-    mdf['year'] = mdf['datetime'].dt.year
+    mdf['year'] = mdf['timestamp'].dt.year
 
     # group by year and calc mean sentiment for each year
     messageyearlysent = mdf.groupby('year')['sentiment'].mean()
@@ -457,7 +457,7 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     plt.close()
 
     # adjust timestamp to pacific time
-    mdf['timestamp_pacific'] = mdf['datetime'] + pd.DateOffset(hours=8)
+    mdf['timestamp_pacific'] = mdf['timestamp'] + pd.DateOffset(hours=8)
 
     # add hour column
     mdf['hour'] = mdf['timestamp_pacific'].dt.hour
