@@ -186,8 +186,8 @@ class RootLogger(SsiLogger):
             cls.instance.logger  = logging.getLogger('root_debug')
             cls.instance.auditor = logging.getLogger('root_audit')
             cls.instance.children = {}
-            cls.instance.log_fmt = 'T+ {relativeCreated:03.0f}ms - {name} - {levelname} - {message}' # pylint: disable=line-too-long
-            cls.instance.aud_fmt = 'T+ {relativeCreated:03.0f}ms - {name} - {message}' # pylint: disable=line-too-long
+            cls.instance.log_fmt = 'T+ {relativeCreated:03.0f}ms - {name} - PID:{process} - {levelname} - {message}'  # pylint: disable=line-too-long
+            cls.instance.aud_fmt = 'T+ {relativeCreated:03.0f}ms - {name} - PID:{process} - {message}'  # pylint: disable=line-too-long
         return cls.instance
     def crit(self, message:str, throw:Exception=None) -> None:
         self.logger.critical(message)
@@ -294,11 +294,12 @@ class RootLogger(SsiLogger):
         else:
             # print('Logging to stream:', stream or 'stdout')
             log_hand = logging.StreamHandler(stream or sys.stderr)
-            aud_hand = logging.StreamHandler(stream or sys.stdout)
+            aud_hand = logging.StreamHandler(stream or sys.stderr)
         log_hand.setFormatter(lf)
         aud_hand.setFormatter(af)
         self.logger.addHandler(log_hand)
         self.auditor.addHandler(aud_hand)
+
 
 class ChildLogger(SsiLogger):
     ''' Class for child loggers.
