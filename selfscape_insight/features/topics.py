@@ -130,7 +130,7 @@ def download_image(params):
             f.write(data)
         logger.debug(f"Downloaded image for {lead}")
     except Exception as e:
-        logger.error(f"Failed to download image for {lead}: {e}")
+        logger.err(f"Failed to download image for {lead}: {e}")
 
 
 def run(in_path: Path, out_path: Path, logger: SsiLogger):
