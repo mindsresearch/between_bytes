@@ -231,9 +231,6 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     # group by year
     yearlymessages = mdf.groupby('Year').size().reset_index(name='Messages')
 
-    # print df
-    # print(pd.DataFrame.to_string(yearlymessages))
-
     # make index year
     yearlymessages.set_index('Year', inplace=True)
 
@@ -611,9 +608,164 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
         plt.close()
     return
 
+def activity_plot(df, out_path):
+    # set Year column to index
+    df = df.set_index('Year')
+
+    # get colors
+    colors=['darkviolet', 'deeppink', 'c', 'midnightblue']
+
+    # make graph
+    ax = df.plot.line(figsize=(12,6), color=colors)
+    ax.set_ylim(bottom=1)
+    ax.set_facecolor('gray')
+    ax.set_yscale('log')
+    # plt.show()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    xs = df.index
+    verts = []
+    zs = [0, 1, 2, 3]
+    interaction_types = ['Posts', 'Comments', 'Reactions', 'Messages']
+    epsilon = 1e-6  # Small constant to avoid log(0)
+
+    for z, interaction_type in zip(zs, interaction_types):
+        ys = df[interaction_type] + epsilon  # epsilon to fix numeric stability
+        ys = np.log(ys)  # Applying log transformation
+        ys = np.where(ys > 0, ys, 0)  # Replace negative values (generated from epsilon) with 0
+        ys[0], ys[-1] = 0, 0
+        verts.append(list(zip(xs, ys)))
+        ax.text(xs[-1]+1, z, 0, interaction_type, color='black', fontsize=8, ha='left', va='center')
+
+    poly = PolyCollection(verts, facecolors=['darkviolet', 'deeppink', 'c', 'midnightblue'])
+    poly.set_alpha(0.7)
+    ax.add_collection3d(poly, zs=zs, zdir='y')
+
+    ax.set_xlim3d(df.index.min(), df.index.max())
+    ax.set_zlim3d(0, np.log(df.values + epsilon).max())
+    ax.set_ylim3d(-1, 4)
+    ax.set_yticklabels([])
+
+    # plt.show()
+    plt.title('Facebook Use by Year')
+    plt.savefig(out_path+'Facebook_Use_by_Year.png')
+    logger.wrote_file(Path(out_path) / 'Facebook_Use_by_Year.png')
+    plt.close()
+    return
+
+def load_posts(posts_path, logger):
+    try:
+        with open(posts_path, 'r', encoding='utf-8') as file:
+            posts_data = json.load(file)
+        posts_df = pd.DataFrame([{'timestamp': item['timestamp'], 'post': next((subitem['post'] for subitem in item['data'] if 'post' in subitem), None)} for item in posts_data], columns=['timestamp', 'post'])
+    except Exception as e:
+        logger.err(f"Failed to load or process posts data: {e}")
+        posts_df = pd.DataFrame(columns=['timestamp', 'post'])
+    return posts_df
+
+def load_comments(comments_path, logger):
+    try:
+        with open(comments_path, 'r', encoding='utf-8') as file:
+            comments_data = json.load(file)['comments_v2']
+        comments = [{'timestamp': item['data'][0]['comment']['timestamp'], 'comment': item['data'][0]['comment']['comment']}
+                    for item in comments_data if 'data' in item and item['data']]
+        return pd.DataFrame(comments)
+    except Exception as e:
+        logger.err(f"Failed to load or process comments data: {e}")
+        return pd.DataFrame(columns=['timestamp', 'comment'])
+
+def load_reactions(reactions_path, logger):
+    try:
+        reactions_files = [file for file in os.listdir(reactions_path) if file.endswith('.json') and file != 'comments.json']
+        reactions = []
+        for file_name in reactions_files:
+            file_path = os.path.join(reactions_path, file_name)
+            with open(file_path, 'r', encoding='utf-8') as file:
+                reactions_data = json.load(file)
+                reactions.extend([{'timestamp': item['timestamp'], 'reaction': item['data'][0]['reaction']['reaction']}
+                                  for item in reactions_data if 'data' in item and item['data']])
+        return pd.DataFrame(reactions)
+    except Exception as e:
+        logger.err(f"Failed to load or process reactions data: {e}")
+        return pd.DataFrame(columns=['timestamp', 'reaction'])
+
+def load_messages(messages_path, username, logger):
+    message_files = [os.path.join(root, file) for root, dirs, files in os.walk(messages_path) for file in files if file.endswith(".json")]
+    messages = []
+    for file_path in message_files:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as json_file:
+                data = json.load(json_file)
+                messages.extend([{'sender_name': message['sender_name'], 'timestamp_ms': message['timestamp_ms'], 'message': message.get('content')}
+                                for message in data.get('messages', []) if message.get('sender_name') == username])
+        except Exception as e:
+            logger.err(f"Failed to load or process messages data from {file_path}: {e}")
+    return pd.DataFrame(messages, columns=['sender_name', 'timestamp_ms', 'message'])
+
+def convert_timestamp_ms_to_unix(df):
+    df['timestamp'] = (df['timestamp_ms'] / 1000).astype(int)
+    return df
+
+def converted(path, out_path, logger):
+    print('=================================')
+    print('Starting converted method:')
+    print('Path: ', path)
+
+    username = get_username(path)
+    print('Username: ', username)
+
+    base_activity_path = os.path.join(path, "your_facebook_activity")
+
+    posts_df = load_posts(os.path.join(base_activity_path, "posts/your_posts__check_ins__photos_and_videos_1.json"), logger)
+    comments_df = load_comments(os.path.join(base_activity_path, "comments_and_reactions/comments.json"), logger)
+    reactions_df = load_reactions(os.path.join(base_activity_path, "comments_and_reactions/"), logger)
+    messages_df = load_messages(os.path.join(base_activity_path, "messages/inbox/"), username, logger)
+    convert_timestamp_ms_to_unix(messages_df)
+
+    # Combine DataFrames
+    total_df = pd.concat([posts_df, comments_df, reactions_df, messages_df], axis=0, ignore_index=True).sort_values(by='timestamp', ascending=True)
+    
+    print('=================================\nPosts DF:', posts_df.head())
+    print('=================================\nComments DF:', comments_df.head())
+    print('=================================\nReactions DF:', reactions_df.head())
+    print('=================================\nMessages DF:', messages_df.head())
+    print('=================================\nTotal DF:', total_df)
+
+    # add year and combine
+    # Convert timestamps to datetime and extract year
+    posts_df['timestamp'] = pd.to_datetime(posts_df['timestamp'], unit='s')
+    posts_df['Year'] = posts_df['timestamp'].dt.year
+    yearly_posts = posts_df.groupby('Year').size().reset_index(name='Posts')
+
+    comments_df['timestamp'] = pd.to_datetime(comments_df['timestamp'], unit='s')
+    comments_df['Year'] = comments_df['timestamp'].dt.year
+    yearly_comms = comments_df.groupby('Year').size().reset_index(name='Comments')
+
+    reactions_df['timestamp'] = pd.to_datetime(reactions_df['timestamp'], unit='s')
+    reactions_df['Year'] = reactions_df['timestamp'].dt.year
+    yearly_reactions = reactions_df.groupby('Year').size().reset_index(name='Reactions')
+
+    messages_df['timestamp'] = pd.to_datetime(messages_df['timestamp'], unit='s')
+    messages_df['Year'] = messages_df['timestamp'].dt.year
+    yearly_messages = messages_df.groupby('Year').size().reset_index(name='Messages')
+
+    yearlyints = pd.merge(yearly_posts, yearly_comms, on="Year", how="outer")
+    yearlyints = pd.merge(yearlyints, yearly_reactions, on="Year", how="outer")
+    yearlyints = pd.merge(yearlyints, yearly_messages, on="Year", how="outer")
+
+    yearlyints.fillna(0, inplace=True)
+    yearlyints = yearlyints[yearlyints['Year'] >= 2000]
+    print('=================================\nYearly Ints:', yearlyints)
+
+    # 3d activity plot
+    activity_plot(yearlyints, out_path)
+
+
 def run(path, out_path, logger):
     # TODO: Please refer to sample.py for run() docstring format!
-    print("Running the facebook_act feature module")
+    logger.info("Starting facebook_act feature...")
     conv_path = str(path)
 
     out_conv_path = str(out_path)+"/facebook_act/"
@@ -621,12 +773,13 @@ def run(path, out_path, logger):
     os.makedirs(out_conv_path, exist_ok=True)
     os.makedirs(out_conv_path+"yearly_word_clouds/", exist_ok=True)
 
-    naive_converted(conv_path, out_conv_path, logger)
+    # naive_converted(conv_path, out_conv_path, logger)
+    converted(path, out_path, logger)
 
-    return "The facebook_act module did stuff!"
+    return "=================================\nThe facebook_act module has completed."
 
 if __name__ == "__main__":
-    print(pointless_function()) # remove in production
+    # print(pointless_function()) # remove in production
     parser = argparse.ArgumentParser(prog='facebook_act',
                                      description='Analyses and visualizes activity across facebook')
     parser.add_argument('-i', '--in_file', metavar='ROOT', help='path to root of json data', required=True)
