@@ -7,7 +7,7 @@ Welcome to the SelfScape Insight documentation. This documentation provides an o
    :gutter: 2
 
    .. grid-item-card:: Getting Started
-      :link: getting_started/index
+      :link: getting_started/index.html
 
       :material-regular:`play_circle_outline;6em`
       ^^^
@@ -23,7 +23,7 @@ Welcome to the SelfScape Insight documentation. This documentation provides an o
       Explore the API reference for SelfScape Insight.
 
    .. grid-item-card:: Developer Guide
-      :link: devs/index
+      :link: devs/index.html
 
       :material-regular:`code;6em`
       ^^^
@@ -31,7 +31,7 @@ Welcome to the SelfScape Insight documentation. This documentation provides an o
       Learn how to contribute to SelfScape Insight.
 
    .. grid-item-card:: About
-      :link: about/index
+      :link: about/index.html
 
       :material-regular:`info;6em`
       ^^^

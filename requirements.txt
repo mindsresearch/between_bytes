@@ -14,5 +14,8 @@ folium >=0.16.0
 seaborn >=0.13.2
 pillow >=10.3.0
 tqdm >=4.66.2
-bs4 >=4.12.2
 lxml >=5.2.2
+sphinx
+pydata-sphinx-theme
+sphinx_design
+rstcloth

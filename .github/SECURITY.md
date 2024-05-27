@@ -1,22 +1,36 @@
 # SelfScape Insight Security Policy
 
-Due to the nature of the data that this project handles, codebase security is critical. This document outlines the policies of this project repo to maintain a secure environment. The policy is comprised of three parts: general policies for the repo, third-party dependency policies, and policies for the code within this project.
+Given the sensitive nature of the Facebook data handled by **SelfScape Insight**, maintaining stringent security standards in our codebase is paramount. This document delineates our security policies, which encompass repository standards, third-party dependencies, and internal coding practices.
 
 ## Definitions
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt).
+The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are defined as per [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt). These terms represent the compliance levels required by our security protocols.
 
 ## Repository & General Standards
-- Core functionality MUST NOT be impeded if run in an airgap environment, even though some feature modules MAY not function correctly.
-- The dependency list in [pyconfig.toml](../pyconfig.toml) MUST remain up-to-date. 
+- **Airgap Compliance**: Core functionality MUST NOT be compromised when run in an environment without internet access (airgap). Some features MAY be unavailable under these conditions.
+- **Dependency Management**: The dependency list in [pyconfig.toml](../pyconfig.toml) MUST be regularly updated to ensure security.
+
+## Logging
+Effective logging is crucial for security and auditing:
+- Use `logger.use_inet()` for all internet requests or API calls.
+- Use `logger.use_file()` when accessing any files.
+- After writing any file, including temporary files, use `logger.wrote_file()`.
 
 ## Third-party Dependencies
-- Imported packages MUST NOT have any known vulnerabilities as indicated by [pip-audit](https://pypi.org/project/pip-audit/)
-
-> [!IMPORTANT]
-> Coming soon: A pip-audit GitHub Action wil be set up to verify dependency integrity in CI/CD
+- All imported packages MUST be free of known vulnerabilities, verified by regular checks using [pip-audit](https://pypi.org/project/pip-audit/).
+- Contributors are encouraged to report any dependency issues through our specified channels.
 
 ## Codebase Integrity
-This section refers to the code written explicitly within the scope of this project.
+- **Simplicity**: Favor simple, understandable solutions over complex ones. See [contribution guidelines](CONTRIBUTING.md) for coding standards.
+- **Avoid Trivial Imports**: Directly implement simple functionalities in the [core](../selfscape-insight/core) directory instead of using external libraries for basic tasks.
 
-- **Favor simplicity over complexity.** Refer to the [contribution guidelines](CONTRIBUTING.md) for more information on coding standards.
-- **Avoid trivial imports.** Libraries that are being used solely to preform simple operations should be avoided in favor of directly implementing that functionality in the [core](../selfscape-insight/core) directory and importing from there instead.
+## Reporting Security Vulnerabilities
+
+For secure and efficient handling of security vulnerabilities, we utilize GitHub's built-in security features.
+
+- **How to Report**: Please use the [Security Advisories page](https://github.com/your-repository/selfscape-insight/security/advisories) to report a security vulnerability. Follow the provided guidelines to create a security advisory.
+- **Procedure**: Provide a clear description of the issue, including steps to reproduce it or a proof of concept.
+- **Response**: We strive to assess and respond to valid reports within 48 hours.
+
+This process ensures that security issues are managed responsibly and transparently.
+
+By adhering to these guidelines, we safeguard the integrity and privacy of user data processed by SelfScape Insight.

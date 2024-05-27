@@ -1,49 +1,34 @@
-# SelfScape Insight Repo Guidelines
+# Code of Conduct for SelfScape Insight
 
 ## Introduction
-This document outlines the standards, specifications, and style guidelines for collaborating on the Facebook Senior Project repository. Adhering to these guidelines ensures a smooth and efficient development process, minimizes conflicts, and maintains code quality.
+This Code of Conduct outlines our expectations for participants within the SelfScape Insight community, as well as steps to reporting unacceptable behavior. We are committed to providing a welcoming and inspiring community for all and expect our Code of Conduct to be honored. Adherence to this code fosters a collaborative and respectful environment.
 
 ## Definitions
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt).
+Words like "MUST", "SHALL", and "SHOULD" in this document are defined as per [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt) to ensure clear communication of compliance levels.
 
-## Repo Structure
-- The `main` branch MUST be treated as the **PROD** environment.
-  - This branch MUST always be in a deployable state.
-  - The file `requirements.txt` MUST remain up-to date
->[!NOTE]
-> `$ python3 main.py` on the `main` branch MUST always run without errors (except for errors resolved via `$ pip install -r requirements.txt`).
+## Community and Behavior Standards
 
-- Branches other than `main` SHOULD be treated as **DEV** environments.
+- **Respectful Communication**: All communication should be done with professionalism and respect for all participants. Disagreements should be handled constructively.
+- **Inclusion and Diversity**: We strive to create an inclusive environment where diverse voices are welcomed and respected. Discrimination based on race, gender, sexual orientation, age, disability, nationality, or any other characteristic is not tolerated.
+- **Collaboration**: Members are encouraged to collaborate actively. Sharing knowledge and tools enriches the community.
+- **Conflict Resolution**: When conflicts arise, they should be handled openly and respectfully, seeking mediation if necessary.
+
+## Responsibilities and Enforcement
+
+- **Reporting Violations**: If you experience or witness unacceptable behavior, or have any other concerns, please report them by contacting the project repo admins.
+- **Enforcement Guidelines**: After a report is made, the project maintainers are committed to timely and fair evaluation of the situation. Actions may range from a temporary ban to permanent expulsion from the project community.
 
 ## Procedures
-1. **Feature/task branches**
-   - Each feature/task SHOULD be isolated to its own branch
-   - The name of a new feature/task branch SHOULD be fairly short (no longer than 2 words), and MUST be fully descriptive
-   - New feature/task branches MUST be based on the latest version of `main`, with the exception of feature/task sub-branches
-2. **Coding standards**
-   - Code SHOULD conform to [PEP 8](https://peps.python.org/pep-0008/) style guidelines
-   - Refer to [[docs/codeStandards.md]] for a more detailed look at coding standards
-3. **Commits**
->[!WARNING]
-> Except for weekly slides, __commits MUST NOT be made directly to the `main` branch__.
-   - Commits SHOULD be made often
-   - Commit messages MUST be clear and concise
-   - Commit messages SHOULD use the imperative mood (e.g. "~~Did stuff~~" -> "Do stuff")
->[!NOTE]
-> Commit messages SHOULD be made often enough that they MAY be reviewed to identify the source of (and trace) errors during the code review process.
-4. **Merging**
-   - Upon completing a feature or task, the associated branch SHALL be merged to the `main` branch via a Pull Request (PR) or another code review process.
-   - Merges SHALL NOT be executed without approval from all other group members
-5. **Pull Requests (PRs)**
-   - Learning as we go here...
-6. **Code Reviews**
-   - For a group member to approve a merge/PR, the test conditions described below MUST be met.
-   - Learning as we go RE: PR commenting/editing stuff...
-7. **Testing**
-   - The group member MUST test the changes in accordance with the "repo standards" section of this document using their own data download.
-   - The group member MUST verify that the changes conform to the code standards.
-8. **Documentation**
-     - Code MUST be well documented with header comments for each file and each method. `features/sample.py` provides a "gold standard" example.
-     - Code documentation SHOULD be in the style of a "formal" reference manual (such as the text of the [Pandas DataFrame reference](https://pandas.pydata.org/docs/reference/frame.html)) with minimal modification.
-     - Information on the `main.py` commandline argument structure MUST be provided/updated in the README, and any changes to this structure within a **DEV** branch SHOULD be mentioned in the initial PR comment.
-     - Commit descriptions beyond the summary message are OPTIONAL.
+
+- **Feature/Task Branches**: Utilize separate branches for individual features or tasks to avoid conflicts and streamline reviews.
+- **Commits**: Commit messages should be clear, concise, and in imperative mood, reflecting the changes made.
+- **Merging and Pull Requests**: All significant changes should be merged via Pull Requests and reviewed by other team members.
+- **Code Reviews and Testing**: Before approval, code must meet the specified standards and pass all tests.
+
+## Documentation
+
+Maintain thorough documentation for each file and method, adhering to the standards set in `features/sample.py`. Documentation should be detailed and formal, similar to professional reference manuals.
+
+## Summary
+
+We expect all community participants to abide by this Code of Conduct in all community venues, online and in-person, as well as in all one-on-one communications pertaining to community business. This document will evolve as the community grows and is subject to amendments as needed.
