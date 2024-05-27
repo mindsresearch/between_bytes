@@ -61,7 +61,9 @@ import seaborn as sns
 # Add your other third-party/external imports here
 # Please update requirements.txt as needed!
 
-from selfscape_insight.core.log_aud import SsiLogger, RootLogger
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.log_aud import SsiLogger, RootLogger
 
 def get_colors(s: pd.Series):
     return s.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
@@ -218,10 +220,28 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     # print(pd.DataFrame.to_string(mdf))
 
     # plotting stuff
-    mdf['datetime'] = pd.to_datetime(mdf['timestamp_ms'], unit='ms')
+    mdf['timestamp'] = pd.to_datetime(mdf['timestamp_ms'], unit='ms')
 
     # add year column
-    mdf['Year'] = mdf['datetime'].dt.year
+    mdf['Year'] = mdf['timestamp'].dt.year
+
+    print('====== pdf ======')
+    pdf['timestamp'].dt.date.value_counts().sort_index().to_csv('posts.csv')
+    # raise Exception('pause 0')
+    pdf.info()
+    print('====== cdf ======')
+    # print(cdf)
+    cdf['timestamp'].dt.date.value_counts().sort_index().to_csv('comments.csv')
+    cdf.info()
+    print('====== ldf ======')
+    # print(ldf)
+    ldf['timestamp'].dt.date.value_counts().sort_index().to_csv('likes.csv')
+    ldf.info()
+    print('====== mdf ======')
+    # print(mdf)
+    mdf['timestamp'].dt.date.value_counts().sort_index().to_csv('messages.csv')
+    mdf.info()
+    raise Exception('pause 1')
 
     # group by year
     yearlymessages = mdf.groupby('Year').size().reset_index(name='Messages')
@@ -280,6 +300,8 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
     ax.set_ylim3d(-1, 4)
     ax.set_yticklabels([])
 
+    print(yearlyints)
+    raise Exception('pause')
     # plt.show()
     plt.title('Facebook Use by Year')
     plt.savefig(out_path+'Facebook_Use_by_Year.png')
