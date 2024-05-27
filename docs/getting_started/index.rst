@@ -1,47 +1,83 @@
+.. _getting_started:
+
+==========
 User Guide
 ==========
 
 Welcome to SelfScape Insight! This guide will help you get started with the project.
 
-
-.. grid:: 2
-   :gutter: 2
+.. grid:: 1 2 2 2
+   :gutter: 4
+   :padding: 2 2 0 0
+   :class-container: sd-text-center
 
    .. grid-item-card:: Download Data
-      :link: data.html
-      :text-align: center
+        :img-top: ../_static/start_data.svg
+        :class-card: intro-card
+        :shadow: md
 
-      :material-regular:`data_exploration;6em`
-      ^^^
+        Download your data from Facebook.
 
-      Learn how to get your data from Facebook.
+        +++
+
+        .. button-ref:: data_dl
+            :ref-type: ref
+            :click-parent:
+            :color: secondary
+            :expand:
+
+            To the guide
 
    .. grid-item-card:: Download Program
-      :text-align: center
-      :link: download.html
+        :img-top: ../_static/start_prog.svg
+        :class-card: intro-card
+        :shadow: md
 
-      :material-regular:`download;6em`
-      ^^^
+        Download the program to run on your data.
 
-      Get the program and install it.
-   
+        +++
+
+        .. button-ref:: prog_dl
+            :ref-type: ref
+            :click-parent:
+            :color: secondary
+            :expand:
+
+            To the guide
+
    .. grid-item-card:: CLI Quickstart
-      :link: cli.html
-      :text-align: center
+        :img-top: ../_static/start_cli.svg
+        :class-card: intro-card
+        :shadow: md
 
-      :material-regular:`terminal;6em`
-      ^^^
+        Run the program via the command-line.
 
-      Run the program fast via terminal.
-   
-   .. grid-item-card:: Wizard Quickstart
-      :text-align: center
-      :link: wizard.html
+        +++
 
-      :material-regular:`dynamic_form;6em`
-      ^^^
+        .. button-ref:: start_cli
+            :ref-type: ref
+            :click-parent:
+            :color: secondary
+            :expand:
 
-      Start the program with a guided wizard.
+            To the CLI guide
+
+   .. grid-item-card:: GUI Quickstart
+        :img-top: ../_static/start_gui.svg
+        :class-card: intro-card
+        :shadow: md
+
+        Run the program via a guided wizard.
+
+        +++
+
+        .. button-ref:: start_gui
+            :ref-type: ref
+            :click-parent:
+            :color: secondary
+            :expand:
+
+            To the GUI guide
 
 .. toctree::
    :hidden:

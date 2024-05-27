@@ -1,3 +1,6 @@
+.. _dev_guide:
+
+=================
 Contributor Guide
 =================
 

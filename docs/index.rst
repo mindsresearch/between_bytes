@@ -3,40 +3,78 @@ SelfScape Insight Documentation
 
 Welcome to the SelfScape Insight documentation. This documentation provides an overview of the project, installation instructions, usage guidelines, and API references.
 
-.. grid:: 2
-   :gutter: 2
+.. grid:: 1 2 2 2
+   :gutter: 4
+   :padding: 2 2 0 0
+   :class-container: sd-text-center
 
    .. grid-item-card:: Getting Started
-      :link: getting_started/index.html
+        :img-top: _static/index_get_started.svg
+        :class-card: intro-card
+        :shadow: md
 
-      :material-regular:`play_circle_outline;6em`
-      ^^^
+        Get started by downloading data and running the program!
 
-      Learn how to install and use SelfScape Insight.
+        +++
+
+        .. button-ref:: getting_started
+            :ref-type: ref
+            :click-parent:
+            :color: secondary
+            :expand:
+
+            To the end-user guides
 
    .. grid-item-card:: API Reference
-      :link: api/index.html
+        :img-top: _static/index_api.svg
+        :class-card: intro-card
+        :shadow: md
 
-      :material-regular:`book;6em`
-      ^^^
+        Provides more control over how the program works and how it runs.
 
-      Explore the API reference for SelfScape Insight.
+        +++
+
+        .. button-ref:: reference
+            :ref-type: ref
+            :click-parent:
+            :color: secondary
+            :expand:
+
+            To the API reference
 
    .. grid-item-card:: Developer Guide
-      :link: devs/index.html
+        :img-top: _static/index_devs.svg
+        :class-card: intro-card
+        :shadow: md
 
-      :material-regular:`code;6em`
-      ^^^
+        Detailed information on how to contribute to the project.
 
-      Learn how to contribute to SelfScape Insight.
+        +++
 
-   .. grid-item-card:: About
-      :link: about/index.html
+        .. button-ref:: dev_guide
+            :ref-type: ref
+            :click-parent:
+            :color: secondary
+            :expand:
 
-      :material-regular:`info;6em`
-      ^^^
+            To the dev guides
 
-      Learn more about SelfScape Insight.
+   .. grid-item-card:: About SelfScape Insight
+        :img-top: _static/index_about.svg
+        :class-card: intro-card
+        :shadow: md
+
+        General information about the project and its developers.
+
+        +++
+
+        .. button-ref:: about
+            :ref-type: ref
+            :click-parent:
+            :color: secondary
+            :expand:
+
+            To the about stuff
 
 .. toctree::
    :maxdepth: 1
