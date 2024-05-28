@@ -81,6 +81,7 @@ main .container {
     background-color: #fff;
     padding: 15px;
     box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    height: 200px;
 }
 
 .sidebar ul {
@@ -102,6 +103,7 @@ main .container {
 .content {
     flex-grow: 1;
     margin-left: 20px;
+    max-width: 50%;
 }
 
 .post {
@@ -129,11 +131,15 @@ main .container {
     font-weight: bold;
 }
 
+.post-footer {
+    padding-top: 10px;
+}
+
 .post-footer button {
     background-color: #3b5998;
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 10px 10px;
     margin-right: 10px;
     cursor: pointer;
 }
@@ -148,6 +154,7 @@ main .container {
     padding: 15px;
     box-shadow: 0 0 5px rgba(0,0,0,0.1);
     margin-left: 20px;
+    height: 200px;
 }
 
 .contacts h3 {
