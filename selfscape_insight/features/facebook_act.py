@@ -708,16 +708,27 @@ def convert_timestamp_ms_to_unix(df):
     df['timestamp'] = (df['timestamp_ms'] / 1000).astype(int)
     return df
 
+def calc_sentiment(msg):
+    return msg._.blob.polarity
+
+def add_sentiment(df, col):
+    # filling missing values with empty string
+    df['content'] = df['content'].fillna('')
+
+    # Apply sentiment analysis using spaCy's pipe method
+    df['sentiment'] = [calc_sentiment(col) for col in nlp.pipe(df[col.to_string])]
+
+    # Sort the DataFrame by timestamp
+    df.sort_values(by='timestamp_ms', inplace=True)
+
 def converted(path, out_path, logger):
-    print('=================================')
-    print('Starting converted method:')
-    print('Path: ', path)
-
+    # get Username
     username = get_username(path)
-    print('Username: ', username)
 
+    # set up base activity path
     base_activity_path = os.path.join(path, "your_facebook_activity")
 
+    # load posts, comments, reactions, and messages dataframes
     posts_df = load_posts(os.path.join(base_activity_path, "posts/your_posts__check_ins__photos_and_videos_1.json"), logger)
     comments_df = load_comments(os.path.join(base_activity_path, "comments_and_reactions/comments.json"), logger)
     reactions_df = load_reactions(os.path.join(base_activity_path, "comments_and_reactions/"), logger)
@@ -727,13 +738,13 @@ def converted(path, out_path, logger):
     # Combine DataFrames
     total_df = pd.concat([posts_df, comments_df, reactions_df, messages_df], axis=0, ignore_index=True).sort_values(by='timestamp', ascending=True)
     
-    print('=================================\nPosts DF:', posts_df.head())
-    print('=================================\nComments DF:', comments_df.head())
-    print('=================================\nReactions DF:', reactions_df.head())
-    print('=================================\nMessages DF:', messages_df.head())
-    print('=================================\nTotal DF:', total_df)
+    # print dataframes
+    # print('=================================\nPosts DF:', posts_df.head())
+    # print('=================================\nComments DF:', comments_df.head())
+    # print('=================================\nReactions DF:', reactions_df.head())
+    # print('=================================\nMessages DF:', messages_df.head())
+    # print('=================================\nTotal DF:', total_df.head())
 
-    # add year and combine
     # Convert timestamps to datetime and extract year
     posts_df['timestamp'] = pd.to_datetime(posts_df['timestamp'], unit='s')
     posts_df['Year'] = posts_df['timestamp'].dt.year
@@ -751,16 +762,29 @@ def converted(path, out_path, logger):
     messages_df['Year'] = messages_df['timestamp'].dt.year
     yearly_messages = messages_df.groupby('Year').size().reset_index(name='Messages')
 
+    # merge dataframes into one yearly interactions dataframe
     yearlyints = pd.merge(yearly_posts, yearly_comms, on="Year", how="outer")
     yearlyints = pd.merge(yearlyints, yearly_reactions, on="Year", how="outer")
     yearlyints = pd.merge(yearlyints, yearly_messages, on="Year", how="outer")
 
     yearlyints.fillna(0, inplace=True)
-    yearlyints = yearlyints[yearlyints['Year'] >= 2000]
-    print('=================================\nYearly Ints:', yearlyints)
+    yearlyints = yearlyints[yearlyints['Year'] >= 2000] # filter out problematic data
+    # print('=================================\nYearly Ints:', yearlyints)
 
     # 3d activity plot
     activity_plot(yearlyints, out_path)
+
+    # set up natural language processing via spaCy
+    try:
+        nlp = spacy.load('en_core_web_sm')
+    except OSError:
+        spacy.cli.download("en_core_web_sm")
+        nlp = spacy.load('en_core_web_sm')
+    nlp.add_pipe('spacytextblob')
+
+    return
+
+
 
 
 def run(path, out_path, logger):
