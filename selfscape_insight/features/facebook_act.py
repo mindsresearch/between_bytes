@@ -70,15 +70,16 @@ from core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-pos
 def get_colors(s: pd.Series):
     return s.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
 
-def get_username(main_path):
-    prof_info_path = main_path+'/personal_information/profile_information/profile_information.json'
+def get_username(main_path, logger):
+    prof_info_path = main_path / 'personal_information' / 'profile_information' / 'profile_information.json'
     with open(prof_info_path, 'r') as file:
         profile_dict = json.load(file)
+    logger.use_file(Path(main_path / 'personal_information' / 'profile_information' / 'profile_information.json'))
     return profile_dict["profile_v2"]["name"]["full_name"]
 
 def naive_converted(main_path, out_path, logger:SsiLogger):
     user_name = get_username(main_path)
-    posts_path = main_path+'/your_facebook_activity/posts/your_posts__check_ins__photos_and_videos_1.json'
+    posts_path = main_path /'your_facebook_activity' / 'posts' / 'your_posts__check_ins__photos_and_videos_1.json'
 
     logger.use_file(Path(posts_path))
     f = open(posts_path)
@@ -608,7 +609,7 @@ def naive_converted(main_path, out_path, logger:SsiLogger):
         plt.close()
     return
 
-def activity_plot(df, out_path):
+def activity_plot(df, out_path, logger):
     # set Year column to index
     df = df.set_index('Year')
 
@@ -650,7 +651,7 @@ def activity_plot(df, out_path):
 
     # plt.show()
     plt.title('Facebook Use by Year')
-    plt.savefig(out_path+'Facebook_Use_by_Year.png')
+    plt.savefig(out_path / 'Facebook_Use_by_Year.png')
     logger.wrote_file(Path(out_path) / 'Facebook_Use_by_Year.png')
     plt.close()
     return
@@ -723,7 +724,7 @@ def add_sentiment(df, col):
 
 def converted(path, out_path, logger):
     # get Username
-    username = get_username(path)
+    username = get_username(path, logger)
 
     # set up base activity path
     base_activity_path = os.path.join(path, "your_facebook_activity")
@@ -772,7 +773,7 @@ def converted(path, out_path, logger):
     # print('=================================\nYearly Ints:', yearlyints)
 
     # 3d activity plot
-    activity_plot(yearlyints, out_path)
+    activity_plot(yearlyints, out_path, logger)
 
     # set up natural language processing via spaCy
     try:
