@@ -1,7 +1,7 @@
-SelfScape Insight Documentation
-===============================
+Between Bytes Documentation
+===========================
 
-Welcome to the SelfScape Insight documentation. This documentation provides an overview of the project, installation instructions, usage guidelines, and API references.
+Welcome to the Between Bytes documentation. This documentation provides an overview of the project, installation instructions, usage guidelines, and API references.
 
 .. grid:: 1 2 2 2
    :gutter: 4
@@ -23,7 +23,7 @@ Welcome to the SelfScape Insight documentation. This documentation provides an o
             :color: secondary
             :expand:
 
-            To the end-user guides
+            To the user guides
 
    .. grid-item-card:: API Reference
         :img-top: _static/index_api.svg
@@ -74,7 +74,7 @@ Welcome to the SelfScape Insight documentation. This documentation provides an o
             :color: secondary
             :expand:
 
-            To the about stuff
+            To the project info
 
 .. toctree::
    :maxdepth: 1

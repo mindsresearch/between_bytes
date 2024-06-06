@@ -30,7 +30,7 @@ Dependencies:
     - maxminddb: IP to latitude/longitude conversion.
 
 Note:
-    This sub-module is part of the 'selfscape_insight' package in the 'features' module.
+    This sub-module is part of the 'between_bytes' package in the 'features' module.
 
 Version:
     1.2
@@ -59,7 +59,7 @@ import time
 import multiprocessing
 from tqdm import tqdm
 
-from selfscape_insight.core.log_aud import SsiLogger, RootLogger
+from between_bytes.core.log_aud import BtbLogger, RootLogger
 
 
 def process_ip(ip, df):
@@ -320,7 +320,7 @@ def save_timeline_graph(html_content, file_path):
         f.write(html_content)
 
 #account_activity_v2
-def run(in_path:Path, out_path:Path, logger:SsiLogger):
+def run(in_path:Path, out_path:Path, logger:BtbLogger):
 
     out_path = out_path / "ip_loc"
     out_path.mkdir(parents=True, exist_ok=True)

@@ -1,4 +1,4 @@
-''' SsiLogger - A simple logging wrapper.
+""" BtbLogger - A simple logging wrapper.
 
 This module provides a simple interface for logging in Python.
 It is a wrapper around Python's built-in logging module, providing a more
@@ -10,12 +10,12 @@ RootLogger is a singleton class that provides the main logging interface.
 ChildLogger is a class that provides a child logger of the RootLogger,
 allowing for more descriptive naming.
 
-One base class, SsiLogger, is provided for type hinting.
+One base class, BtbLogger, is provided for type hinting.
 It should not be used directly.
 
 When run as a script, this module runs the series of tests
 that were used to develop the module.
-'''
+"""
 import logging
 import sys
 from pathlib import Path
@@ -24,17 +24,18 @@ from time import sleep
 
 ABS_MSG = 'Don\'t call me directly. Use RootLogger or ChildLogger instead.'
 
-class SsiLogger:
-    ''' Base class for logging wrapper.
+
+class BtbLogger:
+    """ Base class for logging wrapper.
 
     Do not call this class directly - use RootLogger or ChildLogger instead.
 
     This class is a wrapper around Python's logging module,
     consolidating debug and audit logs into a single simple interface.
-    '''
+    """
 
-    def crit(self, message:str, throw:Exception=None) -> None:
-        ''' Log a critical message.
+    def crit(self, message: str, throw: Exception = None) -> None:
+        """ Log a critical message.
 
         This should be used for unrecoverable
         errors that will crash the program.
@@ -47,65 +48,65 @@ class SsiLogger:
 
         Raises:
             Exception: If `throw` is provided, raise it with the message.
-        '''
+        """
         raise NotImplementedError(ABS_MSG)
 
-    def err(self, message:str) -> None:
-        ''' Log an error message.
+    def err(self, message: str) -> None:
+        """ Log an error message.
 
         This should be used for recoverable errors that will not
         crash the program but may impede functionality.
 
         Args:
             message (str): The message to log.
-        '''
+        """
         raise NotImplementedError(ABS_MSG)
 
-    def warn(self, message:str) -> None:
-        ''' Log a warning message.
+    def warn(self, message: str) -> None:
+        """ Log a warning message.
 
         This should be used for non-critical issues that may
         become a bigger issue later. Program continues to run normally.
 
         Args:
             message (str): The message to log.
-        '''
+        """
         raise NotImplementedError(ABS_MSG)
 
-    def info(self, message:str) -> None:
-        ''' Log an informational message.
+    def info(self, message: str) -> None:
+        """ Log an informational message.
 
         This should be used for general runtime information
         and 'all is well' confirmations.
 
         Args:
             message (str): The message to log.
-        '''
+        """
         raise NotImplementedError(ABS_MSG)
 
-    def debug(self, message:str) -> None:
-        ''' Log a debug message.
+    def debug(self, message: str) -> None:
+        """ Log a debug message.
 
         This should be used for detailed information
         about program state and execution.
 
         Args:
             message (str): The message to log.
-        '''
+        """
         raise NotImplementedError(ABS_MSG)
 
-    def use_inet(self, url:str) -> None:
-        ''' Log internet access.
+    def use_inet(self, url: str) -> None:
+        """ Log internet access.
 
         This should be used for reporting URLs accessed by the program.
 
         Args:
             url (str): The URL accessed.
-        '''
+        """
         raise NotImplementedError(ABS_MSG)
 
-    def use_file(self, path:Path, message:str) -> None:
-        ''' Log file access.
+    def use_file(self, path: Path, message: str) -> None:
+        """ Log file access.
 
         This should be used for reporting any time a file
         is accessed by the program.
@@ -113,22 +114,22 @@ class SsiLogger:
         Args:
             path (Path): The path to the file accessed.
             message (str): The type of access (e.g. 'contents', 'metadata').
-        '''
+        """
         raise NotImplementedError(ABS_MSG)
 
-    def wrote_file(self, path:Path) -> None:
-        ''' Log file writing.
+    def wrote_file(self, path: Path) -> None:
+        """ Log file writing.
 
         This should be used for reporting any time a file
         is written to by the program.
 
         Args:
             path (Path): The path to the file written.
-        '''
+        """
         raise NotImplementedError(ABS_MSG)
 
-    def get_child(self, name:str) -> 'SsiLogger':
-        ''' Get a child logger with the given name.
+    def get_child(self, name: str) -> 'BtbLogger':
+        """ Get a child logger with the given name.
         
         Create a new logger with a specific name if it does not already exist.
 
@@ -136,16 +137,17 @@ class SsiLogger:
             name (str): The name of the child logger.
         
         Returns:
-            SsiLogger: The child logger.
+            BtbLogger: The child logger.
 
         NOTE:
             If a child logger with the given name already exists,
             this method should return the existing logger.
-        '''
+        """
         raise NotImplementedError(ABS_MSG)
 
-class RootLogger(SsiLogger):
-    ''' Singleton class for logging. Use this class to access
+
+class RootLogger(BtbLogger):
+    """ Singleton class for logging. Use this class to access
     the root logger and create child loggers.
 
     This class is a singleton, meaning that only one instance
@@ -178,9 +180,9 @@ class RootLogger(SsiLogger):
     WARNING:
         Do not modify any attributes directly.
         Use only the provided methods to interact with the logger.
-    '''
+    """
     def __new__(cls):
-        ''' Singleton enforcement and constructor.'''
+        """ Singleton enforcement and constructor."""
         if not hasattr(cls, 'instance'):
             cls.instance = super(RootLogger, cls).__new__(cls)
             cls.instance.logger  = logging.getLogger('root_debug')
@@ -189,25 +191,33 @@ class RootLogger(SsiLogger):
             cls.instance.log_fmt = 'T+ {relativeCreated:03.0f}ms - {name} - PID:{process} - {levelname} - {message}'  # pylint: disable=line-too-long
             cls.instance.aud_fmt = 'T+ {relativeCreated:03.0f}ms - {name} - PID:{process} - {message}'  # pylint: disable=line-too-long
         return cls.instance
-    def crit(self, message:str, throw:Exception=None) -> None:
+
+    def crit(self, message: str, throw: Exception = None) -> None:
         self.logger.critical(message)
         if throw:
             raise throw(message)
-    def err(self, message:str) -> None:
+
+    def err(self, message: str) -> None:
         self.logger.error(message)
-    def warn(self, message:str) -> None:
+
+    def warn(self, message: str) -> None:
         self.logger.warning(message)
-    def info(self, message:str) -> None:
+
+    def info(self, message: str) -> None:
         self.logger.info(message)
-    def debug(self, message:str) -> None:
+
+    def debug(self, message: str) -> None:
         self.logger.debug(message)
-    def use_inet(self, url:str) -> None:
+
+    def use_inet(self, url: str) -> None:
         self.auditor.warning('[INET] - Accessed URL: %s', url)
-    def use_file(self, path:Path, message:str='contents') -> None:
+
+    def use_file(self, path:Path, message: str = 'contents') -> None:
         self.auditor.info('[FILE I/O] - Accessed %s of file: %s',
                           message, path.name)
         self.auditor.debug('[FILE I/O] - Full path: %s', path.absolute())
-    def wrote_file(self, path:Path) -> None:
+
+    def wrote_file(self, path: Path) -> None:
         self.auditor.info('[FILE I/O] - Wrote file: %s', path.name)
         self.auditor.debug('[FILE I/O] - Full path: %s', path.absolute())
 
@@ -216,20 +226,20 @@ class RootLogger(SsiLogger):
             self.children[name] = ChildLogger(name)
         return self.children[name]
 
-    def setup(self, verb:int, output:Path=None):
-        ''' Set up the logger with the given verbosity level and output.
+    def setup(self, verb: int, output: Path = None):
+        """ Set up the logger with the given verbosity level and output.
 
         Args:
             verb (int): The verbosity level.
                 0 is PROD, 1 is DEV, 2 is DEBUG, 3 is SUPER.
             output (str): The output file path. If None,
                 output will be sent to stdout.
-        '''
+        """
         self.set_verb(verb)
         self.set_output(output)
 
-    def set_verb(self, verb:int):
-        ''' Set the verbosity level of the logger.
+    def set_verb(self, verb: int):
+        """ Set the verbosity level of the logger.
 
         Sets the verbosity of the ENTIRE logger system
         to one of the four pre-defined levels.
@@ -247,7 +257,7 @@ class RootLogger(SsiLogger):
 
         Raises:
             ValueError: If an invalid verbosity level is provided.
-        '''
+        """
         # print('Setting verbosity level to:', verb)
         match verb:
             case 0:
@@ -271,8 +281,8 @@ class RootLogger(SsiLogger):
             case _:
                 raise ValueError('Invalid logging level!')
 
-    def set_output(self, file:str=None, stream:str=None):
-        '''
+    def set_output(self, file: str = None, stream: str = None):
+        """
         Sets the output for logging.
 
         Args:
@@ -282,7 +292,7 @@ class RootLogger(SsiLogger):
         Raises:
             TypeError: If both `file` and `stream` are provided.
 
-        '''
+        """
         lf = logging.Formatter(self.log_fmt, style='{')
         af = logging.Formatter(self.aud_fmt, style='{')
         if file and stream:
@@ -301,8 +311,8 @@ class RootLogger(SsiLogger):
         self.auditor.addHandler(aud_hand)
 
 
-class ChildLogger(SsiLogger):
-    ''' Class for child loggers.
+class ChildLogger(BtbLogger):
+    """ Class for child loggers.
 
     WARNING:
         Do not call this class directly. Use RootLogger.get_child() instead.
@@ -324,7 +334,7 @@ class ChildLogger(SsiLogger):
         use_file(path:Path, message:str='contents'): Log file access.
         wrote_file(path:Path): Log file write.
         get_child(name:str): Get a child logger with the given name.
-    '''
+    """
 
     def __init__(self, name, parent=None):
         self.name = name
@@ -334,25 +344,32 @@ class ChildLogger(SsiLogger):
         self.auditor = parent.auditor.getChild(name)
         self.children = {}
 
-    def crit(self, message:str, throw:Exception=None):
+    def crit(self, message: str, throw: Exception = None):
         self.logger.critical(message)
         if throw:
             raise throw(message)
-    def err(self, message:str):
+
+    def err(self, message: str):
         self.logger.error(message)
-    def warn(self, message:str):
+
+    def warn(self, message: str):
         self.logger.warning(message)
-    def info(self, message:str):
+
+    def info(self, message: str):
         self.logger.info(message)
-    def debug(self, message:str):
+
+    def debug(self, message: str):
         self.logger.debug(message)
-    def use_inet(self, url:str):
+
+    def use_inet(self, url: str):
         self.auditor.warning('[INET] - Accessed URL %s', url)
-    def use_file(self, path:Path, message:str='contents'):
+
+    def use_file(self, path: Path, message: str = 'contents'):
         self.auditor.info('[FILE I/O] - Accessed %s of file %s',
                           message, path.name)
         self.auditor.debug('[FILE I/O] - Full path: %s', path.absolute())
-    def wrote_file(self, path:Path):
+
+    def wrote_file(self, path: Path):
         self.auditor.info('[FILE I/O] - Wrote file %s', path.name)
         self.auditor.debug('[FILE I/O] - Full path: %s', path.absolute())
 
@@ -361,8 +378,9 @@ class ChildLogger(SsiLogger):
             self.children[name] = ChildLogger(name, self)
         return self.children[name]
 
-def demo_function(log:SsiLogger):
-    ''' A simple function for testing the logger.'''
+
+def demo_function(log: BtbLogger):
+    """ A simple function for testing the logger."""
     log.debug('This is a debug message on demo')
     log.info('This is an info message on demo')
     log.warn('This is a warn message on demo')
@@ -371,6 +389,7 @@ def demo_function(log:SsiLogger):
     log.use_inet('demo.com')
     log.use_file(Path('path/to/demo.txt'))
     log.wrote_file(Path('path/to/demo.txt'))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SsiLogger tests')

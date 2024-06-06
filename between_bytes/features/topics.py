@@ -45,7 +45,7 @@ Dependencies:
 
 
 Note:
-    This sub-module is part of the 'selfscape_insight' package in the 'features' module.
+    This sub-module is part of the 'between_bytes' package in the 'features' module.
 
 Version:
     1.1
@@ -70,7 +70,7 @@ from tqdm import tqdm
 from multiprocessing import Pool
 # Add your other third-party/external imports here
 
-from selfscape_insight.core.log_aud import SsiLogger, RootLogger
+from between_bytes.core.log_aud import BtbLogger, RootLogger
 
 def special_character (df):
     temp_df = df.copy()
@@ -133,7 +133,7 @@ def download_image(params):
         logger.err(f"Failed to download image for {lead}: {e}")
 
 
-def run(in_path: Path, out_path: Path, logger: SsiLogger):
+def run(in_path: Path, out_path: Path, logger: BtbLogger):
     print("Running the collage feature module")
 
     topics = pd.read_json(in_path)

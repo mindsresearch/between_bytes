@@ -4,7 +4,7 @@
 User Guide
 ==========
 
-Welcome to SelfScape Insight! This guide will help you get started with the project.
+Welcome to Between Bytes! This guide will help you get started with the project.
 
 .. grid:: 1 2 2 2
    :gutter: 4

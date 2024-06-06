@@ -25,15 +25,15 @@ __version__ = '1.1'
 
 from pathlib import Path
 
-from selfscape_insight.features import sample as smp
-from selfscape_insight.features import ip_loc as ipl
-from selfscape_insight.features import off_fb_act as ofa
-from selfscape_insight.features import topics as tps
-from selfscape_insight.features import facebook_act as fba
-from selfscape_insight.features import filesize_sunburst as fsb
-from selfscape_insight.features import notifs as ntf
+from between_bytes.features import sample as smp
+from between_bytes.features import ip_loc as ipl
+from between_bytes.features import off_fb_act as ofa
+from between_bytes.features import topics as tps
+from between_bytes.features import facebook_act as fba
+from between_bytes.features import filesize_sunburst as fsb
+from between_bytes.features import notifs as ntf
 
-from selfscape_insight.core.log_aud import RootLogger
+from between_bytes.core.log_aud import RootLogger
 
 # CHANGELOG:
 #   1.1 (27 Nay 2024)

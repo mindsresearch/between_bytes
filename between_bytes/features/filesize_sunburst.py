@@ -39,7 +39,7 @@ Dependencies:
     seaborn for color palettes
 
 Note:
-    This sub-module is part of the 'selfscape_insight'
+    This sub-module is part of the 'between_bytes'
     package in the 'features' module.
 
 Author:
@@ -61,7 +61,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import seaborn as sns
 
-from selfscape_insight.core.log_aud import SsiLogger, RootLogger
+from between_bytes.core.log_aud import BtbLogger, RootLogger
 
 def enum_files(in_path:Path, json_only:bool=False) -> pd.DataFrame:
     if json_only:
@@ -130,7 +130,7 @@ def build_sunburst(df:pd.DataFrame) -> go.Sunburst:
 # mode: 0 = all files, 1 = json only, 2 = both
 
 
-def run(in_path:Path, out_path:Path, logger:SsiLogger, fsb_mode:int=0):
+def run(in_path:Path, out_path:Path, logger:BtbLogger, fsb_mode:int=0):
     match fsb_mode:
         case 0:
             logger.use_file(Path('ALL'), 'metadata')

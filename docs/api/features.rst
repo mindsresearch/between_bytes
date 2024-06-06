@@ -6,6 +6,6 @@ The `features` module includes functions for analyzing and extracting features f
 Sample Feature
 --------------
 
-.. automodule:: selfscape_insight.features.sample
+.. automodule:: between_bytes.features.sample
    :members:
    :undoc-members:

@@ -20,7 +20,7 @@ Dependencies:
     No external dependencies.
 
 Note:
-    This sub-module is part of the 'selfscape_insight' package in the 'feature' module.
+    This sub-module is part of the 'between_bytes' package in the 'feature' module.
 
 Version:
     1.0
@@ -41,7 +41,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import plotly.graph_objects as go
 
-from selfscape_insight.core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+from between_bytes.core.log_aud import BtbLogger, RootLogger # pylint disable=wrong-import-position
 
 
 def weeks_in_year(year:int) -> int:
@@ -63,7 +63,7 @@ def pretty_xlab(year) -> list:
             out.append('')
     return out
 
-def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
+def run(in_path:Path, out_path:Path, logger:BtbLogger) -> str:
     """Runs the feature.
 
     Tells how many ad-topics are on the user profile.

@@ -2,12 +2,50 @@
 <project version="4">
   <component name="AnalysisUIOptions">
     <option name="ANALYZE_INJECTED_CODE" value="false" />
+    <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9e176e63-3ba0-448d-bb4c-9c5bc3d5145a" name="Changes" comment="" />
+    <list default="true" id="9e176e63-3ba0-448d-bb4c-9c5bc3d5145a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.github/CODE_OF_CONDUCT.md" beforeDir="false" afterPath="$PROJECT_DIR$/.github/CODE_OF_CONDUCT.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/CONTRIBUTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/.github/CONTRIBUTING.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/selfscape-insight.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/between_bytes.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/_static/logo-dark.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/about/project.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/about/project.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/api/features.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/api/features.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/docs/conf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/devs/building.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/devs/building.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/devs/contrib.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/devs/contrib.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/devs/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/devs/index.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/getting_started/cli.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/getting_started/cli.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/getting_started/download.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/getting_started/download.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/getting_started/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/getting_started/index.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/getting_started/wizard.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/getting_started/wizard.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/index.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/core/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/core/log_aud.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/core/log_aud.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/core/various_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/core/various_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/exec_cli.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/exec_cli.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/exec_wiz.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/exec_wiz.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/GeoLite2-City.mmdb" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/GeoLite2-City.mmdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/NotoSans_Local.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/NotoSans_Local.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/facebook_act.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/facebook_act.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/filesize_sunburst.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/filesize_sunburst.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/ip_loc.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/ip_loc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/notifs.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/notifs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/off_fb_act.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/off_fb_act.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/sample.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/features/topics.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/features/topics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/selfscape_insight/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/between_bytes/run.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,7 +74,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "Shell Script.build.executor": "Run",
     "git-widget-placeholder": "noahs-stuff",
-    "last_opened_file_path": "/home/noah/Documents/selfscape-insight/selfscape_insight/exec_cli.py",
+    "last_opened_file_path": "/home/noah/Documents/between_bytes/docs/_build/html",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -46,9 +84,14 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
   <component name="RunManager" selected="Python docs.Sphinx Task in Sphinx Task in ">
     <configuration name="CLI help" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="selfscape-insight" />
+      <module name="between_bytes" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -71,7 +114,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Noah's Linux GUI" type="PythonConfigurationType" factoryName="Python">
-      <module name="selfscape-insight" />
+      <module name="between_bytes" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -79,13 +122,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.12 (selfscape-insight)" />
       <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/selfscape_insight/exec_wiz.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/between_bytes/exec_wiz.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -110,28 +152,28 @@
       <method v="2" />
     </configuration>
     <configuration name="Sphinx Task in Sphinx Task in " type="docs" factoryName="Sphinx task" nameIsGenerated="true">
-      <module name="selfscape-insight" />
+      <module name="between_bytes" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
-      <option name="SDK_NAME" value="Python 3.12 (selfscape-insight)" />
+      <option name="SDK_NAME" value="Python 3.12 (between_bytes)" />
       <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="docutils_input_file" value="$PROJECT_DIR$/docs" />
-      <option name="docutils_output_file" value="$PROJECT_DIR$/docs/html" />
+      <option name="docutils_output_file" value="$PROJECT_DIR$/docs/_build/html" />
       <option name="docutils_params" value="" />
       <option name="docutils_task" value="html" />
       <option name="docutils_open_in_browser" value="false" />
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.CLI help" />
       <item itemvalue="Python.Noah's Linux GUI" />
-      <item itemvalue="Shell Script.build" />
+      <item itemvalue="Python.CLI help" />
       <item itemvalue="Python docs.Sphinx Task in Sphinx Task in " />
+      <item itemvalue="Shell Script.build" />
     </list>
     <recent_temporary>
       <list>
@@ -142,8 +184,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-PY-241.15989.155" />
-        <option value="bundled-python-sdk-babbdf50b680-7c6932dee5e4-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.15989.155" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.17011.127" />
+        <option value="bundled-python-sdk-48aec45f0201-7e9c3bbb6e34-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.17011.127" />
       </set>
     </attachedChunks>
   </component>
@@ -159,16 +201,30 @@
       <workItem from="1716289170274" duration="2169000" />
       <workItem from="1716291579130" duration="2058000" />
       <workItem from="1716900427108" duration="16000" />
+      <workItem from="1717657007204" duration="385000" />
+      <workItem from="1717658109974" duration="5150000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/between_bytes/features/sample.py</url>
+          <line>30</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/selfscape_insight$Noah_Linux_CLI.coverage" NAME="Noah Linux CLI Coverage Results" MODIFIED="1716795743523" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/selfscape_insight$Noah_s_Linux_GUI.coverage" NAME="Noah's Linux GUI Coverage Results" MODIFIED="1716801762955" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/selfscape_insight$Noah_s_Linux_GUI.coverage" NAME="Noah's Linux GUI Coverage Results" MODIFIED="1717657122588" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/selfscape_insight$Noah_s_Linux_CLI.coverage" NAME="Noah's Linux CLI Coverage Results" MODIFIED="1716801911759" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/selfscape_insight$CLI_help.coverage" NAME="CLI help Coverage Results" MODIFIED="1716802145656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/selfscape_insight" />
+    <SUITE FILE_PATH="coverage/between_bytes$Noah_s_Linux_GUI.coverage" NAME="Noah's Linux GUI Coverage Results" MODIFIED="1717659448079" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>

@@ -1,10 +1,10 @@
 .. _prog_dl:
 
-==========================
-Download SelfScape Insight
-==========================
+======================
+Download Between Bytes
+======================
 
-This file contains instructons on how to download and install the SelfScape Insight application.
+This file contains instructions on how to download and install the Between Bytes application.
 
 Windows
 -------

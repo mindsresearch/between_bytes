@@ -20,7 +20,7 @@ from pathlib import Path
 from run import main
 
 
-class SelfScapeInsightLauncher(Tk):
+class BetweenBytesLauncher(Tk):
     """ Main window for the SelfScape Insight launcher.
 
     Note:
@@ -29,7 +29,7 @@ class SelfScapeInsightLauncher(Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("SelfScape Insight Launcher")
+        self.title("Between Bytes Launcher")
         notebook = ttk.Notebook(self)
         notebook.pack(fill=BOTH, expand=True)
 
@@ -131,7 +131,7 @@ class BasicConfig(ttk.Frame):
             if resp is None:
                 folder_selected = temp
             elif resp:
-                folder_selected += os.sep + "ssi_output"
+                folder_selected += os.sep + "btb_output"
 
         self.out_directory_entry.delete(0, END)
         self.out_directory_entry.insert(0, folder_selected)
@@ -266,7 +266,7 @@ class AdvConfig(ttk.Frame):
 
 
 def exec():
-    launcher = SelfScapeInsightLauncher()
+    launcher = BetweenBytesLauncher()
     launcher.mainloop()
 
 

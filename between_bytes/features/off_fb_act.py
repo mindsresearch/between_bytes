@@ -20,7 +20,7 @@ Dependencies:
     plotly for datavis
 
 Note:
-    This sub-module is part of the 'selfscape_insight' package in the 'features' module.
+    This sub-module is part of the 'between_bytes' package in the 'features' module.
 
 Version:
     1.0
@@ -44,9 +44,9 @@ from plotly.subplots import make_subplots
 # Add your other third-party/external imports here
 # Please update requirements.txt as needed!
 
-from selfscape_insight.core.log_aud import SsiLogger, RootLogger
+from between_bytes.core.log_aud import BtbLogger, RootLogger
 
-def run(in_path:Path, out_path:Path, logger:SsiLogger) -> str:
+def run(in_path:Path, out_path:Path, logger:BtbLogger) -> str:
     # Create new output directory
     out_path /= 'off_fb_activity'
     out_path.mkdir(exist_ok=True)

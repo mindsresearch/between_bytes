@@ -1,4 +1,4 @@
-# Code of Conduct for SelfScape Insight
+# Code of Conduct for Between Bytes
 
 ## Introduction
 This Code of Conduct outlines our expectations for participants within the SelfScape Insight community, as well as steps to reporting unacceptable behavior. We are committed to providing a welcoming and inspiring community for all and expect our Code of Conduct to be honored. Adherence to this code fosters a collaborative and respectful environment.

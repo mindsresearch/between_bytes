@@ -1,7 +1,7 @@
-# Contributing to SelfScape Insight
+# Contributing to Between Bytes
 
 ## Introduction
-Welcome to the SelfScape Insight project! This document provides guidelines for contributing to the Facebook Senior Project repository. Our code standards are aligned with [PEP 8](https://peps.python.org/pep-0008/) for Python and follow the [MVC](https://en.wikipedia.org/wiki/Model-view-controller) and [ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load) design patterns to ensure maintainability and scalability.
+Welcome to the Between Bytes project! This document provides guidelines for contributing to the Facebook Senior Project repository. Our code standards are aligned with [PEP 8](https://peps.python.org/pep-0008/) for Python and follow the [MVC](https://en.wikipedia.org/wiki/Model-view-controller) and [ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load) design patterns to ensure maintainability and scalability.
 
 ## Definitions
 The terms "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" are defined as per [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt) to clarify requirement levels.
@@ -54,4 +54,4 @@ When adding a new feature, ensure it integrates smoothly with the existing appli
 ## Recognition
 Contributors who make significant improvements or additions will be recognized in our project documentation.
 
-We look forward to your contributions and are excited to see how you can help improve SelfScape Insight!
+We look forward to your contributions and are excited to see how you can help improve Between Bytes!

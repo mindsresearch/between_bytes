@@ -24,7 +24,7 @@ Dependencies:
 
 
 Note:
-    This sub-module is part of the 'selfscape_insight' package in the 'features' module.
+    This sub-module is part of the 'between_bytes' package in the 'features' module.
 
 Version:
     0.1
@@ -63,7 +63,7 @@ import seaborn as sns
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.log_aud import SsiLogger, RootLogger
+from core.log_aud import BtbLogger, RootLogger
 
 def get_colors(s: pd.Series):
     return s.apply(lambda x: (max(0, min(1, 1-x)), max(0, min(1, 1+x)), 0))
@@ -74,7 +74,7 @@ def get_username(main_path):
         profile_dict = json.load(file)
     return profile_dict["profile_v2"]["name"]["full_name"]
 
-def naive_converted(main_path, out_path, logger:SsiLogger):
+def naive_converted(main_path, out_path, logger:BtbLogger):
     user_name = get_username(main_path)
     posts_path = main_path+'/your_facebook_activity/posts/your_posts__check_ins__photos_and_videos_1.json'
 

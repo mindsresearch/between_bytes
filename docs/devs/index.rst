@@ -4,7 +4,7 @@
 Contributor Guide
 =================
 
-This section provides reference documentation for developers who want to contribute to SelfScape Insight.
+This section provides reference documentation for developers who want to contribute to Between Bytes.
 
 .. toctree::
    :maxdepth: 2

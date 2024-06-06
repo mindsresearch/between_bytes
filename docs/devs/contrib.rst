@@ -1,7 +1,7 @@
-Contributing to SelfScape Insight
-=================================
+Contributing to Between Bytes
+=============================
 
-We welcome contributions to SelfScape Insight.  If you would like to contribute, please follow these steps:
+We welcome contributions to Between Bytes.  If you would like to contribute, please follow these steps:
 
 1. Fork the repository on GitHub.
 2. Create a new branch off of the `main` branch.

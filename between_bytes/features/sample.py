@@ -8,7 +8,7 @@ Functions:
     run(bcts): Runs the feature.
 
 Examples:
-    >>> from selfscape_insight.features import sample as smp
+    >>> from between_bytes.features import sample as smp
     >>> smp.run(Path('path/to/data'), Path('path/to/outs'), logger)
     There are X advertising-related topics in the profile!
     Go do more interesting things...
@@ -34,10 +34,10 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-from selfscape_insight.core.log_aud import SsiLogger, RootLogger # pylint disable=wrong-import-position
+from between_bytes.core.log_aud import BtbLogger, RootLogger # pylint disable=wrong-import-position
 
 
-def run(in_path: Path, out_path: Path, logger: SsiLogger) -> str:
+def run(in_path: Path, out_path: Path, logger: BtbLogger) -> str:
     """
     Args:
         in_path: The path to the input file.

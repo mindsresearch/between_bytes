@@ -3,14 +3,13 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "selfscape_insight"
-version = "1.0rc1"
+name = "between_bytes"
+version = "1.0"
 description = "Assorted visualizations and other representations of the data that Facebook collects"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
     { name = "Noah Duggan Erickson", email = "duggann@wwu.edu" },
-    { name = "Liam Gore",            email = "gorel@wwu.edu" },
     { name = "Peter Hafner",         email = "hafnerp2@wwu.edu" },
     { name = "Carter Jacobs",        email = "jacobs81@wwu.edu" },
     { name = "Trevor Le",            email = "let38@wwu.edu" }
@@ -60,8 +59,8 @@ doc = [
 
 [project.urls]
 WWU-CS = "https://cs.wwu.edu"
-Source = "https://github.com/mindsresearch/selfscape_insight"
+Source = "https://github.com/mindsresearch/between_bytes"
 
 [project.scripts]
-scape-cli = "selfscape_insight.exec_cli:exec"
-scape-gui = "selfscape_insight.exec_wiz:exec"
+btb-cli = "between_bytes.exec_cli:exec"
+btb-gui = "between_bytes.exec_wiz:exec"
