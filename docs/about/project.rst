@@ -1,4 +1,4 @@
-About SelfScape Insight
-=======================
+About Between Bytes
+===================
 
-A verbose description of the SelfScape Insight project.
+A verbose description of the Between Bytes project.

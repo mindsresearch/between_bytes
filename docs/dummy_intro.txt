@@ -1,0 +1,3 @@
+Hi there! My name is <NAME>! This section contains a bit of basic information about me, such as my age, occupation, and Facebook use-case(s).
+
+I am also using this section to share some of the overarching insights I have gained from running the program on my data, alongside other general comments and observations about my data and the program's outputs.

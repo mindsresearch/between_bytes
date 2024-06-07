@@ -1,65 +1,76 @@
-# SelfScape Insight
+# Between Bytes
 
-This repository contains the (soon to be) public/PROD version of the SelfScape Insight program.
+> [!WARNING]
+> This repo is currently undergoing a major renaming from "SelfScape Insight" to "Between Bytes". Please forgive any such discrepancies in the docs!
 
-This is the Python project from the WWU Data Sci Senior Project Facebook group.
+## Overview
+**Between Bytes** is a Python project developed as part of the WWU Data Science Senior Project. It's designed to provide insights from Facebook data, making it easier for users to visualize and understand their social media interactions.
 
-## Downloading the program
+## Features
+- **CLI Interface:** Easy-to-use command-line interface.
+- **GUI Interface:** Even easier to use graphical wizard-style launcher.
+- **Data Visualization:** Generate comprehensive visualizations of Facebook data.
+- *COMING SOON* **Customizable Outputs:** Tailor the outputs based on user-specific needs.
 
-Download the latest version as a `whl` via the Releases section on the right sidebar!
+## Installation
 
-*.exe download coming "soon" once I figure it out...*
+### From Binary
+> *COMING SOON*
+>
+> An `.exe` version of the program is coming soon to make running it even easier!
 
-## Compiling from source (this directory)
+Download the latest version as a `whl` file from the Releases section on the right sidebar of this repository.
 
-To compile the `selfscape_insight` from source, the project uses **flit** for wheel compilation and **sphinx** for reference documentation.
+```bash
+pip install path/to/between_bytes-<version>-py3-none-any.whl
+```
 
-To start, please open *this directory* (`./selfscape_insight`) in your terminal of choice. The following instructions assume that you are using a UNIX-based system. Adapt the instructions as needed to fit your system.
+### Compiling from Source
+This project uses **flit** for packaging and distribution and **sphinx** for generating documentation.
 
-### Compiling the Wheel
+#### Set Up
+Ensure you are in the project's root directory (`./between_bytes`).
 
-First, if you have not done so already, install flit.
-
+#### Building & Installing the Wheel
+Install `flit` if it is not already installed:
 ```bash
 pip install flit
 ```
-
-Then, build the project.
-
+Build and install the project:
 ```bash
-flit build
+flit install
 ```
 
-If everything worked, this command will generate two files: a `.whl` and a `.tar.gz`. You are now ready to install `selfscape_insight` to your system (using a venv is recommended).
-
+## Usage
+Run the CLI version of **Between Bytes**:
 ```bash
-pip install dist/$(whl_name).whl
+btb-cli -h
+```
+for command-line help
+
+For the GUI version, run:
+```bash
+btb-gui
 ```
 
-You can now run the CLI version of `selfscape_insight`!
+## Documentation
+### Building Reference Docs
+> [!CAUTION]
+> These instructions are untested and may require adjustments.
 
+Follow the setup and build instructions above, then run:
 ```bash
-scape-cli $(ArgsFor_main_cli.py)
-```
-
-### Compiling the Reference Docs
-
-> [!NOTE]
-> The instructions in this section are untested.
-
-Follow the above steps up to (and including) `flit build`.
-
-To install `selfscape_insight` with the necessary dependencies for building the docs, run the following command:
-
-```bash
-pip install dist/$(whl_name).whl[doc]
-```
-
-Once that has completed, navigate to the `docs/` directory, and build the docs.
-
-```bash
+pip install dist/<wheel_name>.whl[doc]
 cd docs
-make html
+make clean html
 ```
+The generated documentation will be available in `docs/_build/html`.
 
-Your local copy of the docs are now located at `docs/_build/html`!
+## Contributing
+Contributions are welcome! Please see our [contributing guidelines](.github/CONTRIBUTING.md) for more information on how to report bugs, submit patches, and propose new features.
+
+## License
+Between Bytes is licensed under [GNU AGPL-3.0]. See the [LICENSE](LICENSE) file for more details.
+
+## Contact
+For more support or to provide feedback, please refer to the [SECURITY](.github/SECURITY.md) guidelines and the [CODE OF CONDUCT](.github/CODE_OF_CONDUCT.md).

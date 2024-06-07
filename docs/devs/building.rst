@@ -1,7 +1,7 @@
 Build From Source
 =================
 
-This section provides information for developers who wish to interact with and/or contribute to the SelfScape Insight codebase.
+This section provides information for developers who wish to interact with and/or contribute to the Between Bytes codebase.
 
 .. note::
 
@@ -9,7 +9,7 @@ This section provides information for developers who wish to interact with and/o
 
 Prerequisites
 -------------
-Before you can install SelfScape Insight, you need to have the following software installed:
+Before you can install Between Bytes, you need to have the following software installed:
 
 1. Python 3.10 or later
 2. pip
@@ -17,12 +17,16 @@ Before you can install SelfScape Insight, you need to have the following softwar
 Installation From Source
 ------------------------
 
+.. hint::
+
+    NEW: If you are using Linux, the script in ``build.sh`` can automatically build and install the package for you in a ``venv`` environment. The script can also optionally build the docs (which you are reading right now).
+
 1. Clone the repository from GitHub, and navigate to the project directory:
 
 .. code-block:: bash
 
-    git clone repository_url
-    cd selfscape_insight
+    git clone repository_url_or_ssh
+    cd between_bytes
 
 2. Use pip to install ``flit``: 
 
@@ -30,35 +34,10 @@ Installation From Source
 
     pip install flit
 
-3. Build the package wheel:
+3. Build and install the package wheel:
 
 .. code-block:: bash
 
-    flit build
+    flit install
 
-4. Install the package:
-
-.. code-block:: bash
-
-    pip install dist/selfscape_insight-0.3.0-py3-none-any.whl
-
-4. Refer to the *CLI* section for information on how to use the command line interface provided by ``scape-cli``.
-
-Generating Documentation Locally (Optional)
--------------------------------------------
-1. Build the package as described is steps 1-3 above.
-
-2. Install the package with the docs extras:
-
-.. code-block:: bash
-
-    pip install dist/selfscape_insight-0.3.0-py3-none-any.whl[doc]
-
-3. Navigate to the ``docs`` directory and generate the documentation:
-
-.. code-block:: bash
-
-    cd docs
-    make html
-
-4. Open the generated documentation in a web browser via your file explorer. The documentation is located at ``docs/_build/html/index.html``.
+4. Refer to the *CLI* section for information on how to use the command line interface provided by ``btb-cli``.

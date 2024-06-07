@@ -1,23 +1,11 @@
 Features Module
 ===============
 
+The `features` module includes functions for analyzing and extracting features from Facebook data.
+
 Sample Feature
 --------------
 
-.. automodule:: selfscape_insight.features.sample
-    :members:
-    :undoc-members:
-
-Topics Feature
---------------
-
-.. automodule:: selfscape_insight.features.topics
-    :members:
-    :undoc-members:
-
-Feelings Feature
-----------------
-
-.. automodule:: selfscape_insight.features.feelings
-    :members:
-    :undoc-members:
+.. automodule:: between_bytes.features.sample
+   :members:
+   :undoc-members:
