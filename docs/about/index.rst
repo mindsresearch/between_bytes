@@ -39,6 +39,16 @@ General information about the project
 
       Our insights on the project
 
+   .. grid-item-card:: Papers
+      :link: publications.html
+      :text-align: center
+      :class-header: header-symbol
+
+      article
+      ^^^^^^^
+
+      Project publications and presentations
+
 .. toctree::
    :maxdepth: 2
    :hidden:
@@ -46,3 +56,4 @@ General information about the project
    authors
    project
    our_insights/our_insights
+   publications
